@@ -235,11 +235,11 @@
                 } else {
                     img.height(h);
                 }
-                
+                /*
                 var i_w =  img.width(),
                     i_h =  img.height();
                     
-                img_wrap.height(i_h).width(i_w);
+                img_wrap.height(i_h).width(i_w);*/
             },
             
             set_popup_size_pos: function(){
@@ -260,6 +260,10 @@
                     ph =    pop.outerHeight(),
                     pleft = (vw/2)-(pw/2),
                     ptop = (vh/2)-(ph/2);
+                    
+                img.css({
+                    'left':   (img_wrap.outerWidth()/2)-(img.width()/2)
+                });
                     
   
                 pop.css({
@@ -321,20 +325,69 @@
                 
                 p.loading.show();
                 p.preload_image(list[index].href,function(new_image){
-                    var old_img = $('.'+sc.image_wrap+' img');
+                    var old_img = $('.'+sc.image_wrap+' img'),
+                        ow = old_img.width(),
+                        oh = old_img.height();
+                    
                     new_image.css({
-                        'position': "absolute",
+                        'position':'absolute',
                         'visibility':'hidden'
                     }).hide();
                     pop.find('.'+sc.image_wrap).prepend(new_image);
                     $('.'+sc.title).html(list[index].rel);
                     p.set_popup_size_pos();
-                    new_image.css({'visibility':'visible'}).fadeIn(function(){
-                        old_img.remove();
-                        new_image.css({'position': "static"});
+         
+                   
+                    var nw =    new_image.width(),
+                        nh =    new_image.height(),
+                        oleft = (nw/2)-(ow/2),
+                        otop = (nh/2)-(oh/2);
+                        
+                   // new_image.css({'visibility':'visible','position': "static"});
+                   
+
+                    pop.animate({
+                        'left': (pop.offset().left-oleft)+'px',
+                        'top': (pop.offset().top-otop)+'px'
+                    },
+                    500);
+                    
+                    $(old_img).animate({
+                        'width': nw+'px',
+                        'height': nh+'px'
+                    },
+                    500,
+                    function(){
+                        new_image.css({'position': "absolute",'visibility':'visible', 'top':0, 'left':0}).fadeIn(500,function(){
+                            new_image.css({'position': "static"}); 
+                            old_img.remove(); 
+                            p.set_next_prev_buttons(index,list);
+                            p.loading.hide();
+                        });    
+                    });
+                    
+                    
+                    
+                        
+                        
+                        
+                        
+                   /* 
+                    new_image.css({'visibility':'visible'}).fadeIn(500,function(){
+                        
+                            
+                          new_image.css({'position': "static"});   
+                             
+                        old_img.css({'position': "absolute", 'top':0, 'left': oleft+'px', 'z-index':-1});
+                        p.set_popup_size_pos();
+                        old_img.css({'left': oleft+'px'});
+                        
+                  
+                            old_img.remove();
+                    
                         p.set_next_prev_buttons(index,list);
                         p.loading.hide();
-                    });
+                    });*/
                     
                 });
             }
