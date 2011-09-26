@@ -5,25 +5,25 @@
         defaults: {
             jquery_atleast_version: '1.5',
             jquery_url: 'ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js',
-            jquery_ui_url: 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js',
             
             gallery_elements: '.edys-gallery',
             gallery_template: false,
             
             popup_template: '<div class="{popup_class}">\
                                 <div class="{close_class}"></div>\
-                                <div class="{left_wrap_class}"><div class="{left_class}"></div></div>\
-                                <div class="{right_wrap_class}"><div class="{right_class}"></div></div>\
                                 <div class="{buttons_class}"></div>\
                                 <div class="{content_wrap_class}">\
-                                    <div class="{image_wrap_class}"></div>\
-                                    <div class="{title_class}"></div>\
+                                   <div class="{left_wrap_class}"><div class="{left_class}"></div></div>\
+                                   <div class="{right_wrap_class}"><div class="{right_class}"></div></div>\
+                                   <div class="{image_wrap_class}"></div>\
+                                   <div class="{title_class}"></div>\
                                 </div>\
                             </div>',
             stylesheet: '',
             
             classnames: {
                 overlay:        'edys-gallery-overlay',
+                loading:        'edys-gallery-loading',
                 popup:          'edys-gallery-popup',
                 left_btn:       'edys-gallery-left',
                 right_btn:      'edys-gallery-right',
@@ -38,6 +38,7 @@
             
             system_classnames: {
                 overlay:        'edys-gal-gallery-overlay',
+                loading:        'edys-gal-gallery-loading',
                 popup:          'edys-gal-gallery-popup',
                 left_btn:       'edys-gal-gallery-left',
                 right_btn:      'edys-gal-gallery-right',
@@ -62,7 +63,10 @@
         init: function(){
             G.get_jquery(G.defaults.jquery_url, G.defaults.jquery_atleast_version, function(){
                 $(document).ready(function(){
-                        G.run();
+                    if(isset(window.edys_gallery_options) !='undefined'){
+                        $.extend(G.defaults, window.edys_gallery_options);
+                    }
+                    G.run();
                 });
             });
         },
@@ -116,32 +120,21 @@
                     sc = G.defaults.system_classnames;
 
                 if(p.overlay === null){ p.overlay = p.make_overlay(); }
-                
                 if(p.pop === null){ p.pop = p.make_popup(); }
                 
                 p.set_overlay_size();
                 p.overlay.show();
-
-                
-                
+                p.loading.show();
                 p.preload_image(list[index].href,function(img){
                     p.pop.find('.'+sc.image_wrap).html(img);
                     p.pop.css('visibility','hidden').show();
+                    $('.'+sc.title).html(list[index].rel);
                     p.set_popup_size_pos();
                     p.set_overlay_size();
                     p.set_next_prev_buttons(index,list);
                     p.pop.css('visibility','visible');
+                    p.loading.hide();
                 });
-                
-                
-                /*p.preload_images(index,list,function(imgs){
-                    p.pop.find('.'+sc.image_wrap).html(imgs.current);
-                    p.pop.css('visibility','hidden').show();
-                    p.set_popup_size_pos();
-                    p.set_overlay_size();
-                    p.set_next_prev_buttons(imgs);
-                    p.pop.css('visibility','visible');
-                });*/
             },
             
             hide: function(){
@@ -196,32 +189,78 @@
                 return pop;
             },
             
-            set_img_size: function(img){
-                var pop =   G.popup.pop, 
+            loading:{
+                show: function(){
+                    var sc =    G.defaults.system_classnames,
+                        dc =    G.defaults.classnames,
+                        vw =    $(window).width(),
+                        vh =    $(window).height();
+                        
+                    $('.'+sc.loading).remove();
+                    var loading = $('<div />',{
+                        'class': sc.loading+' '+dc.loading,
+                    }).css('visibility','hidden');
+                    $('body').prepend(loading);
+                    var h = loading.outerHeight(),
+                        w = loading.outerWidth();
+                    loading.css({
+                        'top': ((vh/2)-(h/2))+'px',
+                        'left': ((vw/2)-(w/2))+'px',
+                        'visibility':'visible'
+                    });    
+                },
+                
+                hide: function(){
+                    var sc =    G.defaults.system_classnames;
+                    $('.'+sc.loading).remove();
+                }
+                
+            },
+            
+            set_img_size: function(img_wrap){
+                var img =   img_wrap.find('img'),
+                    pop =   G.popup.pop, 
                     def =   G.defaults,
                     w =     img.width(),
                     h =     img.height();
+                    
+                    
                 img.height(1);
                 var vw =    $(window).width(),
                     vh =    $(window).height();
+                   
                     
-                if (h > def.image_to_wiewport_max_ratio*vh){ img.height(def.image_to_wiewport_max_ratio*vh); } 
+                if (h > def.image_to_wiewport_max_ratio*vh){ 
+                    img.height(def.image_to_wiewport_max_ratio*vh);
+                } else {
+                    img.height(h);
+                }
+                
+                var i_w =  img.width(),
+                    i_h =  img.height();
+                    
+                img_wrap.height(i_h).width(i_w);
             },
             
             set_popup_size_pos: function(){
                 var pop =   G.popup.pop, 
                     def =   G.defaults,
-                    img =   pop.find('.'+def.system_classnames.image_wrap+' img');
+                    img =   pop.find('.'+def.system_classnames.image_wrap+' img'),
+                    img_wrap = pop.find('.'+def.system_classnames.image_wrap);
+                    
+                G.popup.set_img_size(img_wrap);
+               
                 
-                G.popup.set_img_size(img);
                 
                 var vw =    $(window).width(),
                     vh =    $(window).height();
+                    
 
                 var pw =    pop.outerWidth(),
                     ph =    pop.outerHeight(),
                     pleft = (vw/2)-(pw/2),
                     ptop = (vh/2)-(ph/2);
+                    
   
                 pop.css({
                     'left': pleft+'px',
@@ -279,7 +318,8 @@
                 var p = G.popup,
                     pop = p.pop,
                     sc = G.defaults.system_classnames;
-                    
+                
+                p.loading.show();
                 p.preload_image(list[index].href,function(new_image){
                     var old_img = $('.'+sc.image_wrap+' img');
                     new_image.css({
@@ -287,11 +327,13 @@
                         'visibility':'hidden'
                     }).hide();
                     pop.find('.'+sc.image_wrap).prepend(new_image);
+                    $('.'+sc.title).html(list[index].rel);
                     p.set_popup_size_pos();
                     new_image.css({'visibility':'visible'}).fadeIn(function(){
                         old_img.remove();
                         new_image.css({'position': "static"});
                         p.set_next_prev_buttons(index,list);
+                        p.loading.hide();
                     });
                     
                 });
