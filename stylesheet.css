@@ -3,21 +3,13 @@
   background: #000000;
   opacity: 0.5;
   z-index: 1000;
-
 }
 
 .edys-gallery-popup {
   position: absolute;
   z-index: 1001;
   box-shadow: 0 0 10px #000000;
-
-
 }
-.edys-gal-gallery-content-wrap{
-  -moz-transition-duration: 0.5s;
-  -webkit-transition-duration: 0.5s;
-  -o-transition-duration: 0.5s;
-}  
   
 .edys-gal-gallery-close {
   right: 0;
