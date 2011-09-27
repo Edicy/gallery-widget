@@ -118,16 +118,12 @@
             show: function(index,list){
                 var p =  G.popup,
                     sc = G.defaults.system_classnames;
-
                 if(p.overlay === null){ p.overlay = p.make_overlay(); }
                 if(p.pop === null){ p.pop = p.make_popup(); }
-
                 p.set_overlay_size();
                 $(window).resize(function() {
                    p.set_overlay_size();
                 });
-
-                
                 p.overlay.show();
                 p.loading.show();
                 p.preload_image(list[index].href,function(img){
@@ -146,6 +142,7 @@
                 var sc = G.defaults.system_classnames;
                 $('.'+sc.popup+', .'+sc.overlay).hide();
                 $(window).unbind('resize');
+                G.popup.loading.hide();
             },
 
             make_overlay: function(){
@@ -163,12 +160,9 @@
 
             set_overlay_size: function(){
                 var   o = G.popup.overlay;
-                
                 o.width(1).height(1);
-                
                 var w = $(document).width(),
                     h = $(document).height();
-
                 o.width(w).height(h);
             },
 
@@ -208,7 +202,7 @@
 
                     $('.'+sc.loading).remove();
                     var loading = $('<div />',{
-                        'class': sc.loading+' '+dc.loading,
+                        'class': sc.loading+' '+dc.loading
                     }).css('visibility','hidden');
                     $('body').prepend(loading);
                     var h = loading.outerHeight(),
@@ -224,7 +218,6 @@
                     var sc =    G.defaults.system_classnames;
                     $('.'+sc.loading).remove();
                 }
-
             },
 
             set_img_size: function(){
@@ -237,10 +230,11 @@
 
                 img.height(1);
                 var vw =    $(window).width(),
-                    vh =    $(window).height();
-
+                    vh =    $(window).height(),
+                    nph = def.image_to_wiewport_max_ratio*vh,
+                    npw = w/(h/nph);
                 if (h > def.image_to_wiewport_max_ratio*vh){
-                    img.height(def.image_to_wiewport_max_ratio*vh);
+                    img.add('.'+def.system_classnames.content_wrap).height(nph).width(npw);
                 } else {
                     img.height(h);
                 }
@@ -283,7 +277,7 @@
 
                 var pw =    pop.outerWidth(),
                     ph =    pop.outerHeight(),
-                    pleft = (vw/2)-(pw/2),
+                    pleft = (vw/2)-(pw/2)+$(document).scrollLeft(),
                     ptop = (vh/2)-(ph/2)+$(document).scrollTop();
 
                 img.css({
@@ -297,9 +291,9 @@
             },
 
             preload_image: function(img,f){
-                var i = $('<img />').attr('src',img).load(function(){
+                var i = $('<img />').load(function(){
                     f($(this));
-                });
+                }).attr('src',img);
             },
 
             set_next_prev_buttons: function(index,list){
@@ -352,34 +346,23 @@
                         ow = old_img.width(),
                         oh = old_img.height();
 
-                    new_image.css({
-                        'position':'absolute',
-                        'visibility':'hidden'
-                    }).show();
-
+                    new_image.css({'position':'absolute', 'visibility':'hidden'}).show();
                     pop.find('.'+sc.image_wrap).prepend(new_image);
                     $('.'+sc.title).html(list[index].rel);
 
                     var ni = p.get_img_size(new_image);
-
                     var nw =    ni.w,
                         nh =    ni.h,
-                        oleft = (nw/2)-(ow/2),
-                        otop = (nh/2)-(oh/2);
+                        vw =    $(window).width(),
+                        vh =    $(window).height();
+                        oleft = (vw/2)-(pop.outerWidth()/2)-((nw-ow)/2),
+                        otop = (vh/2)-(pop.outerHeight()/2)-(nh-oh)/2;
                         
-                    pop.animate({
-                        'left': (pop.offset().left-oleft)+'px',
-                        'top': (pop.offset().top-otop)+'px'
-                    },
-                    300);
-
-                    $(old_img).add(new_image).animate({
+                    pop.animate({'left': oleft+'px','top': otop+'px'},300);
+                    $(old_img).add(new_image).add('.'+sc.content_wrap).animate({
                         'width': nw+'px',
                         'height': nh+'px'
-                    },
-                    300,
-                    function(){
-
+                    }, 300, function(){
                         new_image.css({'position': "absolute",'visibility':'visible', 'top':0, 'left':0}).fadeIn(500,function(){
                             new_image.css({'position': "static"});
                             old_img.remove();
