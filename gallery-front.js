@@ -4,8 +4,8 @@
     var G = {
         defaults: {
             jquery_atleast_version: '1.5',
-            jquery_url: 'ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js',
-
+            jquery_url: 'ajax.googleapis.com/ajax/libs/jquery/1.6.3/jquery.min.js',
+            jquery_mobile_url: 'http://code.jquery.com/mobile/1.0b3/jquery.mobile-1.0b3.min.js',
             gallery_elements: '.edys-gallery',
             gallery_template: false,
 
@@ -62,7 +62,9 @@
 
         init: function(){
             G.get_jquery(G.defaults.jquery_url, G.defaults.jquery_atleast_version, function(){
+                  //$('body').live('pagecreate',function(event){
                 $(document).ready(function(){
+                    init_swipe();
                     if(isset(window.edys_gallery_options) !='undefined'){
                         $.extend(G.defaults, window.edys_gallery_options);
                     }
@@ -118,8 +120,14 @@
             show: function(index,list){
                 var p =  G.popup,
                     sc = G.defaults.system_classnames;
+                    
+                p.current_list = list;
+                p.current_index = index;    
                 if(p.overlay === null){ p.overlay = p.make_overlay(); }
-                if(p.pop === null){ p.pop = p.make_popup(); }
+                if(p.pop === null){ 
+                    p.pop = p.make_popup(); 
+                    p.set_next_prev_buttons();
+                }
                 p.set_overlay_size();
                 $(window).resize(function() {
                    p.set_overlay_size();
@@ -132,7 +140,6 @@
                     $('.'+sc.title).html(list[index].rel);
                     p.set_popup_size_pos();
                     p.set_overlay_size();
-                    p.set_next_prev_buttons(index,list);
                     p.pop.css('visibility','visible');
                     p.loading.hide();
                 });
@@ -296,50 +303,89 @@
                 }).attr('src',img);
             },
 
-            set_next_prev_buttons: function(index,list){
+            set_next_prev_buttons: function(){
                 var p = G.popup,
+                    list = p.current_list,
+                    index = p.current_index
+                    pop = p.pop,
+                    sc = G.defaults.system_classnames,
+                    r_btn = pop.find('.'+sc.right_btn_wrap),
+                    l_btn = pop.find('.'+sc.left_btn_wrap),
+                    img_wrap = pop.find('.'+sc.image_wrap);
+                    
+                p.show_hide_next_prev();
+
+                r_btn.unbind('click').click(function(e){
+                    if((p.current_index+1 < p.current_list.length)){
+                        p.current_index++;
+                        p.change_to_image(p.current_index,list);
+                        p.show_hide_next_prev();
+                    }
+                });
+
+                l_btn.unbind('click').click(function(e){
+                    if(p.current_index-1 >= 0){
+                        p.current_index--;
+                        p.change_to_image(p.current_index,list);
+                        p.show_hide_next_prev();
+                    }
+                });
+                
+                $(img_wrap).swipe({
+                    swipeLeft: function() { 
+                        if((p.current_index+1 < p.current_list.length)){
+                            p.current_index++;
+                            p.change_to_image(p.current_index,list);
+                            p.show_hide_next_prev();
+                        }
+                    },
+                    swipeRight: function() {
+                        if(p.current_index-1 >= 0){
+                            p.current_index--;
+                            p.change_to_image(p.current_index,list);
+                            p.show_hide_next_prev();
+                        }
+                    },
+                });
+                
+                
+            },
+            
+            show_hide_next_prev: function(){
+                var p = G.popup,
+                    list = p.current_list,
+                    index = p.current_index,
                     pop = p.pop,
                     sc = G.defaults.system_classnames,
                     r_btn = pop.find('.'+sc.right_btn_wrap),
                     l_btn = pop.find('.'+sc.left_btn_wrap),
                     has_next = (index+1 < list.length),
                     has_prev = (index-1 >= 0);
-
-                /* hide next/prev btn if needed */
-                if(has_next){
-                    r_btn.show();
+                 
+                if(isTouchDevice()){
+                    r_btn.add(l_btn).hide();
                 } else {
-                    r_btn.hide();
-                }
-
-                if(has_prev){
-                    l_btn.show();
-                } else {
-                    l_btn.hide();
-                }
-
-                r_btn.unbind('click').click(function(e){
-                    $(e.target).unbind('click');
                     if(has_next){
-                        var new_index = index+1;
-                        p.change_to_image(new_index,list);
+                        r_btn.show();
+                    } else {
+                        r_btn.hide();
                     }
-                });
 
-                l_btn.unbind('click').click(function(e){
-                    $(e.target).unbind('click');
                     if(has_prev){
-                        var new_index = index-1;
-                        p.change_to_image(new_index,list);
+                        l_btn.show();
+                    } else {
+                        l_btn.hide();
                     }
-                });
+                }
             },
 
             change_to_image: function (index,list){
+                
                 var p = G.popup,
                     pop = p.pop,
                     sc = G.defaults.system_classnames;
-
+                
+                
                 p.loading.show();
                 p.preload_image(list[index].href,function(new_image){
                     var old_img = $('.'+sc.image_wrap+' img'),
@@ -366,7 +412,8 @@
                         new_image.css({'position': "absolute",'visibility':'visible', 'top':0, 'left':0}).fadeIn(500,function(){
                             new_image.css({'position': "static"});
                             old_img.remove();
-                            p.set_next_prev_buttons(index,list);
+                            
+                            //p.set_next_prev_buttons();
                             p.loading.hide();
                         });
                     });
@@ -376,15 +423,23 @@
 
         get_jquery: function (url,ver,f){
             if (!isset(window.jQuery) || window.jQuery.fn.jquery < ver) {
-                load_script(G.defaults.jquery_url,function() {
-                   jQuery = $ = window.jQuery.noConflict(true);
-                   f();
+                load_script(url,function() {
+                    $ = jQuery = window.jQuery.noConflict(true);
+                    f();
                 });
             } else {
                 $ = window.jQuery;
                 f();
             }
+        },
+        
+       get_jquery_mobile: function (url,ver,f){
+                load_script(url,function() {
+                   /* $ = window.jQuery.noConflict(true);*/
+                    f();
+                });
         }
+        
     }
 
     /* local functions */
@@ -402,6 +457,18 @@
             (d.getElementsByTagName('head')[0] || d.documentElement).appendChild(js);
         }(document, 'script'));
     }
+    
+    
+    /* remove the element too in future */
+    function isTouchDevice() {
+        var el = document.createElement('div');
+            el.setAttribute('ongesturestart', 'return;');
+        if(typeof el.ongesturestart == "function"){
+            return true;
+        }else {
+            return false
+        }
+    }
 
     var format_template =function(s,inserts){
 		var t = s;
@@ -415,6 +482,103 @@
     var isset = function(v){
 		return(typeof v != 'undefined');
 	}
+    
+    /*
+    * jSwipe - jQuery Plugin
+    * http://plugins.jquery.com/project/swipe
+    * http://www.ryanscherf.com/demos/swipe/
+    *
+    * Copyright (c) 2009 Ryan Scherf (www.ryanscherf.com)
+    * Licensed under the MIT license
+    *
+    * $Date: 2009-07-14 (Tue, 14 Jul 2009) $
+    * $version: 0.1.2
+    * 
+    * This jQuery plugin will only run on devices running Mobile Safari
+    * on iPhone or iPod Touch devices running iPhone OS 2.0 or later. 
+    * http://developer.apple.com/iphone/library/documentation/AppleApplications/Reference/SafariWebContent/HandlingEvents/HandlingEvents.html#//apple_ref/doc/uid/TP40006511-SW5
+    */
+    var init_swipe = function(){
+        $.fn.swipe = function(options) {
+            
+            // Default thresholds & swipe functions
+            var defaults = {
+                threshold: {
+                    x: 30,
+                    y: 400
+                },
+                swipeLeft: function() { alert('swiped left') },
+                swipeRight: function() { alert('swiped right') }
+            };
+            
+            var options = $.extend(defaults, options);
+            
+            if (!this) return false;
+            
+            return this.each(function() {
+                
+                var me = $(this)
+                
+                // Private variables for each element
+                var originalCoord = { x: 0, y: 0 }
+                var finalCoord = { x: 0, y: 0 }
+                
+                // Screen touched, store the original coordinate
+                function touchStart(event) {
+                    //console.log('Starting swipe gesture...')
+                    originalCoord.x = event.targetTouches[0].pageX
+                    originalCoord.y = event.targetTouches[0].pageY
+                }
+                
+                // Store coordinates as finger is swiping
+                function touchMove(event) {
+                    event.preventDefault();
+                    finalCoord.x = event.targetTouches[0].pageX // Updated X,Y coordinates
+                    finalCoord.y = event.targetTouches[0].pageY
+                }
+                
+                // Done Swiping
+                // Swipe should only be on X axis, ignore if swipe on Y axis
+                // Calculate if the swipe was left or right
+                function touchEnd(event) {
+                    //console.log('Ending swipe gesture...')
+                    var changeY = originalCoord.y - finalCoord.y
+                    if(changeY < defaults.threshold.y && changeY > (defaults.threshold.y*-1)) {
+                        changeX = originalCoord.x - finalCoord.x
+                        
+                        if(changeX > defaults.threshold.x) {
+                            defaults.swipeLeft()
+                        }
+                        if(changeX < (defaults.threshold.x*-1)) {
+                            defaults.swipeRight()
+                        }
+                    }
+                }
+                
+                // Swipe was started
+                function touchStart(event) {
+                    //console.log('Starting swipe gesture...')
+                    originalCoord.x = event.targetTouches[0].pageX
+                    originalCoord.y = event.targetTouches[0].pageY
+
+                    finalCoord.x = originalCoord.x
+                    finalCoord.y = originalCoord.y
+                }
+                
+                // Swipe was canceled
+                function touchCancel(event) { 
+                    //console.log('Canceling swipe gesture...')
+                }
+                
+                // Add gestures to all swipable areas
+                this.addEventListener("touchstart", touchStart, false);
+                this.addEventListener("touchmove", touchMove, false);
+                this.addEventListener("touchend", touchEnd, false);
+                this.addEventListener("touchcancel", touchCancel, false);
+                    
+            });
+        };
+    }
 
     G.init();
 })();
