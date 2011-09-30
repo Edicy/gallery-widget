@@ -288,14 +288,16 @@
                 
                 start: function(e){
                     e.preventDefault();
-                    G.popup.pic_drag.start_x = G.popup.pic_drag.end_x = e.pageX;
+                    var x = (isset(e.targetTouches))?e.targetTouches[0].pageX:e.pageX;
+                    G.popup.pic_drag.start_x = G.popup.pic_drag.end_x = x;
                     G.popup.pic_drag.start_offset = G.popup.pop.find(G.get_classes('image_wrap')).scrollLeft();
                 },
 
                 move: function(e){
                     e.preventDefault();
+                    var x = (isset(e.targetTouches))?e.targetTouches[0].pageX:e.pageX;
                     if(G.popup.pic_drag.start_x !== null && G.popup.pic_drag.start_offset !== null){
-                        G.popup.pic_drag.end_x = e.pageX;
+                        G.popup.pic_drag.end_x = x;
                         G.popup.pop.find(G.get_classes('image_wrap')).scrollLeft(G.popup.pic_drag.start_offset-(G.popup.pic_drag.end_x-G.popup.pic_drag.start_x));
                     }   
                 },
