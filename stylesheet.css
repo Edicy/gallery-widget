@@ -52,7 +52,7 @@
   border-width: 10px;
   border-color: #ffffff #dddddd;
   float: right;
-  margin-bottom: 20px;
+  margin-bottom: 0px;
 } 
 
 .edys-gal-gallery-content-wrap-touch{
@@ -167,11 +167,12 @@
 .edys-gal-gallery-title-touch{
   clear:both;
   display: inline;
-  padding: 5px 10px;
-  line-height: 27px;
+  padding: 3px 6px;
+  line-height: 25px;
+  font-size: 12px;
   background: #333333;
-  margin: 5px; 
-  border-radius: 10px;
+  margin: 3px; 
+  border-radius: 5px;
   color: #ffffff;
 }
 

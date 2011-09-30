@@ -58,7 +58,8 @@
             
             touchscreen_class_suffix: '-touch',
 
-            image_to_wiewport_max_ratio: 0.8,
+            image_to_wiewport_max_ratio_x: 0.7,
+            image_to_wiewport_max_ratio_y: 0.7,
             
             swipe_move_treshold: 0.15,
 
@@ -338,15 +339,22 @@
                     w =     img.width(),
                     h =     img.height();
 
-                img.height(1);
+                img.height(1).width(1);
                 var vw =    $(window).width(),
                     vh =    $(window).height(),
-                    nph = def.image_to_wiewport_max_ratio*vh,
+                    nph = def.image_to_wiewport_max_ratio_y*vh,
                     npw = w/(h/nph);
-                if (h > def.image_to_wiewport_max_ratio*vh){
+                
+                if(npw > vw*def.image_to_wiewport_max_ratio_x){
+                    alert('a');
+                    npw = vw*def.image_to_wiewport_max_ratio_x;
+                    nph = h/(w/npw);
+                }
+                    
+                if (h > nph){
                     img.add(G.get_classes('content_wrap')).height(nph).width(npw);
                 } else {
-                    img.height(h);
+                    img.height(h).width(w);
                 }
             },
 
@@ -356,16 +364,25 @@
                     w =     img.width(),
                     h =     img.height();
 
-                img.height(1).show();
+                img.height(1).width(1).show();
                 var vw =    $(window).width(),
-                    vh =    $(window).height();
+                    vh =    $(window).height(),
+                    nph = def.image_to_wiewport_max_ratio_y*vh,
+                    npw = w/(h/nph);
 
-                if (h > def.image_to_wiewport_max_ratio*vh){
-                    var newh = def.image_to_wiewport_max_ratio*vh;
-                } else {
-                    newh = h;
+                if(npw > vw*def.image_to_wiewport_max_ratio_x){
+                    npw = vw*def.image_to_wiewport_max_ratio_x;
+                    nph = h/(w/npw);
                 }
-                img.height(h).hide();
+                
+                if (h > nph){
+                    var newh = nph;
+                    var neww = npw;
+                } else {
+                    var newh = h,
+                        neww = w;
+                }
+                img.height(h).width(w).hide();
                 return {
                     h: newh,
                     w: w/(h/newh),
