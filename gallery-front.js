@@ -37,7 +37,6 @@
                 title:          'edys-gallery-title',
                 notitle:        'edys-gallery-title-notitle'
             },
-            
 
             system_classnames: {
                 overlay:        'edys-gal-gallery-overlay',
@@ -55,33 +54,35 @@
                 title:          'edys-gal-gallery-title',
                 notitle:        'edys-gal-gallery-title-notitle'
             },
-            
+
             touchscreen_class_suffix: '-touch',
 
             image_to_wiewport_max_ratio_x: 0.7,
             image_to_wiewport_max_ratio_y: 0.7,
-            
+
             swipe_move_treshold: 0.10,
 
             jumping_mode: 'strict',
-            
-            mode: "touch",
+
+            mode: "auto",
 
             texts: {
 
             }
         },
-        
+
         is_touch: false,
 
         init: function(){
-            G.is_touch = (G.defaults.mode=="auto")?isTouchDevice():(G.defaults.mode=="touch")?true:false;
+
             G.get_jquery(G.defaults.jquery_url, G.defaults.jquery_atleast_version, function(){
                     $(document).ready(function(){
-                        init_swipe();
+
                         if(isset(window.edys_gallery_options) !='undefined'){
                             $.extend(G.defaults, window.edys_gallery_options);
                         }
+                        G.is_touch = (G.defaults.mode=="auto")?isTouchDevice():(G.defaults.mode=="touch")?true:false;
+                        init_swipe();
                         G.run();
                     });
             });
@@ -100,7 +101,7 @@
                 G.set_link_clicks(links);
             }
         },
-        
+
         get_classes: function(name,include_nonsys,include_dot){
             var sc = G.defaults.system_classnames,
                 dc = G.defaults.classnames,
@@ -108,7 +109,7 @@
                 include_dot = isset(include_dot)?include_dot:true,
                 suf = (G.is_touch)?G.defaults.touchscreen_class_suffix:'',
                 dot = (include_dot)?'.':'';
-                
+
             var n = dot+sc[name]+suf;
             if(include_nonsys){ n += ' '+dot+dc[name]+suf;}
             return n;
@@ -149,10 +150,10 @@
             show: function(index,list){
                 var p =  G.popup;
                 p.current_list = list;
-                p.current_index = index;    
+                p.current_index = index;
                 if(p.overlay === null){ p.overlay = p.make_overlay(); }
-                if(p.pop === null){ 
-                    p.pop = p.make_popup(); 
+                if(p.pop === null){
+                    p.pop = p.make_popup();
                     if(!G.is_touch) { p.set_next_prev_buttons(); }
                 }
                 p.set_overlay_size();
@@ -161,24 +162,31 @@
                 });
                 p.overlay.show();
                 p.loading.show();
-                
+
                 if(G.is_touch){
                     p.pop.find(G.get_classes('title')).hide();
                     p.pop.width($(document.body).width()).show();
                     p.make_all_img_element(index,list,function(){
                         /*p.pop.find(G.get_classes('image_wrap')).scrollLeft((index)*$(window).width());*/
-                        var draggelements = p.pop.add(p.overlay).add(p.pop.find(G.get_classes('image_wrap')+' img'));
-                       
+                        G.popup.pic_drag.x = -1*((index)*$(document).width());
                         
+                        
+                        if($.browser.webkit){
+                             p.pop.find(G.get_classes('image_wrap')).css("-webkit-transform", "translate3d("+(-1*index*$(window).width()) +"px,0px,0px)");
+                        } else {
+                            p.pop.find(G.get_classes('image_wrap')).css('left',(-1*index*$(window).width())+'px');
+                        }
+                        
+                        
+                        var draggelements = p.pop.add(p.overlay).add(p.pop.find(G.get_classes('image_wrap')+' img'));
+
                         if(isTouchDevice()){
-                           /* draggelements.unbind('touchstart').unbind('touchmove').unbind('touchend');
-                            draggelements.bind('touchstart', G.popup.pic_drag.start)
-                                         .bind('touchmove', G.popup.pic_drag.move)
-                                         .bind('touchend', G.popup.pic_drag.end);
-                                         
-                                        */ 
-                                        
                              draggelements.each(function(){
+                                this.removeEventListener("touchstart", G.popup.pic_drag.start, false);
+                                this.removeEventListener("touchmove", G.popup.pic_drag.move, false);
+                                this.removeEventListener("touchend", G.popup.pic_drag.end, false);
+                                this.removeEventListener("touchcancel", G.popup.pic_drag.cancel, false);
+
                                 this.addEventListener("touchstart", G.popup.pic_drag.start, false);
                                 this.addEventListener("touchmove", G.popup.pic_drag.move, false);
                                 this.addEventListener("touchend", G.popup.pic_drag.end, false);
@@ -190,7 +198,7 @@
                                      .mousemove(G.popup.pic_drag.move)
                                      .mouseup(G.popup.pic_drag.end);
                         }
-                        
+
                     });
                 } else {
                     p.preload_image(list[index].href,function(img){
@@ -218,7 +226,7 @@
                         'top':'0px',
                         'left': '0px'
                     }).hide();
-                    
+
                     if(!G.is_touch){
                         o.click(function(){
                             G.popup.hide();
@@ -256,19 +264,17 @@
                 pop.css({
                     'position':'absolute'
                 }).hide();
-                
+
                 var cbtn = pop.find(G.get_classes('close_btn'));
-                
+
                 cbtn.click(function(){
                     G.popup.hide();
                 });
-                
-                cbtn.get(0).addEventListener("touchstart",function(){
+
+                cbtn.get(0).addEventListener("touchend",function(){
                     G.popup.hide();
                 }, false);
-                
-                
-                
+
                 if(G.is_touch){
                     pop.find(G.get_classes('right_btn_wrap')).hide();
                     pop.find(G.get_classes('left_btn_wrap')).hide();
@@ -301,21 +307,22 @@
                     $(G.get_classes('loading')).remove();
                 }
             },
-            
+
             pic_drag: {
                 start_x:null,
                 end_x:null,
                 start_offset: null,
                 img_wrap: null,
                 x:0,
-                
+
                 start: function(e){
                     e.preventDefault();
                     var x = (isset(e.targetTouches))?e.targetTouches[0].pageX:e.pageX;
                     G.popup.pic_drag.start_x = G.popup.pic_drag.end_x = x;
                     G.popup.pic_drag.img_wrap = G.popup.pop.find(G.get_classes('image_wrap'));
-                    G.popup.pic_drag.img_wrap.css("-webkit-transition-duration", "0.01s");
-                    //G.popup.pic_drag.start_offset = G.popup.pic_drag.img_wrap.scrollLeft();
+                    if($.browser.webkit){
+                        G.popup.pic_drag.img_wrap.css("-webkit-transition-duration", "0s");
+                    }
                 },
 
                 move: function(e){
@@ -324,58 +331,58 @@
                     if(G.popup.pic_drag.start_x !== null && G.popup.pic_drag.img_wrap !== null){
                         G.popup.pic_drag.end_x = x;
                         var val = G.popup.pic_drag.x+(x-G.popup.pic_drag.start_x);
-                        G.popup.pic_drag.img_wrap.css("-webkit-transform", "translate3d("+val +"px,0px,0px)");
-                       // G.popup.pic_drag.img_wrap.get(0).scrollLeft = G.popup.pic_drag.start_offset-(G.popup.pic_drag.end_x-G.popup.pic_drag.start_x);
-                       // G.popup.pic_drag.img_wrap.scrollLeft(G.popup.pic_drag.start_offset-(G.popup.pic_drag.end_x-G.popup.pic_drag.start_x));
-                    }   
+                        if($.browser.webkit){
+                            G.popup.pic_drag.img_wrap.css("-webkit-transform", "translate3d("+val +"px,0px,0px)");
+                        } else {
+                            G.popup.pic_drag.img_wrap.css({'left':val+'px'});
+                        }
+                    }
                 },
-                
+
                 end: function(e){
                      e.preventDefault();
                     if(G.popup.pic_drag.start_x !== null){
-                        //G.popup.pic_drag.img_wrap.scrollLeft(G.popup.pic_drag.start_offset-(G.popup.pic_drag.end_x-G.popup.pic_drag.start_x));
                         G.popup.pic_drag.move_to_closest();
-                       //G.popup.pic_drag.x = G.popup.pic_drag.x+(G.popup.pic_drag.end_x-G.popup.pic_drag.start_x);
                         G.popup.pic_drag.start_x = G.popup.pic_drag.end_x = G.popup.pic_drag.start_offset = G.popup.pic_drag.img_wrap = null;
-                        
+
                     }
                 },
-                
+
                 cancel: function(e){
                     e.preventDefault();
-             
+
                         G.popup.pic_drag.move_to_closest();
                         G.popup.pic_drag.start_x = G.popup.pic_drag.end_x = G.popup.pic_drag.start_offset = G.popup.pic_drag.img_wrap =  null;
-                   
+
                 },
-                
+
                 move_to_closest: function (){
                     var move_x = G.popup.pic_drag.start_x-G.popup.pic_drag.end_x,
-                        curr_i = Math.round((-1*G.popup.pic_drag.x) / $(window).width()),
+                        curr_i = Math.round((-1*G.popup.pic_drag.x) / $(document).width()),
                         max = G.popup.current_list.length-1;
+                    var newloc = $(document).width()*(curr_i);
 
-                        
-                    
-                    var newloc = $(window).width()*(curr_i);
-                    
-                    if(move_x > G.defaults.swipe_move_treshold*$(window).width() && curr_i+1 <= (max)){
-                        newloc = $(window).width()*(curr_i+1);
+                    if(move_x > G.defaults.swipe_move_treshold*$(document).width() && curr_i+1 <= (max)){
+                        newloc = $(document).width()*(curr_i+1);
                     }
-                    
-                    if(((-1)*move_x) > G.defaults.swipe_move_treshold*$(window).width() && curr_i-1 >= 0){
-                        newloc = $(window).width()*(curr_i-1);
+
+                    if(((-1)*move_x) > G.defaults.swipe_move_treshold*$(document).width() && curr_i-1 >= 0){
+                        newloc = $(document).width()*(curr_i-1);
                     }
-                    
-                                       
-                    
+
+                    mewloc = Math.round(newloc);
+
                     G.popup.pic_drag.x = -1*(newloc);
-     
-                    G.popup.pic_drag.img_wrap.css("-webkit-transition-duration", "0.5s"); 
-                    G.popup.pic_drag.img_wrap.css("-webkit-transform", "translate3d("+(-1*newloc) +"px,0px,0px)");
-                    
-                   /* G.popup.pop.find(G.get_classes('image_wrap')).stop().animate({
-                        'scrollLeft': newloc
-                    },800);*/
+
+                    if($.browser.webkit){
+                        G.popup.pic_drag.img_wrap.css("-webkit-transition-duration", "0.5s");
+                        G.popup.pic_drag.img_wrap.css("-webkit-transform", "translate3d("+(-1*newloc) +"px,0px,0px)");
+                    } else {
+
+                        G.popup.pop.find(G.get_classes('image_wrap')).stop().animate({
+                            'left': (-1*newloc)
+                        },800);
+                    }
                 }
             },
 
@@ -390,12 +397,12 @@
                     vh =    $(window).height(),
                     nph = def.image_to_wiewport_max_ratio_y*vh,
                     npw = w/(h/nph);
-                
+
                 if(npw > vw*def.image_to_wiewport_max_ratio_x){
                     npw = vw*def.image_to_wiewport_max_ratio_x;
                     nph = h/(w/npw);
                 }
-                    
+
                 if (h > nph){
                     img.add(G.get_classes('content_wrap')).height(nph).width(npw);
                 } else {
@@ -419,7 +426,7 @@
                     npw = vw*def.image_to_wiewport_max_ratio_x;
                     nph = h/(w/npw);
                 }
-                
+
                 if (h > nph){
                     var newh = nph;
                     var neww = npw;
@@ -460,30 +467,29 @@
                     'top': ptop+'px'
                 });
             },
-            
+
             make_all_img_element: function(index,list,f){
                 var imgs_wrap    = G.popup.pop.find(G.get_classes('image_wrap')),
                     max     = list.length-1,
                     img_tpl = $('<div />').addClass(G.get_classes('image_wrap_box',true,false)).html('<div/>',{
                                 'class': G.get_classes('loading',true,false)
                                }).width($(document).width()),
-                               
+
                     img_w_c = img_tpl.clone(),
                     current_title = $('<div/>').addClass(G.get_classes('title',true,false)).html(list[index].rel);
-                    
+
                 if(list[index].rel == ''){
                     current_title.addClass(G.get_classes('notitle',true,false));
                 }
                 img_w_c.append(current_title);
                 imgs_wrap.html(img_w_c);
-                   
+
                 G.popup.preload_image(list[index].href,function(img_c){
                     img_w_c.find(G.get_classes('loading')).remove();
                     img_w_c.prepend(img_c);
                     var s_c = G.popup.get_img_size(img_c);
                     img_c.height(s_c.h).width(s_c.w).show();
-                    
-                    
+
                     if(index < max){
                         for(var incr = index+1; incr <= max; incr++){
                             (function(inc){
@@ -503,9 +509,9 @@
                                 });
                             })(incr);
                         }
-                        
+
                     }
-                    
+
                     if(index > 0){
                         for(var decr = index-1; decr >= 0; decr--){
                             (function(dec){
@@ -525,14 +531,10 @@
                                 });
                             })(decr);
                         }
-                        
+
                     }
-                    
                     f();
-               
                 });
-                
-                
             },
 
             preload_image: function(img,f){
@@ -549,7 +551,7 @@
                     r_btn = pop.find(G.get_classes('right_btn_wrap')),
                     l_btn = pop.find(G.get_classes('left_btn_wrap')),
                     img_wrap = pop.find(G.get_classes('image_wrap'));
-                    
+
                 p.show_hide_next_prev();
 
                 r_btn.unbind('click').click(function(e){
@@ -567,11 +569,11 @@
                         p.show_hide_next_prev();
                     }
                 });
-                
+
                 if(isTouchDevice()){
-                           
+
                     $(img_wrap).swipe({
-                        swipeLeft: function() { 
+                        swipeLeft: function() {
                             if((p.current_index+1 < p.current_list.length)){
                                 p.current_index++;
                                 p.change_to_image(p.current_index,list);
@@ -587,11 +589,9 @@
                         },
                     });
                 }
-                
-                
+
             },
-            
-            
+
             show_hide_next_prev: function(){
                 var p = G.popup,
                     list = p.current_list,
@@ -601,7 +601,7 @@
                     l_btn = pop.find(G.get_classes('left_btn_wrap')),
                     has_next = (index+1 < list.length),
                     has_prev = (index-1 >= 0);
-                 
+
                 if(G.is_touch){
                     //r_btn.add(l_btn).hide();
                 } else {
@@ -622,7 +622,7 @@
             change_to_image: function (index,list){
                 var p = G.popup,
                     pop = p.pop;
-                
+
                 p.loading.show();
                 p.preload_image(list[index].href,function(new_image){
                     var old_img = $(G.get_classes('image_wrap')+' img'),
@@ -640,7 +640,7 @@
                         vh =    $(window).height();
                         oleft = (vw/2)-(pop.outerWidth()/2)-((nw-ow)/2),
                         otop = (vh/2)-(pop.outerHeight()/2)-(nh-oh)/2;
-                        
+
                     pop.animate({'left': oleft+'px','top': otop+'px'},300);
                     $(old_img).add(new_image).add(G.get_classes('content_wrap')).animate({
                         'width': nw+'px',
@@ -667,14 +667,14 @@
                 f();
             }
         },
-        
+
        get_jquery_mobile: function (url,ver,f){
             load_script(url,function() {
-               /* $ = window.jQuery.noConflict(true);*/
+                $ = window.jQuery.noConflict(true);
                 f();
             });
         }
-        
+
     }
 
     /* local functions */
@@ -692,8 +692,7 @@
             (d.getElementsByTagName('head')[0] || d.documentElement).appendChild(js);
         }(document, 'script'));
     }
-    
-    
+
     /* remove the element too in future */
     function isTouchDevice() {
         var el = document.createElement('div');
@@ -717,8 +716,7 @@
     var isset = function(v){
 		return(typeof v != 'undefined');
 	}
-   
-    
+
     /*
     * jSwipe - jQuery Plugin
     * http://plugins.jquery.com/project/swipe
@@ -729,18 +727,14 @@
     *
     * $Date: 2009-07-14 (Tue, 14 Jul 2009) $
     * $version: 0.1.2
-    * 
+    *
     * This jQuery plugin will only run on devices running Mobile Safari
-    * on iPhone or iPod Touch devices running iPhone OS 2.0 or later. 
+    * on iPhone or iPod Touch devices running iPhone OS 2.0 or later.
     * http://developer.apple.com/iphone/library/documentation/AppleApplications/Reference/SafariWebContent/HandlingEvents/HandlingEvents.html#//apple_ref/doc/uid/TP40006511-SW5
     */
-    
-    
-    
-    
     var init_swipe = function(){
         $.fn.swipe = function(options) {
-            
+
             // Default thresholds & swipe functions
             var defaults = {
                 threshold: {
@@ -750,33 +744,33 @@
                 swipeLeft: function() { alert('swiped left') },
                 swipeRight: function() { alert('swiped right') }
             };
-            
+
             var options = $.extend(defaults, options);
-            
+
             if (!this) return false;
-            
+
             return this.each(function() {
-                
+
                 var me = $(this)
-                
+
                 // Private variables for each element
                 var originalCoord = { x: 0, y: 0 }
                 var finalCoord = { x: 0, y: 0 }
-                
+
                 // Screen touched, store the original coordinate
                 function touchStart(event) {
                     //console.log('Starting swipe gesture...')
                     originalCoord.x = event.targetTouches[0].pageX
                     originalCoord.y = event.targetTouches[0].pageY
                 }
-                
+
                 // Store coordinates as finger is swiping
                 function touchMove(event) {
                     event.preventDefault();
                     finalCoord.x = event.targetTouches[0].pageX // Updated X,Y coordinates
                     finalCoord.y = event.targetTouches[0].pageY
                 }
-                
+
                 // Done Swiping
                 // Swipe should only be on X axis, ignore if swipe on Y axis
                 // Calculate if the swipe was left or right
@@ -785,7 +779,7 @@
                     var changeY = originalCoord.y - finalCoord.y
                     if(changeY < defaults.threshold.y && changeY > (defaults.threshold.y*-1)) {
                         changeX = originalCoord.x - finalCoord.x
-                        
+
                         if(changeX > defaults.threshold.x) {
                             defaults.swipeLeft()
                         }
@@ -794,7 +788,7 @@
                         }
                     }
                 }
-                
+
                 // Swipe was started
                 function touchStart(event) {
                     //console.log('Starting swipe gesture...')
@@ -804,18 +798,18 @@
                     finalCoord.x = originalCoord.x
                     finalCoord.y = originalCoord.y
                 }
-                
+
                 // Swipe was canceled
-                function touchCancel(event) { 
+                function touchCancel(event) {
                     //console.log('Canceling swipe gesture...')
                 }
-                
+
                 // Add gestures to all swipable areas
                 this.addEventListener("touchstart", touchStart, false);
                 this.addEventListener("touchmove", touchMove, false);
                 this.addEventListener("touchend", touchEnd, false);
                 this.addEventListener("touchcancel", touchCancel, false);
-                    
+
             });
         };
     }
