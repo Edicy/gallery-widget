@@ -53,6 +53,7 @@
   border-color: #ffffff #dddddd;
   float: right;
   margin-bottom: 0px;
+  z-index: 1003;
 } 
 
 .edys-gal-gallery-content-wrap-touch{
@@ -159,8 +160,7 @@
 }
 
 .edys-gal-gallery-image-wrap-touch{
-  width: 100%; 
-  overflow: hidden;
+
   white-space:nowrap;
 }
 
@@ -178,4 +178,9 @@
 
 .edys-gal-gallery-title-touch.edys-gal-gallery-title-notitle-touch{
   visibility: hidden;
+}
+
+.edys-gal-gallery-content-wrap-touch{
+  width: 99%;
+  overflow: hidden;
 }
