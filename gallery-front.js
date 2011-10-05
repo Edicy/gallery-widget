@@ -349,11 +349,13 @@
                 cbtn.click(function(){
                     G.gallery.hide();
                 });
-
-                cbtn.get(0).addEventListener("touchend",function(){
-                    G.gallery.hide();
-                }, false);
-
+                
+                if(isTouchDevice()){
+                    cbtn.get(0).addEventListener("touchend",function(){
+                        G.gallery.hide();
+                    }, false);
+                }
+                
                 if(G.is_touch){
                     pop.find(G.get_classes('right_btn_wrap')).hide();
                     pop.find(G.get_classes('left_btn_wrap')).hide();
@@ -762,7 +764,7 @@
         }(document, 'script'));
     }
 
-    function isTouchDevice() {
+    var isTouchDevice = function() {
         return "ontouchstart" in window;
     }
 
