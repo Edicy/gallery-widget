@@ -173,9 +173,15 @@
 
                 /* set overlay size and bind resize to window resize event */
                 p.overlay.resize();
-                $(window).resize(function() {
-                   p.overlay.resize();
-                });
+
+                var supportsOrientationChange = "onorientationchange" in window;
+                if(!supportsOrientationChange){
+                    $(window).unbind('resize').resize(function() {
+                        G.gallery.resize_popup_elemets();
+                    });
+                } else {
+                     window.addEventListener('orientationchange', G.gallery.resize_popup_elemets, false);
+                }
 
                 /* show popup and overlay */
                 p.overlay_el.show();
@@ -191,16 +197,19 @@
 
             initiate: {
                 touch_mode: function(){
+
                     var p =     G.gallery,
                         index = p.current_index,
                         list =  p.current_list;
+                    p.loading.hide();
 
                     p.popup_el.find(G.get_classes('title')).hide(); /* hide global title element. all touch pictures have their own title */
                     p.popup_el.width(viewport.width())//$(document.body).width())
-                                     .css({
-                                        'top':$(document).scrollTop()+'px',
-                                        'left': $(document).scrollLeft()+'px'})
-                                        .show(); /* set popup size/pos and show */
+                                    .css({
+                                            'top':$(document).scrollTop()+'px',
+                                            'left': $(document).scrollLeft()+'px'})
+                                    .show(); /* set popup size/pos and show */
+
 
 
 
@@ -211,15 +220,7 @@
                                              .add(p.popup_el.find(G.get_classes('image_wrap')+' img'));
 
                         /* set gallery element position to clicked image */
-                        G.gallery.pic_drag.x = -1*((index)*viewport.width());
-                        if($.browser.webkit){ /* webkit has hardware acceleration for translate3d especially on iDevices */
-                            p.popup_el.find(G.get_classes('image_wrap')).css({
-                                "-webkit-transform": "translate3d("+G.gallery.pic_drag.x+"px,0px,0px)",
-                                "-webkit-transition-duration": "0s"
-                            });
-                        } else {
-                            p.popup_el.find(G.get_classes('image_wrap')).css('left',G.gallery.pic_drag.x+'px');
-                        }
+                        p.touch_center_image(index);
 
                         /* bind navigation events */
                         if(isTouchDevice()){
@@ -229,7 +230,7 @@
                         }
 
                         /* hide loading icon */
-                        p.loading.hide();
+
                     });
                 },
 
@@ -294,6 +295,46 @@
                 p.loading.hide();
             },
 
+            resize_popup_elemets: function(){
+                var p = G.gallery;
+                p.overlay.resize();
+                p.popup_el.width(viewport.width())
+                            .css({
+                                'left': $(document).scrollLeft()+'px',
+                                'top': $(document).scrollTop()+'px',
+                            });
+                var imgs = p.popup_el.find(G.get_classes('image_wrap')+' img');
+                imgs.each(function(){
+                    var s= G.gallery.get_img_size($(this));
+                    $(this).height(s.h).width(s.w).show();
+                });
+
+                p.popup_el.find(G.get_classes('image_wrap_box')).width(viewport.width());
+                var imgs = p.popup_el.find(G.get_classes('image_wrap')+' img');
+                imgs.each(function(){
+                    $(this).css({
+                        'visibility':'hidden',
+                        'width':'auto',
+                        'height':'auto'
+                    }).show();
+                    var s= G.gallery.get_img_size($(this));
+                    $(this).height(s.h).width(s.w).css('visibility','visible').show();
+                });
+                p.touch_center_image(p.current_index);
+            },
+
+            touch_center_image: function (index){
+                G.gallery.pic_drag.x = -1*((index)*viewport.width());
+                if($.browser.webkit){ /* webkit has hardware acceleration for translate3d especially on iDevices */
+                    G.gallery.popup_el.find(G.get_classes('image_wrap')).css({
+                        "-webkit-transform": "translate3d("+G.gallery.pic_drag.x+"px,0px,0px)",
+                        "-webkit-transition-duration": "0s"
+                    });
+                } else {
+                    G.gallery.popup_el.find(G.get_classes('image_wrap')).css('left',G.gallery.pic_drag.x+'px');
+                }
+            },
+
             overlay:{
                 make: function(){
                     var o = $("<div />").addClass(
@@ -349,13 +390,13 @@
                 cbtn.click(function(){
                     G.gallery.hide();
                 });
-                
+
                 if(isTouchDevice()){
                     cbtn.get(0).addEventListener("touchend",function(){
                         G.gallery.hide();
                     }, false);
                 }
-                
+
                 if(G.is_touch){
                     pop.find(G.get_classes('right_btn_wrap')).hide();
                     pop.find(G.get_classes('left_btn_wrap')).hide();
@@ -440,20 +481,23 @@
                 move_to_closest: function (){
                     var move_x = G.gallery.pic_drag.start_x-G.gallery.pic_drag.end_x,
                         curr_i = Math.round((-1*G.gallery.pic_drag.x) / viewport.width()),
-                        max = G.gallery.current_list.length-1;
-                    var newloc = viewport.width()*(curr_i);
+                        max = G.gallery.current_list.length-1,
+                        new_i = curr_i,
+                        newloc = viewport.width()*(curr_i);
 
                     if(move_x > G.defaults.swipe_move_treshold*viewport.width() && curr_i+1 <= (max)){
-                        newloc = viewport.width()*(curr_i+1);
+                        new_i = curr_i+1;
+                       // newloc = viewport.width()*(curr_i+1);
                     }
 
                     if(((-1)*move_x) > G.defaults.swipe_move_treshold*viewport.width() && curr_i-1 >= 0){
-                        newloc = viewport.width()*(curr_i-1);
+                         new_i = curr_i-1;
+                       // newloc = viewport.width()*(curr_i-1);
                     }
 
-                    mewloc = Math.round(newloc);
-
+                    newloc = Math.round(viewport.width()*(new_i));
                     G.gallery.pic_drag.x = -1*(newloc);
+                    G.gallery.current_index = new_i;
 
                     if($.browser.webkit){
                         G.gallery.pic_drag.img_wrap.css("-webkit-transition-duration", "0.5s");
@@ -496,6 +540,7 @@
                     def =   G.defaults,
                     w =     img.width(),
                     h =     img.height();
+
 
                 img.height(1).width(1).show();
                 var vw =    viewport.width(),
@@ -551,12 +596,13 @@
 
             make_all_img_element: function(index,list,f){
                 var imgs_wrap    = G.gallery.popup_el.find(G.get_classes('image_wrap')),
+
                     max     = list.length-1,
                     img_tpl = $('<div />')
                                         .addClass(G.get_classes('image_wrap_box',true,false))
-                                        .html('<div/>',{
+                                        .html($('<div/>',{
                                             'class': G.get_classes('loading',true,false)
-                                        })
+                                        }))
                                         .width(viewport.width())//$(document).width()),
                     img_w_c = img_tpl.clone(),
                     current_title = $('<div/>').addClass(G.get_classes('title',true,false)).html(list[index].rel);
@@ -564,7 +610,7 @@
                 if(list[index].rel == ''){
                     current_title.addClass(G.get_classes('notitle',true,false));
                 }
-                img_w_c.append(current_title);
+                img_w_c.append('<br/>').append(current_title);
                 imgs_wrap.html(img_w_c);
 
                 G.gallery.preload_image(list[index].href,function(img_c){
@@ -572,52 +618,53 @@
                     img_w_c.prepend(img_c);
                     var s_c = G.gallery.get_img_size(img_c);
                     img_c.height(s_c.h).width(s_c.w).show();
-
-                    if(index < max){
-                        for(var incr = index+1; incr <= max; incr++){
-                            (function(inc){
-                                var img_i = img_tpl.clone();
-                                var titl = $('<div/>').addClass(G.get_classes('title',true,false)).html(list[inc].rel);
-                                if(list[inc].rel == ''){
-                                    titl.addClass(G.get_classes('notitle',true,false));
-                                }
-                                img_i.append(titl);
-                                imgs_wrap.append(img_i);
-                                G.gallery.preload_image(list[inc].href,function(img){
-                                    //G.gallery.set_img_size(img);
-                                    img_i.find(G.get_classes('loading')).remove();
-                                    img_i.prepend(img);
-                                    var s= G.gallery.get_img_size(img);
-                                    img.height(s.h).width(s.w).show();
-                                });
-                            })(incr);
-                        }
-
-                    }
-
-                    if(index > 0){
-                        for(var decr = index-1; decr >= 0; decr--){
-                            (function(dec){
-                                var img_d = img_tpl.clone();
-                                var titl = $('<div/>').addClass(G.get_classes('title',true,false)).html(list[dec].rel);
-                                if(list[dec].rel == ''){
-                                    titl.addClass(G.get_classes('notitle',true,false));
-                                }
-                                img_d.append(titl);
-                                imgs_wrap.prepend(img_d);
-                                G.gallery.preload_image(list[dec].href,function(img){
-                                   // G.gallery.set_img_size(img);
-                                   img_d.find(G.get_classes('loading')).remove();
-                                   img_d.prepend(img);
-                                   var s= G.gallery.get_img_size(img);
-                                   img.height(s.h).width(s.w).show();
-                                });
-                            })(decr);
-                        }
-
-                    }
-                    f();
                 });
+
+                if(index < max){
+                    for(var incr = index+1; incr <= max; incr++){
+                        (function(inc){
+                            var img_i = img_tpl.clone();
+                            var titl = $('<div/>').addClass(G.get_classes('title',true,false)).html(list[inc].rel);
+                            if(list[inc].rel == ''){
+                                titl.addClass(G.get_classes('notitle',true,false));
+                            }
+                            img_i.append('<br/>').append(titl);
+                            imgs_wrap.append(img_i);
+                            G.gallery.preload_image(list[inc].href,function(img){
+                                //G.gallery.set_img_size(img);
+                                img_i.find(G.get_classes('loading')).remove();
+                                img_i.prepend(img);
+                                var s= G.gallery.get_img_size(img);
+                                img.height(s.h).width(s.w).show();
+                            });
+                        })(incr);
+                    }
+
+                }
+
+                if(index > 0){
+                    for(var decr = index-1; decr >= 0; decr--){
+                        (function(dec){
+                            var img_d = img_tpl.clone();
+                            var titl = $('<div/>').addClass(G.get_classes('title',true,false)).html(list[dec].rel);
+                            if(list[dec].rel == ''){
+                                titl.addClass(G.get_classes('notitle',true,false));
+                            }
+                            img_d.append('<br/>').append(titl);
+                            imgs_wrap.prepend(img_d);
+                            G.gallery.preload_image(list[dec].href,function(img){
+                               // G.gallery.set_img_size(img);
+                               img_d.find(G.get_classes('loading')).remove();
+                               img_d.prepend(img);
+                               var s= G.gallery.get_img_size(img);
+                               img.height(s.h).width(s.w).show();
+                            });
+                        })(decr);
+                    }
+
+                }
+
+                f();
             },
 
             preload_image: function(img,f){

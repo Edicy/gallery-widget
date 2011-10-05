@@ -1,5 +1,3 @@
-
-
 .edys-gal-gallery-overlay, .edys-gal-gallery-overlay-touch {
   position: absolute;
   background: #000000;
@@ -141,6 +139,13 @@
   height: 32px;
   width: 32px;
 }
+.edys-gal-gallery-loading-touch {
+  background: url('wait.gif') no-repeat;
+  height: 32px;
+  width: 32px;
+  display: inline-block;
+}
+
 
 .edys-gal-gallery-title{
   background: #333333;
