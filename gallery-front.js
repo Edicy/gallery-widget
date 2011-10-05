@@ -74,17 +74,15 @@
         is_touch: false,
 
         init: function(){
-
             G.get_jquery(G.defaults.jquery_url, G.defaults.jquery_atleast_version, function(){
-                    $(document).ready(function(){
-
-                        if(isset(window.edys_gallery_options) !='undefined'){
-                            $.extend(G.defaults, window.edys_gallery_options);
-                        }
-                        G.is_touch = (G.defaults.mode=="auto")?isTouchDevice():(G.defaults.mode=="touch")?true:false;
-                        init_swipe();
-                        G.run();
-                    });
+                $(document).ready(function(){
+                    with(G.startup_functions){
+                        extend_defaults();
+                        set_touch_mode();
+                    }
+                    init_swipe();
+                    G.run();
+                });
             });
         },
 
@@ -94,11 +92,49 @@
                 var gals = $(def.gallery_elements);
                 gals.each(function(){
                     var links = $(this).find('a');
-                    G.set_link_clicks(links);
+                    G.startup_functions.set_link_clicks(links);
                 });
             } else {
                 var links = $(def.gallery_elements).find('a');
-                G.set_link_clicks(links);
+                G.startup_functions.set_link_clicks(links);
+            }
+        },
+
+        startup_functions:{
+            extend_defaults: function (){
+                if(isset(window.edys_gallery_options)){
+                    $.extend(G.defaults, window.edys_gallery_options);
+                }
+            },
+
+            set_touch_mode: function(){
+                G.is_touch = (G.defaults.mode=="auto")?isTouchDevice():(G.defaults.mode=="touch")?true:false;
+            },
+
+            set_link_clicks: function(links){
+                var L = G.startup_functions.get_link_arr(links);
+                for (var i in L){
+                    with({n:i}){ /* escape closure for i */
+                        L[i].el.click(function(e){
+                            e.preventDefault();
+                            G.gallery.show(parseInt(n),L);
+                            return false;
+                        });
+                    }
+                }
+            },
+
+            get_link_arr: function(ls){
+                var r = [];
+                ls.each(function(){
+                    var l = $(this);
+                    r.push({
+                        'href': l.attr('href'),
+                        'rel': l.attr('rel'),
+                        'el': l
+                    });
+                });
+                return r;
             }
         },
 
@@ -115,133 +151,176 @@
             return n;
         },
 
-        set_link_clicks: function(links){
-            var L = G.get_link_arr(links);
-            for (var i in L){
-                with({n:i}){ /* escape closure for i */
-                    L[i].el.click(function(e){
-                        e.preventDefault();
-                        G.popup.show(parseInt(n),L);
-                        return false;
-                    });
-                }
-            }
-        },
-
-        get_link_arr: function(ls){
-            var r = [];
-            ls.each(function(){
-                var l = $(this);
-                r.push({
-                    'href': l.attr('href'),
-                    'rel': l.attr('rel'),
-                    'el': l
-                });
-            });
-            return r;
-        },
-
-        popup: {
-            overlay: null,
-            pop: null,
-            current_list: null,
-            current_index: null,
+        gallery: {
+            overlay_el:     null,
+            popup_el:       null,
+            current_list:   null,
+            current_index:  null,
 
             show: function(index,list){
-                var p =  G.popup;
+                var p = G.gallery;
+
+                /* save popup image list and current index */
                 p.current_list = list;
                 p.current_index = index;
-                if(p.overlay === null){ p.overlay = p.make_overlay(); }
-                if(p.pop === null){
-                    p.pop = p.make_popup();
+
+                /* make popup and overlay first time */
+                if(p.overlay_el === null){ p.overlay_el = p.overlay.make(); }
+                if(p.popup_el === null){
+                    p.popup_el = p.make_popup();
                     if(!G.is_touch) { p.set_next_prev_buttons(); }
                 }
-                p.set_overlay_size();
+
+                /* set overlay size and bind resize to window resize event */
+                p.overlay.resize();
                 $(window).resize(function() {
-                   p.set_overlay_size();
+                   p.overlay.resize();
                 });
-                p.overlay.show();
+
+                /* show popup and overlay */
+                p.overlay_el.show();
                 p.loading.show();
 
+
                 if(G.is_touch){
-                    p.pop.find(G.get_classes('title')).hide();
-                    p.pop.width($(document.body).width()).show();
-                    p.make_all_img_element(index,list,function(){
-                        /*p.pop.find(G.get_classes('image_wrap')).scrollLeft((index)*$(window).width());*/
-                        G.popup.pic_drag.x = -1*((index)*$(document).width());
-                        
-                        
-                        if($.browser.webkit){
-                             p.pop.find(G.get_classes('image_wrap')).css("-webkit-transform", "translate3d("+(-1*index*$(window).width()) +"px,0px,0px)");
-                        } else {
-                            p.pop.find(G.get_classes('image_wrap')).css('left',(-1*index*$(window).width())+'px');
-                        }
-                        
-                        
-                        var draggelements = p.pop.add(p.overlay).add(p.pop.find(G.get_classes('image_wrap')+' img'));
-
-                        if(isTouchDevice()){
-                             draggelements.each(function(){
-                                this.removeEventListener("touchstart", G.popup.pic_drag.start, false);
-                                this.removeEventListener("touchmove", G.popup.pic_drag.move, false);
-                                this.removeEventListener("touchend", G.popup.pic_drag.end, false);
-                                this.removeEventListener("touchcancel", G.popup.pic_drag.cancel, false);
-
-                                this.addEventListener("touchstart", G.popup.pic_drag.start, false);
-                                this.addEventListener("touchmove", G.popup.pic_drag.move, false);
-                                this.addEventListener("touchend", G.popup.pic_drag.end, false);
-                                this.addEventListener("touchcancel", G.popup.pic_drag.cancel, false);
-                             });
-                        } else {
-                            draggelements.unbind('mousedown').unbind('mousemove').unbind('mouseup');
-                            draggelements.mousedown(G.popup.pic_drag.start)
-                                     .mousemove(G.popup.pic_drag.move)
-                                     .mouseup(G.popup.pic_drag.end);
-                        }
-
-                    });
+                    G.gallery.initiate.touch_mode();
                 } else {
-                    p.preload_image(list[index].href,function(img){
-                        p.pop.find(G.get_classes('image_wrap')).html(img);
-                        p.pop.css('visibility','hidden').show();
-                        $(G.get_classes('title')).html(list[index].rel);
-                        p.set_popup_size_pos();
-                        p.set_overlay_size();
-                        p.pop.css('visibility','visible');
+                    G.gallery.initiate.click_mode();
+                }
+            },
+
+            initiate: {
+                touch_mode: function(){
+                    var p =     G.gallery,
+                        index = p.current_index,
+                        list =  p.current_list;
+
+                    p.popup_el.find(G.get_classes('title')).hide(); /* hide global title element. all touch pictures have their own title */
+                    p.popup_el.width(viewport.width())//$(document.body).width())
+                                     .css({
+                                        'top':$(document).scrollTop()+'px',
+                                        'left': $(document).scrollLeft()+'px'})
+                                        .show(); /* set popup size/pos and show */
+
+
+
+                    /* make swipable gallery elements, preload first image, bind automatic loading to other images and show gallery */
+                    p.make_all_img_element(index,list,function(){
+                        var draggelements = p.popup_el
+                                             .add(p.overlay_el)
+                                             .add(p.popup_el.find(G.get_classes('image_wrap')+' img'));
+
+                        /* set gallery element position to clicked image */
+                        G.gallery.pic_drag.x = -1*((index)*viewport.width());
+                        if($.browser.webkit){ /* webkit has hardware acceleration for translate3d especially on iDevices */
+                            p.popup_el.find(G.get_classes('image_wrap')).css({
+                                "-webkit-transform": "translate3d("+G.gallery.pic_drag.x+"px,0px,0px)",
+                                "-webkit-transition-duration": "0s"
+                            });
+                        } else {
+                            p.popup_el.find(G.get_classes('image_wrap')).css('left',G.gallery.pic_drag.x+'px');
+                        }
+
+                        /* bind navigation events */
+                        if(isTouchDevice()){
+                            G.gallery.initiate.bind_gallery_touch_events(draggelements);
+                        } else {
+                            G.gallery.initiate.bind_gallery_click_events(draggelements);
+                        }
+
+                        /* hide loading icon */
                         p.loading.hide();
                     });
+                },
+
+                click_mode: function(){
+                    var p =     G.gallery,
+                        index = p.current_index,
+                        list =  p.current_list;
+
+                    p.preload_image(list[index].href,function(img){
+                        /* set first title */
+                        $(G.get_classes('title')).html(list[index].rel);
+
+                        /* draw first preloaded image */
+                        p.popup_el.find(G.get_classes('image_wrap')).html(img);
+
+                        /* reset popup and overlay size */
+                        p.popup_el.css('visibility','hidden').show();
+                        p.set_popup_size_pos();
+                        p.overlay.resize();
+                        p.popup_el.css('visibility','visible');
+
+                        /* hide loading icon */
+                        p.loading.hide();
+                    });
+                },
+
+                bind_gallery_touch_events: function(elements){
+                    elements.each(function(){
+                        /* remove old events */
+                        this.removeEventListener("touchstart", G.gallery.pic_drag.start, false);
+                        this.removeEventListener("touchmove", G.gallery.pic_drag.move, false);
+                        this.removeEventListener("touchend", G.gallery.pic_drag.end, false);
+                        this.removeEventListener("touchcancel", G.gallery.pic_drag.cancel, false);
+
+                        /* add events */
+                        this.addEventListener("touchstart", G.gallery.pic_drag.start, false);
+                        this.addEventListener("touchmove", G.gallery.pic_drag.move, false);
+                        this.addEventListener("touchend", G.gallery.pic_drag.end, false);
+                        this.addEventListener("touchcancel", G.gallery.pic_drag.cancel, false);
+                    });
+                },
+
+                bind_gallery_click_events: function(elements){
+                    /* remove old events */
+                    elements.unbind('mousedown').unbind('mousemove').unbind('mouseup');
+
+                    /* add events */
+                    elements.mousedown(G.gallery.pic_drag.start)
+                             .mousemove(G.gallery.pic_drag.move)
+                             .mouseup(G.gallery.pic_drag.end);
                 }
             },
 
             hide: function(){
+                var p = G.gallery;
+
+                p.current_list = null;
+                p.current_index = null;
+
                 $(G.get_classes('popup')+','+G.get_classes('overlay')).hide();
                 $(window).unbind('resize');
-                G.popup.loading.hide();
+                p.loading.hide();
             },
 
-            make_overlay: function(){
-                var o = $("<div />").addClass(
-                        G.get_classes('overlay',true,false)
-                    ).css({
-                        'top':'0px',
-                        'left': '0px'
-                    }).hide();
+            overlay:{
+                make: function(){
+                    var o = $("<div />").addClass(
+                            G.get_classes('overlay',true,false)
+                        ).css({
+                            'top':'0px',
+                            'left': '0px'
+                        }).hide();
 
+                    /* if not in touch mode bind close gallery to overlay click event */
                     if(!G.is_touch){
                         o.click(function(){
-                            G.popup.hide();
+                            G.gallery.hide();
                         })
                     }
-                $("body").prepend(o);
-                return o;
-            },
 
-            set_overlay_size: function(){
-                var   o = G.popup.overlay;
-                o.width(1).height(1);
-                var w = $(document).width(),
-                    h = $(document).height();
-                o.width(w).height(h);
+                    $("body").prepend(o);
+                    return o;
+                },
+
+                resize: function(){
+                    var   o = G.gallery.overlay_el;
+                    o.width(1).height(1);
+                    var w = $(document).width(),
+                        h = $(document).height();
+                    o.width(w).height(h);
+                }
             },
 
             make_popup: function (){
@@ -268,11 +347,11 @@
                 var cbtn = pop.find(G.get_classes('close_btn'));
 
                 cbtn.click(function(){
-                    G.popup.hide();
+                    G.gallery.hide();
                 });
 
                 cbtn.get(0).addEventListener("touchend",function(){
-                    G.popup.hide();
+                    G.gallery.hide();
                 }, false);
 
                 if(G.is_touch){
@@ -286,8 +365,8 @@
 
             loading:{
                 show: function(){
-                    var vw =    $(window).width(),
-                        vh =    $(window).height();
+                    var vw =    viewport.width(),//$(window).width(),
+                        vh =   viewport.height();
 
                     $(G.get_classes('loading')).remove();
                     var loading = $('<div />',{
@@ -318,32 +397,32 @@
                 start: function(e){
                     e.preventDefault();
                     var x = (isset(e.targetTouches))?e.targetTouches[0].pageX:e.pageX;
-                    G.popup.pic_drag.start_x = G.popup.pic_drag.end_x = x;
-                    G.popup.pic_drag.img_wrap = G.popup.pop.find(G.get_classes('image_wrap'));
+                    G.gallery.pic_drag.start_x = G.gallery.pic_drag.end_x = x;
+                    G.gallery.pic_drag.img_wrap = G.gallery.popup_el.find(G.get_classes('image_wrap'));
                     if($.browser.webkit){
-                        G.popup.pic_drag.img_wrap.css("-webkit-transition-duration", "0s");
+                        G.gallery.pic_drag.img_wrap.css("-webkit-transition-duration", "0s");
                     }
                 },
 
                 move: function(e){
                     e.preventDefault();
                     var x = (isset(e.targetTouches))?e.targetTouches[0].pageX:e.pageX;
-                    if(G.popup.pic_drag.start_x !== null && G.popup.pic_drag.img_wrap !== null){
-                        G.popup.pic_drag.end_x = x;
-                        var val = G.popup.pic_drag.x+(x-G.popup.pic_drag.start_x);
+                    if(G.gallery.pic_drag.start_x !== null && G.gallery.pic_drag.img_wrap !== null){
+                        G.gallery.pic_drag.end_x = x;
+                        var val = G.gallery.pic_drag.x+(x-G.gallery.pic_drag.start_x);
                         if($.browser.webkit){
-                            G.popup.pic_drag.img_wrap.css("-webkit-transform", "translate3d("+val +"px,0px,0px)");
+                            G.gallery.pic_drag.img_wrap.css("-webkit-transform", "translate3d("+val +"px,0px,0px)");
                         } else {
-                            G.popup.pic_drag.img_wrap.css({'left':val+'px'});
+                            G.gallery.pic_drag.img_wrap.css({'left':val+'px'});
                         }
                     }
                 },
 
                 end: function(e){
                      e.preventDefault();
-                    if(G.popup.pic_drag.start_x !== null){
-                        G.popup.pic_drag.move_to_closest();
-                        G.popup.pic_drag.start_x = G.popup.pic_drag.end_x = G.popup.pic_drag.start_offset = G.popup.pic_drag.img_wrap = null;
+                    if(G.gallery.pic_drag.start_x !== null){
+                        G.gallery.pic_drag.move_to_closest();
+                        G.gallery.pic_drag.start_x = G.gallery.pic_drag.end_x = G.gallery.pic_drag.start_offset = G.gallery.pic_drag.img_wrap = null;
 
                     }
                 },
@@ -351,35 +430,35 @@
                 cancel: function(e){
                     e.preventDefault();
 
-                        G.popup.pic_drag.move_to_closest();
-                        G.popup.pic_drag.start_x = G.popup.pic_drag.end_x = G.popup.pic_drag.start_offset = G.popup.pic_drag.img_wrap =  null;
+                        G.gallery.pic_drag.move_to_closest();
+                        G.gallery.pic_drag.start_x = G.gallery.pic_drag.end_x = G.gallery.pic_drag.start_offset = G.gallery.pic_drag.img_wrap =  null;
 
                 },
 
                 move_to_closest: function (){
-                    var move_x = G.popup.pic_drag.start_x-G.popup.pic_drag.end_x,
-                        curr_i = Math.round((-1*G.popup.pic_drag.x) / $(document).width()),
-                        max = G.popup.current_list.length-1;
-                    var newloc = $(document).width()*(curr_i);
+                    var move_x = G.gallery.pic_drag.start_x-G.gallery.pic_drag.end_x,
+                        curr_i = Math.round((-1*G.gallery.pic_drag.x) / viewport.width()),
+                        max = G.gallery.current_list.length-1;
+                    var newloc = viewport.width()*(curr_i);
 
-                    if(move_x > G.defaults.swipe_move_treshold*$(document).width() && curr_i+1 <= (max)){
-                        newloc = $(document).width()*(curr_i+1);
+                    if(move_x > G.defaults.swipe_move_treshold*viewport.width() && curr_i+1 <= (max)){
+                        newloc = viewport.width()*(curr_i+1);
                     }
 
-                    if(((-1)*move_x) > G.defaults.swipe_move_treshold*$(document).width() && curr_i-1 >= 0){
-                        newloc = $(document).width()*(curr_i-1);
+                    if(((-1)*move_x) > G.defaults.swipe_move_treshold*viewport.width() && curr_i-1 >= 0){
+                        newloc = viewport.width()*(curr_i-1);
                     }
 
                     mewloc = Math.round(newloc);
 
-                    G.popup.pic_drag.x = -1*(newloc);
+                    G.gallery.pic_drag.x = -1*(newloc);
 
                     if($.browser.webkit){
-                        G.popup.pic_drag.img_wrap.css("-webkit-transition-duration", "0.5s");
-                        G.popup.pic_drag.img_wrap.css("-webkit-transform", "translate3d("+(-1*newloc) +"px,0px,0px)");
+                        G.gallery.pic_drag.img_wrap.css("-webkit-transition-duration", "0.5s");
+                        G.gallery.pic_drag.img_wrap.css("-webkit-transform", "translate3d("+(-1*newloc) +"px,0px,0px)");
                     } else {
 
-                        G.popup.pop.find(G.get_classes('image_wrap')).stop().animate({
+                        G.gallery.popup_el.find(G.get_classes('image_wrap')).stop().animate({
                             'left': (-1*newloc)
                         },800);
                     }
@@ -387,14 +466,14 @@
             },
 
             set_img_size: function(img){
-                var pop =   G.popup.pop,
+                var pop =   G.gallery.popup_el,
                     def =   G.defaults,
                     w =     img.width(),
                     h =     img.height();
 
                 img.height(1).width(1);
                 var vw =    $(window).width(),
-                    vh =    $(window).height(),
+                    vh =    viewport.height(),
                     nph = def.image_to_wiewport_max_ratio_y*vh,
                     npw = w/(h/nph);
 
@@ -411,14 +490,14 @@
             },
 
             get_img_size: function(img){
-                var pop =   G.popup.pop,
+                var pop =   G.gallery.popup_el,
                     def =   G.defaults,
                     w =     img.width(),
                     h =     img.height();
 
                 img.height(1).width(1).show();
-                var vw =    $(window).width(),
-                    vh =    $(window).height(),
+                var vw =    viewport.width(),
+                    vh =    viewport.height(),
                     nph = def.image_to_wiewport_max_ratio_y*vh,
                     npw = w/(h/nph);
 
@@ -444,14 +523,14 @@
             },
 
             set_popup_size_pos: function(){
-                var pop =       G.popup.pop,
+                var pop =       G.gallery.popup_el,
                     img =       pop.find(G.get_classes('image_wrap') +' img'),
                     img_wrap =  pop.find(G.get_classes('.image_wrap'));
 
-                G.popup.set_img_size(img);
+                G.gallery.set_img_size(img);
 
-                var vw =    $(window).width(),
-                    vh =    $(window).height();
+                var vw =    viewport.width(),
+                    vh =    viewport.height();
 
                 var pw =    pop.outerWidth(),
                     ph =    pop.outerHeight(),
@@ -469,12 +548,14 @@
             },
 
             make_all_img_element: function(index,list,f){
-                var imgs_wrap    = G.popup.pop.find(G.get_classes('image_wrap')),
+                var imgs_wrap    = G.gallery.popup_el.find(G.get_classes('image_wrap')),
                     max     = list.length-1,
-                    img_tpl = $('<div />').addClass(G.get_classes('image_wrap_box',true,false)).html('<div/>',{
-                                'class': G.get_classes('loading',true,false)
-                               }).width($(document).width()),
-
+                    img_tpl = $('<div />')
+                                        .addClass(G.get_classes('image_wrap_box',true,false))
+                                        .html('<div/>',{
+                                            'class': G.get_classes('loading',true,false)
+                                        })
+                                        .width(viewport.width())//$(document).width()),
                     img_w_c = img_tpl.clone(),
                     current_title = $('<div/>').addClass(G.get_classes('title',true,false)).html(list[index].rel);
 
@@ -484,10 +565,10 @@
                 img_w_c.append(current_title);
                 imgs_wrap.html(img_w_c);
 
-                G.popup.preload_image(list[index].href,function(img_c){
+                G.gallery.preload_image(list[index].href,function(img_c){
                     img_w_c.find(G.get_classes('loading')).remove();
                     img_w_c.prepend(img_c);
-                    var s_c = G.popup.get_img_size(img_c);
+                    var s_c = G.gallery.get_img_size(img_c);
                     img_c.height(s_c.h).width(s_c.w).show();
 
                     if(index < max){
@@ -500,11 +581,11 @@
                                 }
                                 img_i.append(titl);
                                 imgs_wrap.append(img_i);
-                                G.popup.preload_image(list[inc].href,function(img){
-                                    //G.popup.set_img_size(img);
+                                G.gallery.preload_image(list[inc].href,function(img){
+                                    //G.gallery.set_img_size(img);
                                     img_i.find(G.get_classes('loading')).remove();
                                     img_i.prepend(img);
-                                    var s= G.popup.get_img_size(img);
+                                    var s= G.gallery.get_img_size(img);
                                     img.height(s.h).width(s.w).show();
                                 });
                             })(incr);
@@ -522,11 +603,11 @@
                                 }
                                 img_d.append(titl);
                                 imgs_wrap.prepend(img_d);
-                                G.popup.preload_image(list[dec].href,function(img){
-                                   // G.popup.set_img_size(img);
+                                G.gallery.preload_image(list[dec].href,function(img){
+                                   // G.gallery.set_img_size(img);
                                    img_d.find(G.get_classes('loading')).remove();
                                    img_d.prepend(img);
-                                   var s= G.popup.get_img_size(img);
+                                   var s= G.gallery.get_img_size(img);
                                    img.height(s.h).width(s.w).show();
                                 });
                             })(decr);
@@ -544,10 +625,10 @@
             },
 
             set_next_prev_buttons: function(){
-                var p = G.popup,
+                var p = G.gallery,
                     list = p.current_list,
                     index = p.current_index
-                    pop = p.pop,
+                    pop = p.popup_el,
                     r_btn = pop.find(G.get_classes('right_btn_wrap')),
                     l_btn = pop.find(G.get_classes('left_btn_wrap')),
                     img_wrap = pop.find(G.get_classes('image_wrap'));
@@ -593,35 +674,31 @@
             },
 
             show_hide_next_prev: function(){
-                var p = G.popup,
+                var p = G.gallery,
                     list = p.current_list,
                     index = p.current_index,
-                    pop = p.pop,
+                    pop = p.popup_el,
                     r_btn = pop.find(G.get_classes('right_btn_wrap')),
                     l_btn = pop.find(G.get_classes('left_btn_wrap')),
                     has_next = (index+1 < list.length),
                     has_prev = (index-1 >= 0);
 
-                if(G.is_touch){
-                    //r_btn.add(l_btn).hide();
+                if(has_next){
+                    r_btn.show();
                 } else {
-                    if(has_next){
-                        r_btn.show();
-                    } else {
-                        r_btn.hide();
-                    }
+                    r_btn.hide();
+                }
 
-                    if(has_prev){
-                        l_btn.show();
-                    } else {
-                        l_btn.hide();
-                    }
+                if(has_prev){
+                    l_btn.show();
+                } else {
+                    l_btn.hide();
                 }
             },
 
             change_to_image: function (index,list){
-                var p = G.popup,
-                    pop = p.pop;
+                var p = G.gallery,
+                    pop = p.popup_el;
 
                 p.loading.show();
                 p.preload_image(list[index].href,function(new_image){
@@ -636,8 +713,8 @@
                     var ni = p.get_img_size(new_image);
                     var nw =    ni.w,
                         nh =    ni.h,
-                        vw =    $(window).width(),
-                        vh =    $(window).height();
+                        vw =    viewport.width(),
+                        vh =    viewport.height();
                         oleft = (vw/2)-(pop.outerWidth()/2)-((nw-ow)/2),
                         otop = (vh/2)-(pop.outerHeight()/2)-(nh-oh)/2;
 
@@ -666,15 +743,7 @@
                 $ = window.jQuery;
                 f();
             }
-        },
-
-       get_jquery_mobile: function (url,ver,f){
-            load_script(url,function() {
-                $ = window.jQuery.noConflict(true);
-                f();
-            });
         }
-
     }
 
     /* local functions */
@@ -693,15 +762,8 @@
         }(document, 'script'));
     }
 
-    /* remove the element too in future */
     function isTouchDevice() {
-        var el = document.createElement('div');
-            el.setAttribute('ongesturestart', 'return;');
-        if(typeof el.ongesturestart == "function"){
-            return true;
-        }else {
-            return false
-        }
+        return "ontouchstart" in window;
     }
 
     var format_template =function(s,inserts){
@@ -713,25 +775,20 @@
 		return t;
 	}
 
+    var viewport ={
+        width: function(){
+            return (window.innerWidth < $(window).width()) ? window.innerWidth : $(window).width();
+        },
+
+        height: function(){
+            return (window.innerHeight < $(window).height()) ? window.innerHeight : $(window).height();
+        }
+    }
+
     var isset = function(v){
 		return(typeof v != 'undefined');
 	}
 
-    /*
-    * jSwipe - jQuery Plugin
-    * http://plugins.jquery.com/project/swipe
-    * http://www.ryanscherf.com/demos/swipe/
-    *
-    * Copyright (c) 2009 Ryan Scherf (www.ryanscherf.com)
-    * Licensed under the MIT license
-    *
-    * $Date: 2009-07-14 (Tue, 14 Jul 2009) $
-    * $version: 0.1.2
-    *
-    * This jQuery plugin will only run on devices running Mobile Safari
-    * on iPhone or iPod Touch devices running iPhone OS 2.0 or later.
-    * http://developer.apple.com/iphone/library/documentation/AppleApplications/Reference/SafariWebContent/HandlingEvents/HandlingEvents.html#//apple_ref/doc/uid/TP40006511-SW5
-    */
     var init_swipe = function(){
         $.fn.swipe = function(options) {
 
