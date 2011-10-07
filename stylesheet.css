@@ -1,4 +1,4 @@
-.edys-gal-gallery-overlay, .edys-gal-gallery-overlay-touch {
+.edys-gal-gallery-overlay, .edys-gal-gallery-overlay-touch, .edys-gallery-overlay, .edys-gallery-overlay-touch {
   position: absolute;
   background: #000000;
   opacity: 0.5;
@@ -9,19 +9,19 @@
   left:0; top:0;
 }
 
-.edys-gal-gallery-popup {
+.edys-gal-gallery-popup, .edys-gallery-popup {
   position: absolute;
   z-index: 1001;
   box-shadow: 0 0 10px #000000;
   margin:0; padding:0;
 }
 
-.edys-gallery-popup-touch {
+.edys-gal-gallery-popup-touch, .edys-gallery-popup-touch  {
   position: absolute;
   z-index: 1001;
 }
   
-.edys-gal-gallery-close {
+.edys-gal-gallery-close, .edys-gallery-close {
   right: 0;
   width: 0px; 
   height: 0px; 
@@ -42,7 +42,7 @@
   background: url('pixel.gif');
 }
 
-.edys-gal-gallery-close-touch {
+.edys-gal-gallery-close-touch, .edys-gallery-close-touch {
   width: 10px;
   height: 10px;
   border-radius: 15px;
@@ -54,11 +54,12 @@
   z-index: 1003;
 } 
 
-.edys-gal-gallery-content-wrap-touch{
+.edys-gal-gallery-content-wrap, .edys-gallery-content-wrap{
   clear: both;
+  position: relative;
 }
 
-.edys-gal-gallery-close:hover{
+.edys-gal-gallery-close:hover, .edys-gallery-close:hover{
   width: 10px;
   height: 10px;
   border-radius: 15px;
@@ -66,13 +67,13 @@
   margin-top:-15px;
 }
 
-.edys-gal-gallery-image-wrap img {
+.edys-gal-gallery-image-wrap img, .edys-gallery-image-wrap img {
   display: block;
   border:0;
   margin:0;
 }
 
-.edys-gal-gallery-left-wrap {
+.edys-gal-gallery-left-wrap, .edys-gallery-left-wrap {
   position: absolute;
   width: 50%;
   height: 100%;
@@ -82,7 +83,7 @@
   background: url('pixel.gif');
 }
 
-.edys-gal-gallery-right-wrap {
+.edys-gal-gallery-right-wrap, .edys-gallery-right-wrap {
   position: absolute;
   width: 50%;
   height: 100%;
@@ -92,7 +93,7 @@
   background: url('pixel.gif');
 }
 
-.edys-gal-gallery-right {
+.edys-gal-gallery-right, .edys-gallery-right {
   float: right;
   top: 40%;
   position: relative;
@@ -109,7 +110,7 @@
 
 }
 
-.edys-gal-gallery-left {
+.edys-gal-gallery-left, .edys-gallery-left {
   top: 40%;
   position: relative;
   width: 0px; 
@@ -124,22 +125,22 @@
   filter: alpha(opacity = 50);
 }
 
-.edys-gal-gallery-right-wrap:hover .edys-gal-gallery-right{
+.edys-gal-gallery-right-wrap:hover .edys-gal-gallery-right, .edys-gallery-right-wrap:hover .edys-gallery-right{
   border-color: transparent transparent transparent #ffffff;
 }
 
-.edys-gal-gallery-left-wrap:hover .edys-gal-gallery-left { 
+.edys-gal-gallery-left-wrap:hover .edys-gal-gallery-left, .edys-gallery-left-wrap:hover .edys-gallery-left { 
   border-color: transparent #ffffff transparent transparent;
 }
 
-.edys-gal-gallery-loading {
+.edys-gal-gallery-loading, .edys-gallery-loading {
   position: absolute;
   z-index: 1010;
   background: url('wait.gif') no-repeat;
   height: 32px;
   width: 32px;
 }
-.edys-gal-gallery-loading-touch {
+.edys-gal-gallery-loading-touch, .edys-gallery-loading-touch {
   background: url('wait.gif') no-repeat;
   height: 32px;
   width: 32px;
@@ -147,7 +148,7 @@
 }
 
 
-.edys-gal-gallery-title{
+.edys-gal-gallery-title, .edys-gallery-title{
   background: #333333;
   color: #ffffff;
   text-align: center;
@@ -158,19 +159,19 @@
   width: 100%;
 }
 
-.edys-gal-gallery-image-wrap-box-touch {
+.edys-gal-gallery-image-wrap-box-touch, .edys-gallery-image-wrap-box-touch {
   display: inline-block;
   width: 100%;
   text-align: center;
   vertical-align: middle;
 }
 
-.edys-gal-gallery-image-wrap-touch{
+.edys-gal-gallery-image-wrap-touch, .edys-gallery-image-wrap-touch{
   position: relative;
   white-space:nowrap;
 }
 
-.edys-gal-gallery-title-touch{
+.edys-gal-gallery-title-touch, .edys-gallery-title-touch{
   clear:both;
   display: inline;
   padding: 3px 6px;
@@ -182,11 +183,12 @@
   color: #ffffff;
 }
 
-.edys-gal-gallery-title-touch.edys-gal-gallery-title-notitle-touch{
+.edys-gal-gallery-title-touch.edys-gal-gallery-title-notitle-touch, .edys-gallery-title-touch.edys-gallery-title-notitle-touch{
   visibility: hidden;
 }
 
-.edys-gal-gallery-content-wrap-touch{
+.edys-gal-gallery-content-wrap-touch, .edys-gallery-content-wrap-touch{
   width: 100%;
+  position: static;
   overflow: hidden;
 }

@@ -7,7 +7,10 @@
             jquery_url: 'ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js',
             jquery_mobile_url: 'http://code.jquery.com/mobile/1.0b3/jquery.mobile-1.0b3.min.js',
             gallery_elements: '.edys-gallery',
-            gallery_template: false,
+
+            user_defined_templates : false,
+            gallery_template: null,
+            gallery_touch_template: null,
 
             popup_template: '<div class="{popup_class}">\
                                 <div class="{close_class}"></div>\
@@ -136,14 +139,17 @@
         get_classes: function(name,include_nonsys,include_dot){
             var sc =                G.defaults.system_classnames,
                 dc =                G.defaults.classnames,
-                include_nonsys =    isset(include_nonsys)?include_nonsys:false,
+                include_nonsys =    (isset(include_nonsys)||G.defaults.user_defined_templates !== false)?include_nonsys:false,
                 include_dot =       isset(include_dot)?include_dot:true,
                 suf =               (G.is_touch)?G.defaults.touchscreen_class_suffix:'',
                 dot =               (include_dot)?'.':'',
                 n =                 dot+sc[name]+suf;
-
-            if(include_nonsys){ n += ' ' + dot+dc[name] + suf;}
-            return n;
+            if(G.defaults.user_defined_templates !== false){
+                return dot+dc[name]+suf;
+            } else {
+                if(include_nonsys){ n += ' ' + dot+dc[name] + suf;}
+                return n;
+            }
         },
 
         gallery: {
@@ -265,12 +271,19 @@
                     p.overlay.resize();
 
                     /* keep popup element in viewport */
-                    p.popup_el.width(viewport.width())
-                              .css({
-                                'left': $(document).scrollLeft()+'px',
-                                'top': $(document).scrollTop()+'px',
-                              });
-                    img_wrap_boxes.width(viewport.width());
+                    if(G.is_touch){
+                        p.popup_el.width(viewport.width())
+                                  .css({
+                                    'left': $(document).scrollLeft()+'px',
+                                    'top': $(document).scrollTop()+'px',
+                                  });
+                        img_wrap_boxes.width(viewport.width());
+                    } else {
+                        p.popup.click_mode.set_popup_size_pos();
+                        var title_height= $(G.get_classes('title')).outerHeight(),
+                            wrap_size = G.gallery.get_img_size(imgs);
+                        $(G.get_classes('content_wrap')).width(wrap_size.w).height(wrap_size.h +title_height );
+                    }
 
                     /* resize all images to fit */
                     imgs.each(function(){
@@ -283,8 +296,10 @@
                         $(this).height(s.h).width(s.w).css('visibility','visible').show();
                     });
 
+
+
                     /* set current image to viewport center */
-                    p.popup.touch_mode.center_to_image(index);
+                    p.popup.touch_mode.center_to_image(p.current_index);
                 }
             },
 
@@ -321,18 +336,18 @@
 
             popup: {
                 make: function (){
-                    var popSrc = format_template(G.defaults.popup_template,{
-                                'popup_class': G.get_classes('popup',true,false),
-                                'close_class': G.get_classes('close_btn',true,false),
-                                'left_class': G.get_classes('left_btn',true,false),
-                                'right_class': G.get_classes('right_btn',true,false),
-                                'left_wrap_class': G.get_classes('left_btn_wrap',true,false),
-                                'right_wrap_class': G.get_classes('right_btn_wrap',true,false),
-                                'buttons_class': G.get_classes('additional_btns',true,false),
-                                'content_wrap_class': G.get_classes('content_wrap',true,false),
-                                'image_wrap_class': G.get_classes('image_wrap',true,false),
-                                'title_class': G.get_classes('title',true,false)
-                        }),
+                    var popSrc = (G.defaults.user_defined_templates === false) ? format_template(G.defaults.popup_template,{
+                                                                                'popup_class': G.get_classes('popup',true,false),
+                                                                                'close_class': G.get_classes('close_btn',true,false),
+                                                                                'left_class': G.get_classes('left_btn',true,false),
+                                                                                'right_class': G.get_classes('right_btn',true,false),
+                                                                                'left_wrap_class': G.get_classes('left_btn_wrap',true,false),
+                                                                                'right_wrap_class': G.get_classes('right_btn_wrap',true,false),
+                                                                                'buttons_class': G.get_classes('additional_btns',true,false),
+                                                                                'content_wrap_class': G.get_classes('content_wrap',true,false),
+                                                                                'image_wrap_class': G.get_classes('image_wrap',true,false),
+                                                                                'title_class': G.get_classes('title',true,false)
+                                                                           }) : (G.is_touch)?G.defaults.gallery_touch_template:G.defaults.gallery_template,
                         pop =   $(popSrc);
 
                     pop.css({
@@ -393,6 +408,7 @@
                     center_to_image: function (ind){
                         var loc = -1*((ind)*viewport.width());
                         if($.browser.webkit){ /* webkit has hardware acceleration for translate3d especially on iDevices */
+
                             G.gallery.popup_el.find(G.get_classes('image_wrap')).css({
                                 "-webkit-transform": "translate3d("+loc+"px,0px,0px)",
                                 "-webkit-transition-duration": "0s"
@@ -585,7 +601,8 @@
                         p.preload_image(list[index].href,function(new_image){
                             var old_img = $(G.get_classes('image_wrap')+' img'),
                                 ow = old_img.width(),
-                                oh = old_img.height();
+                                oh = old_img.height(),
+                                old_title_height= $(G.get_classes('title')).outerHeight();
 
                             new_image.css({'position':'absolute', 'visibility':'hidden'}).show();
                             pop.find(G.get_classes('image_wrap')).prepend(new_image);
@@ -595,14 +612,16 @@
                             var nw =    ni.w,
                                 nh =    ni.h,
                                 vw =    viewport.width(),
-                                vh =    viewport.height();
+                                vh =    viewport.height(),
+                                title_height= $(G.get_classes('title')).outerHeight(),
+                                title_change = title_height - old_title_height
                                 oleft = (vw/2)-(pop.outerWidth()/2)-((nw-ow)/2),
-                                otop =  (vh/2)-(pop.outerHeight()/2)-(nh-oh)/2;
+                                otop =  (vh/2)-(pop.outerHeight()/2)-(((nh+title_height)-(oh+old_title_height))/2);
 
                             pop.animate({'left': oleft+'px','top': otop+'px'},300);
-                            $(old_img).add(new_image).add(G.get_classes('content_wrap')).animate({
+                            $(old_img).add(new_image).animate({
                                 'width': nw+'px',
-                                'height': nh+'px'
+                                'height': (nh)+'px'
                             }, 300, function(){
                                 new_image.css({'position': "absolute",'visibility':'visible', 'top':0, 'left':0}).fadeIn(500,function(){
                                     new_image.css({'position': "static"});
@@ -610,6 +629,12 @@
                                     p.loading.hide();
                                 });
                             });
+
+                            $(G.get_classes('content_wrap')).animate({
+                                'width': nw+'px',
+                                'height': (nh+title_height)+'px'
+                            }, 300);
+
                         });
                     }
                 }
@@ -738,6 +763,7 @@
 
                 if (h > nph){
                     img.add(G.get_classes('content_wrap')).height(nph).width(npw);
+                    //img.add(G.get_classes('content_wrap')).height(nph).width(npw);
                 } else {
                     img.height(h).width(w);
                 }
