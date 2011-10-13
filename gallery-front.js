@@ -4,8 +4,7 @@
     var G = {
         defaults: {
             jquery_atleast_version: '1.5',
-            jquery_url: 'ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js',
-            jquery_mobile_url: 'http://code.jquery.com/mobile/1.0b3/jquery.mobile-1.0b3.min.js',
+            jquery_url: 'ajax.googleapis.com/ajax/libs/jquery/1.6.3/jquery.min.js',
             gallery_elements: '.edys-gallery',
 
             user_defined_templates : false,
@@ -13,11 +12,14 @@
             gallery_touch_template: null,
 
             popup_template: '<div class="{popup_class}">\
-                                <div class="{close_class}"></div>\
+                                <div class="{overlay_class}"></div>\
                                 <div class="{buttons_class}"></div>\
+                                <div class="{bottom_buttons_class}">\
+                                    <div class="{btn_wrap_class}"><div class="{left_class}"></div></div>\
+                                    <div class="{btn_wrap_class} {btn_wrap_middle_class}"><div class="{close_class}"></div></div>\
+                                    <div class="{btn_wrap_class}"><div class="{right_class}"></div></div>\
+                                </div>\
                                 <div class="{content_wrap_class}">\
-                                   <div class="{left_wrap_class}"><div class="{left_class}"></div></div>\
-                                   <div class="{right_wrap_class}"><div class="{right_class}"></div></div>\
                                    <div class="{image_wrap_class}"></div>\
                                    <div class="{title_class}"></div>\
                                 </div>\
@@ -30,10 +32,11 @@
                 popup:          'edys-gallery-popup',
                 left_btn:       'edys-gallery-left',
                 right_btn:      'edys-gallery-right',
-                left_btn_wrap:  'edys-gallery-left-wrap',
-                right_btn_wrap: 'edys-gallery-right-wrap',
+                btn_wrap:       'edys-gallery-btn-wrap',
+                btn_wrap_middle:'edys-gallery-btn-wrap-middle',
                 close_btn:      'edys-gallery-close',
                 additional_btns:'edys-gallery-btns',
+                bottom_btns:    'edys-gallery-bottom-btns',
                 content_wrap:   'edys-gallery-content-wrap',
                 image_wrap:     'edys-gallery-image-wrap',
                 image_wrap_box: 'edys-gallery-image-wrap-box',
@@ -47,10 +50,11 @@
                 popup:          'edys-gal-gallery-popup',
                 left_btn:       'edys-gal-gallery-left',
                 right_btn:      'edys-gal-gallery-right',
-                left_btn_wrap:  'edys-gal-gallery-left-wrap',
-                right_btn_wrap: 'edys-gal-gallery-right-wrap',
+                btn_wrap:       'edys-gal-gallery-btn-wrap',
+                btn_wrap_middle:'edys-gal-gallery-btn-wrap-middle',
                 close_btn:      'edys-gal-gallery-close',
                 additional_btns:'edys-gal-gallery-btns',
+                bottom_btns:    'edys-gal-gallery-bottom-btns',
                 content_wrap:   'edys-gal-gallery-content-wrap',
                 image_wrap:     'edys-gal-gallery-image-wrap',
                 image_wrap_box: 'edys-gal-gallery-image-wrap-box',
@@ -58,9 +62,14 @@
                 notitle:        'edys-gal-gallery-title-notitle'
             },
 
+            title_dissapear_time: 1.5,
+            title_dissapear_time_touch: 3,
+
             touchscreen_class_suffix: '-touch',
-            image_to_wiewport_max_ratio_x: 0.7,
-            image_to_wiewport_max_ratio_y: 0.7,
+            image_to_wiewport_max_ratio_x: 0.8,
+            image_to_wiewport_max_ratio_y: 0.8,
+            image_to_wiewport_max_ratio_touch_x: 0.8,
+            image_to_wiewport_max_ratio_touch_y: 0.97,
             swipe_move_treshold: 0.10,
             jumping_mode: 'strict',
             mode: "auto",
@@ -79,6 +88,7 @@
                         set_touch_mode();
                     }
                     init_swipe();
+                    init_delay_fix();
                     G.run();
                 });
             });
@@ -106,7 +116,7 @@
             },
 
             set_touch_mode: function(){
-                G.is_touch = (G.defaults.mode=="auto")?isTouchDevice():(G.defaults.mode=="touch")?true:false;
+                G.is_touch = (G.defaults.mode=="auto") ? isTouchDevice() : (G.defaults.mode=="touch") ? true : false;
             },
 
             set_link_clicks: function(links){
@@ -128,7 +138,7 @@
                     var l = $(this);
                     r.push({
                         'href': l.attr('href'),
-                        'rel': l.attr('rel'),
+                        'rel': isset(l.attr('rel')) ? l.attr('rel') : '&nbsp;',
                         'el': l
                     });
                 });
@@ -167,10 +177,20 @@
                 p.current_index = index;
 
                 /* make popup and overlay first time */
-                if(p.overlay_el === null){ p.overlay_el = p.overlay.make(); }
+                //if(p.overlay_el === null){ p.overlay_el = p.overlay.make(); }
                 if(p.popup_el === null){
                     p.popup_el = p.popup.make();
-                    if(!G.is_touch) { p.popup.click_mode.set_next_prev_buttons(); }
+                    if(!G.is_touch) {
+                        p.popup.click_mode.set_next_prev_buttons();
+                    } else {
+                        p.popup.touch_mode.set_next_prev_buttons();
+                    }
+                    p.overlay_el = p.popup_el.find(G.get_classes('overlay'));
+                    if(!G.is_touch){
+                        p.overlay_el.click(function(){
+                            G.gallery.hide();
+                        })
+                    }
                 }
 
                 /* set overlay size and bind resize to window resize event */
@@ -214,7 +234,8 @@
                         list =  p.current_list;
 
                     p.loading.hide();
-                    p.popup_el.find(G.get_classes('title')).hide(); /* hide global title element. all touch pictures have their own title */
+                    p.popup_el.find(G.get_classes('title')).remove(); /* hide global title element. all touch pictures have their own title */
+
                     p.popup_el.width(viewport.width())
                                     .css({
                                             'top':$(document).scrollTop()+'px',
@@ -223,6 +244,18 @@
 
                     /* make swipable gallery elements, bind automatic loading to images and show gallery */
                     p.popup.touch_mode.make_all_img_element(index,list,function(){
+
+                        if(G.defaults.title_dissapear_time_touch > -1){
+                            var btns =       p.popup_el.find(G.get_classes('bottom_btns')),
+                                titl =       p.popup_el.find(G.get_classes('title')),
+                                hidables = btns.add(titl);
+
+                            hidables.stop(true, true).show().css('opacity',1).delay(G.defaults.title_dissapear_time_touch*1000).fadeTo(400,0);
+                            p.pic_scroll.tap = function(){
+                                hidables.stop(true, true).show().css('opacity',1);
+                                hidables.stop(true, true).delay(G.defaults.title_dissapear_time_touch*1000).fadeTo(400,0);
+                            }
+                        }
 
                         /* setup scroller */
                         p.pic_scroll.scrollable_element = p.popup_el.find(G.get_classes('image_wrap'));
@@ -236,18 +269,42 @@
 
                         /* set gallery position to clicked image */
                         p.pic_scroll.center_to_index(index);
+                        p.pic_scroll.after_scroll = function (ind){
+                            p.current_index = ind;
+                        }
+
+
                     });
                 },
 
                 click_mode: function(){
                     var p =     G.gallery,
                         index = p.current_index,
-                        list =  p.current_list;
+                        list =  p.current_list,
+                        title = $(G.get_classes('title'));
 
                     /*preload clicked image */
                     p.preload_image(list[index].href,function(img){
                         /* set title */
-                        $(G.get_classes('title')).html(list[index].rel);
+                        if(list[index].rel != '&nbsp;'){
+                            title.show().html(list[index].rel);
+                            if(G.defaults.title_dissapear_time > -1){
+                                title.stop(true, true).delay(G.defaults.title_dissapear_time*1000).fadeOut();
+                                $(G.get_classes('content_wrap')).unbind('mousemove').bind('mousemove',function(){
+                                    if(G.gallery.current_list[G.gallery.current_index].rel != "&nbsp;"){
+                                        title.stop(true, true).show().css('opacity',1);
+                                        $(this).unbind('mouseleave').one("mouseleave",function(){
+                                            title.stop(true, true).delay(G.defaults.title_dissapear_time*1000).fadeOut();
+                                        });
+                                    }
+                                });
+
+
+                            }
+
+                        } else {
+                            $(G.get_classes('title')).hide();
+                        }
 
                         /* draw first preloaded image */
                         p.popup_el.find(G.get_classes('image_wrap')).html(img);
@@ -280,9 +337,8 @@
                         img_wrap_boxes.width(viewport.width());
                     } else {
                         p.popup.click_mode.set_popup_size_pos();
-                        var title_height= $(G.get_classes('title')).outerHeight(),
-                            wrap_size = G.gallery.get_img_size(imgs);
-                        $(G.get_classes('content_wrap')).width(wrap_size.w).height(wrap_size.h +title_height );
+                        var wrap_size = G.gallery.get_img_size(imgs);
+                        $(G.get_classes('content_wrap')).width(wrap_size.w).height(wrap_size.h);
                     }
 
                     /* resize all images to fit */
@@ -303,25 +359,6 @@
             },
 
             overlay:{
-                make: function(){
-                    var o = $("<div />").addClass(
-                            G.get_classes('overlay',true,false)
-                        ).css({
-                            'top':'0px',
-                            'left': '0px'
-                        }).hide();
-
-                    /* if not in touch mode bind close gallery to overlay click event */
-                    if(!G.is_touch){
-                        o.click(function(){
-                            G.gallery.hide();
-                        })
-                    }
-
-                    $("body").prepend(o);
-                    return o;
-                },
-
                 resize: function(){
                     var   o = G.gallery.overlay_el;
                     o.width(1).height(1);
@@ -334,17 +371,20 @@
             popup: {
                 make: function (){
                     var popSrc = (G.defaults.user_defined_templates === false) ? format_template(G.defaults.popup_template,{
-                                                                                'popup_class': G.get_classes('popup',true,false),
-                                                                                'close_class': G.get_classes('close_btn',true,false),
-                                                                                'left_class': G.get_classes('left_btn',true,false),
-                                                                                'right_class': G.get_classes('right_btn',true,false),
-                                                                                'left_wrap_class': G.get_classes('left_btn_wrap',true,false),
-                                                                                'right_wrap_class': G.get_classes('right_btn_wrap',true,false),
-                                                                                'buttons_class': G.get_classes('additional_btns',true,false),
-                                                                                'content_wrap_class': G.get_classes('content_wrap',true,false),
-                                                                                'image_wrap_class': G.get_classes('image_wrap',true,false),
-                                                                                'title_class': G.get_classes('title',true,false)
-                                                                           }) : (G.is_touch) ? G.defaults.gallery_touch_template : G.defaults.gallery_template,
+                            'popup_class':              G.get_classes('popup',true,false),
+                            'close_class':              G.get_classes('close_btn',true,false),
+                            'left_class':               G.get_classes('left_btn',true,false),
+                            'right_class':              G.get_classes('right_btn',true,false),
+                            'btn_wrap_class':           G.get_classes('btn_wrap',true,false),
+                            'btn_wrap_middle_class':    G.get_classes('btn_wrap_middle',true,false),
+                            'buttons_class':            G.get_classes('additional_btns',true,false),
+                            'content_wrap_class':       G.get_classes('content_wrap',true,false),
+                            'image_wrap_class':         G.get_classes('image_wrap',true,false),
+                            'title_class':              G.get_classes('title',true,false),
+                            'bottom_buttons_class':     G.get_classes('bottom_btns',true,false),
+                            'clickable_bg_class':       G.get_classes('popup_click_bg',true,false),
+                            'overlay_class':            G.get_classes('overlay',true,false)
+                        }) : (G.is_touch) ? G.defaults.gallery_touch_template : G.defaults.gallery_template,
                         pop =   $(popSrc);
 
                     pop.css({
@@ -364,10 +404,10 @@
                     }
 
                     /* hide next prev buttons if touch mode */
-                    if(G.is_touch){
-                        pop.find(G.get_classes('right_btn_wrap')).hide();
-                        pop.find(G.get_classes('left_btn_wrap')).hide();
-                    }
+                    /*if(G.is_touch){
+                        pop.find(G.get_classes('right_btn')).hide();
+                        pop.find(G.get_classes('left_btn')).hide();
+                    }*/
 
                     $("body").prepend(pop);
                     return pop;
@@ -387,16 +427,15 @@
                                                   .css({ 'min-height':'10px' })//$(document).width()),
                             img_w_c = img_tpl.clone(),
                             current_title = $('<div/>').addClass(G.get_classes('title',true,false)).html(list[index].rel);
-
-                        if(list[index].rel == ''){
+                        if(list[index].rel == '&nbsp;'){
                             current_title.addClass(G.get_classes('notitle',true,false));
                         }
-                        img_w_c.append('<br/>').append(current_title);
+                        img_w_c.append(current_title).append('<br/>');
                         imgs_wrap.width((max+1)*viewport.width()).html(img_w_c);
 
                         G.gallery.preload_image(list[index].href,function(img_c){
                             img_w_c.find(G.get_classes('loading')).remove();
-                            img_w_c.prepend(img_c);
+                            img_w_c.append(img_c);
                             var s_c = G.gallery.get_img_size(img_c);
                             img_c.height(s_c.h).width(s_c.w).show();
                         });
@@ -406,15 +445,15 @@
                                 (function(inc){
                                     var img_i = img_tpl.clone();
                                     var titl = $('<div/>').addClass(G.get_classes('title',true,false)).html(list[inc].rel);
-                                    if(list[inc].rel == ''){
+                                    if(list[inc].rel == '&nbsp;'){
                                         titl.addClass(G.get_classes('notitle',true,false));
                                     }
-                                    img_i.append('<br/>').append(titl);
+                                    img_i.append(titl).append('<br/>');
                                     imgs_wrap.append(img_i);
                                     G.gallery.preload_image(list[inc].href,function(img){
                                         //G.gallery.set_img_size(img);
                                         img_i.find(G.get_classes('loading')).remove();
-                                        img_i.prepend(img);
+                                        img_i.append(img);
                                         var s= G.gallery.get_img_size(img);
                                         img.height(s.h).width(s.w).show();
                                     });
@@ -428,15 +467,15 @@
                                 (function(dec){
                                     var img_d = img_tpl.clone();
                                     var titl = $('<div/>').addClass(G.get_classes('title',true,false)).html(list[dec].rel);
-                                    if(list[dec].rel == ''){
+                                    if(list[dec].rel == '&nbsp;'){
                                         titl.addClass(G.get_classes('notitle',true,false));
                                     }
-                                    img_d.append('<br/>').append(titl);
+                                    img_d.append(titl).append('<br/>');
                                     imgs_wrap.prepend(img_d);
                                     G.gallery.preload_image(list[dec].href,function(img){
                                        // G.gallery.set_img_size(img);
                                        img_d.find(G.get_classes('loading')).remove();
-                                       img_d.prepend(img);
+                                       img_d.append(img);
                                        var s= G.gallery.get_img_size(img);
                                        img.height(s.h).width(s.w).show();
                                     });
@@ -446,6 +485,52 @@
                         }
 
                         f();
+                    },
+
+                    set_next_prev_buttons: function(){
+                        var p = G.gallery,
+                            list = p.current_list,
+                            index = p.current_index
+                            pop = p.popup_el,
+                            r_btn = pop.find(G.get_classes('right_btn')),
+                            l_btn = pop.find(G.get_classes('left_btn')),
+                            img_wrap = pop.find(G.get_classes('image_wrap'));
+
+                        p.popup.click_mode.show_hide_next_prev();
+
+                        if(isTouchDevice()){
+                            r_btn.get(0).addEventListener("touchstart",function(){
+                                if((p.current_index+1 < p.current_list.length)){
+                                    p.current_index++;
+                                    p.pic_scroll.next();
+                                    p.popup.click_mode.show_hide_next_prev();
+                                }
+                            }, false);
+
+                            l_btn.get(0).addEventListener("touchstart",function(){
+                                if(p.current_index-1 >= 0){
+                                    p.current_index--;
+                                    p.pic_scroll.previous();
+                                    p.popup.click_mode.show_hide_next_prev();
+                                }
+                            }, false);
+                        } else {
+                            r_btn.click(function(e){
+                                if((p.current_index+1 < p.current_list.length)){
+                                    p.current_index++;
+                                    p.pic_scroll.next();
+                                    p.popup.click_mode.show_hide_next_prev();
+                                }
+                            });
+
+                            l_btn.click(function(e){
+                                if(p.current_index-1 >= 0){
+                                    p.current_index--;
+                                    p.pic_scroll.previous();
+                                    p.popup.click_mode.show_hide_next_prev();
+                                }
+                            });
+                        }
                     }
                 },
 
@@ -454,23 +539,25 @@
                     set_popup_size_pos: function(){
                         var pop =       G.gallery.popup_el,
                             img =       pop.find(G.get_classes('image_wrap') +' img'),
-                            img_wrap =  pop.find(G.get_classes('.image_wrap'));
+                            //img_wrap =  pop.find(G.get_classes('image_wrap')),
+                            wrp = pop.find(G.get_classes('content_wrap')),
+                            btns = pop.find(G.get_classes('bottom_btns'));
 
                         G.gallery.set_img_size(img);
 
                         var vw =    viewport.width(),
                             vh =    viewport.height();
 
-                        var pw =    pop.outerWidth(),
-                            ph =    pop.outerHeight(),
+                        var pw =    wrp.outerWidth(),
+                            ph =    wrp.outerHeight(true),
                             pleft = (vw/2)-(pw/2)+$(document).scrollLeft(),
-                            ptop = (vh/2)-(ph/2)+$(document).scrollTop();
+                            ptop = ((vh-btns.outerHeight(true))/2)-(ph/2)+$(document).scrollTop();
 
-                        img.css({
+                        /*img.css({
                             'left':   (img_wrap.outerWidth()/2)-(img.width()/2)
-                        });
+                        });*/
 
-                        pop.css({
+                        wrp.css({
                             'left': pleft+'px',
                             'top': ptop+'px'
                         });
@@ -481,8 +568,8 @@
                             list = p.current_list,
                             index = p.current_index
                             pop = p.popup_el,
-                            r_btn = pop.find(G.get_classes('right_btn_wrap')),
-                            l_btn = pop.find(G.get_classes('left_btn_wrap')),
+                            r_btn = pop.find(G.get_classes('right_btn')),
+                            l_btn = pop.find(G.get_classes('left_btn')),
                             img_wrap = pop.find(G.get_classes('image_wrap'));
 
                         p.popup.click_mode.show_hide_next_prev();
@@ -530,8 +617,8 @@
                             list = p.current_list,
                             index = p.current_index,
                             pop = p.popup_el,
-                            r_btn = pop.find(G.get_classes('right_btn_wrap')),
-                            l_btn = pop.find(G.get_classes('left_btn_wrap')),
+                            r_btn = pop.find(G.get_classes('right_btn')),
+                            l_btn = pop.find(G.get_classes('left_btn')),
                             has_next = (index+1 < list.length),
                             has_prev = (index-1 >= 0);
 
@@ -550,30 +637,45 @@
 
                     change_to_image: function (index,list){
                         var p = G.gallery,
-                            pop = p.popup_el;
+                            pop = p.popup_el,
+                            wrp = pop.find(G.get_classes('content_wrap')),
+                            btns = pop.find(G.get_classes('bottom_btns'));
 
                         p.loading.show();
+                        $(G.get_classes('content_wrap')).unbind('mouseleave');
                         p.preload_image(list[index].href,function(new_image){
                             var old_img = $(G.get_classes('image_wrap')+' img'),
                                 ow = old_img.width(),
-                                oh = old_img.height(),
-                                old_title_height= $(G.get_classes('title')).outerHeight();
+                                oh = old_img.height();
+
+
 
                             new_image.css({'position':'absolute', 'visibility':'hidden'}).show();
                             pop.find(G.get_classes('image_wrap')).prepend(new_image);
-                            $(G.get_classes('title')).html(list[index].rel);
+                            if(list[index].rel != '&nbsp;'){
+                                $(G.get_classes('title')).stop(true, true).show().css('opacity',1).html(list[index].rel);
+                                if(G.defaults.title_dissapear_time > -1){
+                                    $(G.get_classes('title')).stop(true, true).delay(G.defaults.title_dissapear_time*1000).fadeOut();
+                                }
+                            } else {
+                                $(G.get_classes('title')).html('');
+                                $(G.get_classes('title')).hide();
+                            }
 
                             var ni =    p.get_img_size(new_image);
                             var nw =    ni.w,
                                 nh =    ni.h,
                                 vw =    viewport.width(),
                                 vh =    viewport.height(),
-                                title_height= $(G.get_classes('title')).outerHeight(),
-                                title_change = title_height - old_title_height
-                                oleft = (vw/2)-(pop.outerWidth()/2)-((nw-ow)/2),
-                                otop =  (vh/2)-(pop.outerHeight()/2)-(((nh+title_height)-(oh+old_title_height))/2);
+                                oleft = (vw/2)-(wrp.outerWidth() / 2)-((nw-ow)/2),
+                                otop =  ((vh-btns.outerHeight(true))/2)-((wrp.outerHeight(true))/2)-(((nh)-(oh))/2);
 
-                            pop.animate({'left': oleft+'px','top': otop+'px'},300);
+                            wrp.animate({
+                                'left': oleft+'px',
+                                'top': otop+'px',
+                                'width': nw+'px',
+                                'height': (nh)+'px'
+                            },300);
                             $(old_img).add(new_image).animate({
                                 'width': nw+'px',
                                 'height': (nh)+'px'
@@ -584,12 +686,6 @@
                                     p.loading.hide();
                                 });
                             });
-
-                            $(G.get_classes('content_wrap')).animate({
-                                'width': nw+'px',
-                                'height': (nh+title_height)+'px'
-                            }, 300);
-
                         });
                     }
                 }
@@ -623,16 +719,18 @@
                 var pop =   G.gallery.popup_el,
                     def =   G.defaults,
                     w =     img.width(),
-                    h =     img.height();
+                    h =     img.height(),
+                    ratio_x = (G.is_touch) ? def.image_to_wiewport_max_ratio_touch_x : def.image_to_wiewport_max_ratio_x,
+                    ratio_y = (G.is_touch) ? def.image_to_wiewport_max_ratio_touch_y : def.image_to_wiewport_max_ratio_y;
 
                 img.height(1).width(1);
                 var vw =    $(window).width(),
                     vh =    viewport.height(),
-                    nph = def.image_to_wiewport_max_ratio_y*vh,
+                    nph = ratio_y*vh,
                     npw = w/(h/nph);
 
-                if(npw > vw*def.image_to_wiewport_max_ratio_x){
-                    npw = vw*def.image_to_wiewport_max_ratio_x;
+                if(npw > vw*ratio_x){
+                    npw = vw*ratio_x;
                     nph = h/(w/npw);
                 }
 
@@ -648,16 +746,18 @@
                 var pop =   G.gallery.popup_el,
                     def =   G.defaults,
                     w =     img.width(),
-                    h =     img.height();
+                    h =     img.height(),
+                    ratio_x = (G.is_touch) ? def.image_to_wiewport_max_ratio_touch_x : def.image_to_wiewport_max_ratio_x,
+                    ratio_y = (G.is_touch) ? def.image_to_wiewport_max_ratio_touch_y : def.image_to_wiewport_max_ratio_y;
 
                 img.height(1).width(1).show();
                 var vw =    viewport.width(),
                     vh =    viewport.height(),
-                    nph = def.image_to_wiewport_max_ratio_y*vh,
+                    nph = ratio_y*vh,
                     npw = w/(h/nph);
 
-                if(npw > vw*def.image_to_wiewport_max_ratio_x){
-                    npw = vw*def.image_to_wiewport_max_ratio_x;
+                if(npw > vw*ratio_x){
+                    npw = vw*ratio_x;
                     nph = h/(w/npw);
                 }
 
@@ -753,8 +853,11 @@
         this.fixed_stops = true;
         this.fixed_stop_width = 0;
         this.max_stops = 0;
-        this.move_treshold = 0.15;
+        this.move_treshold = 0.01;
         this.is_touch = "ontouchstart" in window;
+        this.tap_treshold = 0;
+        this.tap = function(){ alert('TAP');};
+        this.after_stop =  function(index){  };
 
         var me = this;
 
@@ -799,7 +902,14 @@
             e.preventDefault();
             if(me.fixed_stops && me.start_x !== null && me.end_x !== null && me.scrollable_element !== null){
                 me.move_to_closest();
+
+                /* detect tap */
+                var move_x = Math.abs(me.start_x - me.end_x);
+                if (move_x <= me.tap_treshold * me.fixed_stop_width) {
+                    me.tap();
+                }
             }
+
             me.start_x = me.end_x = null;
         }
 
@@ -834,6 +944,34 @@
                 this.scrollable_element.css("-webkit-transform", "translate3d("+(-1*newloc) +"px,0px,0px)");
             } else {
                 this.scrollable_element.stop().animate({'left': (-1*newloc)},800);
+            }
+
+            this.after_stop(new_i);
+
+        }
+
+        this.move_to = function(index){
+            var newloc = this.fixed_stop_width*(index);
+            if($.browser.webkit){
+                this.scrollable_element.css("-webkit-transition-duration", "0.5s");
+                this.scrollable_element.css("-webkit-transform", "translate3d("+(-1*newloc) +"px,0px,0px)");
+            } else {
+                this.scrollable_element.stop().animate({'left': (-1*newloc)},800);
+            }
+            this.current_index = index;
+            this.x = -1*(newloc);
+            this.after_stop(index);
+        }
+
+        this.next = function(){
+            if(this.current_index+1 <= this.max_stops){
+                this.move_to(this.current_index+1);
+            }
+        }
+
+        this.previous = function(){
+            if(this.current_index-1 >= 0){
+                this.move_to(this.current_index-1);
             }
         }
 
@@ -890,6 +1028,17 @@
             }
         }
 
+    }
+
+
+    /* jquery delay is flawed - does not queue delay. untill fix has been implemented into new version this has to be implemented */
+    var init_delay_fix = function(){
+        $.fn.delay = function(time, callback){
+            // Empty function:
+            jQuery.fx.step.delay = function(){};
+            // Return meaningless animation, (will be added to queue)
+            return this.animate({delay:1}, time, callback);
+        }
     }
 
     /* add swipe to jquery */
