@@ -180,7 +180,7 @@
                 //if(p.overlay_el === null){ p.overlay_el = p.overlay.make(); }
                 if(p.popup_el === null){
                     p.popup_el = p.popup.make();
-                    if(!G.is_touch) {
+                    if (!G.is_touch) {
                         p.popup.click_mode.set_next_prev_buttons();
                     } else {
                         p.popup.touch_mode.set_next_prev_buttons();
@@ -192,6 +192,20 @@
                         })
                     }
                 }
+
+                $(document).unbind('keydown').keydown(function(e){
+                    switch(e.which){
+                        case 39: /* fw */
+                            G.gallery.next();
+                        break;
+                        case 37:
+                            G.gallery.previous();
+                        break;
+                        case 27:
+                            G.gallery.hide();
+                        break;
+                    }
+                });
 
                 /* set overlay size and bind resize to window resize event */
                 p.overlay.resize();
@@ -224,6 +238,7 @@
                 $(G.get_classes('popup')+','+G.get_classes('overlay')).hide();
                 $(window).unbind('resize');
                 p.loading.hide();
+                $(document).unbind('keydown');
             },
 
             /* initiation functions */
@@ -273,6 +288,7 @@
                             p.current_index = ind;
                             p.popup.click_mode.show_hide_next_prev();
                         }
+                        p.popup.click_mode.show_hide_next_prev();
 
                     });
                 },
@@ -313,9 +329,11 @@
                         p.popup.click_mode.set_popup_size_pos();
                         p.overlay.resize();
                         p.popup_el.css('visibility','visible');
+                        p.popup.click_mode.show_hide_next_prev();
 
                         /* hide loading icon */
                         p.loading.hide();
+
                     });
                 },
 
@@ -480,7 +498,6 @@
                                     });
                                 })(decr);
                             }
-
                         }
 
                         f();
@@ -499,35 +516,19 @@
 
                         if(isTouchDevice()){
                             r_btn.get(0).addEventListener("touchstart",function(){
-                                if((p.current_index+1 < p.current_list.length)){
-                                    p.current_index++;
-                                    p.pic_scroll.next();
-                                    p.popup.click_mode.show_hide_next_prev();
-                                }
+                                G.gallery.next();
                             }, false);
 
                             l_btn.get(0).addEventListener("touchstart",function(){
-                                if(p.current_index-1 >= 0){
-                                    p.current_index--;
-                                    p.pic_scroll.previous();
-                                    p.popup.click_mode.show_hide_next_prev();
-                                }
+                                G.gallery.previous();
                             }, false);
                         } else {
                             r_btn.click(function(e){
-                                if((p.current_index+1 < p.current_list.length)){
-                                    p.current_index++;
-                                    p.pic_scroll.next();
-                                    p.popup.click_mode.show_hide_next_prev();
-                                }
+                                 G.gallery.next();
                             });
 
                             l_btn.click(function(e){
-                                if(p.current_index-1 >= 0){
-                                    p.current_index--;
-                                    p.pic_scroll.previous();
-                                    p.popup.click_mode.show_hide_next_prev();
-                                }
+                                G.gallery.previous();
                             });
                         }
                     }
@@ -580,37 +581,20 @@
                         p.popup.click_mode.show_hide_next_prev();
 
                         r_btn.unbind('click').click(function(e){
-                            if((p.current_index+1 < p.current_list.length)){
-                                p.current_index++;
-                                p.popup.click_mode.change_to_image(p.current_index,list);
-                                p.popup.click_mode.show_hide_next_prev();
-                            }
+                            G.gallery.next();
                         });
 
                         l_btn.unbind('click').click(function(e){
-                            if(p.current_index-1 >= 0){
-                                p.current_index--;
-                                p.popup.click_mode.change_to_image(p.current_index,list);
-                                p.popup.click_mode.show_hide_next_prev();
-                            }
+                            G.gallery.previous();
                         });
 
                         if(isTouchDevice()){
-
                             $(img_wrap).swipe({
                                 swipeLeft: function() {
-                                    if((p.current_index+1 < p.current_list.length)){
-                                        p.current_index++;
-                                        p.popup.click_mode.change_to_image(p.current_index,list);
-                                        p.popup.click_mode.show_hide_next_prev();
-                                    }
+                                    G.gallery.next();
                                 },
                                 swipeRight: function() {
-                                    if(p.current_index-1 >= 0){
-                                        p.current_index--;
-                                        p.popup.click_mode.change_to_image(p.current_index,list);
-                                        p.popup.click_mode.show_hide_next_prev();
-                                    }
+                                    G.gallery.previous();
                                 }
                             });
                         }
@@ -777,6 +761,32 @@
                     w: w/(h/newh),
                     vw: vw,
                     vh: vh
+                }
+            },
+
+            next: function(){
+                var p = G.gallery;
+                if (p.current_index+1 < p.current_list.length) {
+                    p.current_index++;
+                    if (G.is_touch) {
+                        p.pic_scroll.next();
+                    } else {
+                        p.popup.click_mode.change_to_image(p.current_index,p.current_list);
+                    }
+                    p.popup.click_mode.show_hide_next_prev();
+                }
+            },
+
+            previous: function(){
+                var p = G.gallery;
+                if (p.current_index-1 >= 0) {
+                    p.current_index--;
+                    if (G.is_touch) {
+                        p.pic_scroll.previous();
+                    } else {
+                        p.popup.click_mode.change_to_image(p.current_index,p.current_list);
+                    }
+                    p.popup.click_mode.show_hide_next_prev();
                 }
             },
 
