@@ -551,6 +551,11 @@
                         var vw =    viewport.width(),
                             vh =    viewport.height();
 
+                        wrp.css({
+                            'height': 'auto',
+                            'width': 'auto'
+                        })
+
                         var pw =    wrp.outerWidth(),
                             ph =    wrp.outerHeight(true),
                             pleft = (vw/2)-(pw/2)+$(document).scrollLeft(),
