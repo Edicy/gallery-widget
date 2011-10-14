@@ -1,5 +1,5 @@
 .edys-gal-gallery-overlay, .edys-gal-gallery-overlay-touch, .edys-gallery-overlay, .edys-gallery-overlay-touch {
-  position: absolute;
+  position: fixed;
   background: #000000;
   opacity: 0.75;
   filter: alpha(opacity = 50);
@@ -18,13 +18,12 @@
   height: 100%;
   width: 100%;
   left:0; top:0;
-
+  overflow: hidden;
 }
 
-/*.edys-gal-gallery-popup-touch, .edys-gallery-popup-touch  {
-  position: absolute;
-  z-index: 1002;
-}*/
+.edys-gal-gallery-popup-touch, .edys-gallery-popup-touch  {
+  text-align: left;
+}
 
 .edys-gal-gallery-close, .edys-gallery-close, .edys-gal-gallery-close-touch, .edys-gallery-close-touch {
   background: url("close.gif") no-repeat;
@@ -54,29 +53,16 @@
   display: inline-block;
   vertical-align: middle;
   line-height: 48px;
+  text-align: center;
 }
 
-.edys-gallery-btn-wrap_middle, edys-gal-gallery-btn-wrap_middle, .edys-gallery-btn-wrap-middle-touch, edys-gal-gallery-btn-wrap-middle-touch{
-
+.edys-gallery-btn-wrap-middle, edys-gal-gallery-btn-wrap-middle, .edys-gallery-btn-wrap-middle-touch, edys-gal-gallery-btn-wrap-middle-touch{
   border-width: 0px 1px 0px 1px;
   border-style: solid;
   border-color: #3c4143;
   padding: 0 10px;
+  text-align: center;
 }
-
-/*.edys-gal-gallery-close-touch, .edys-gallery-close-touch {
-  width: 10px;
-  height: 10px;
-  border-radius: 15px;
-  border-style: solid;
-  border-width: 10px;
-  border-color: #ffffff #dddddd;
-  float: right;
-  margin-bottom: 0px;
-  z-index: 1003;
-
-  vertical-align: middle;
-} */
 
 .edys-gal-gallery-content-wrap, .edys-gallery-content-wrap{
   clear: both;
@@ -96,28 +82,8 @@
   margin:0;
 }
 
-.edys-gal-gallery-left-wrap, .edys-gallery-left-wrap {
-  position: absolute;
-  width: 50%;
-  height: 100%;
-  left:0;
-  z-index: 1003;
-  cursor:pointer;
-  background: url('pixel.gif');
-}
-
-.edys-gal-gallery-right-wrap, .edys-gallery-right-wrap {
-  position: absolute;
-  width: 50%;
-  height: 100%;
-  right:0;
-  z-index: 1003;
-  cursor:pointer;
-  background: url('pixel.gif');
-}
-
 .edys-gal-gallery-right, .edys-gallery-right, .edys-gal-gallery-right-touch, .edys-gallery-right-touch {
-  background: url("right_arrow.gif") no-repeat center;
+  background: url("right_arrow.gif") no-repeat 8px center;
   width: 41px;
   height: 41px;
   display: inline-block;
@@ -126,20 +92,12 @@
 }
 
 .edys-gal-gallery-left, .edys-gallery-left, .edys-gal-gallery-left-touch, .edys-gallery-left-touch {
-  background: url("left_arrow.gif") no-repeat center;
+  background: url("left_arrow.gif") no-repeat 8px center;
   width: 41px;
   height: 41px;
   display: inline-block;
   cursor: pointer;
   vertical-align: middle;
-}
-
-.edys-gal-gallery-right-wrap:hover .edys-gal-gallery-right, .edys-gallery-right-wrap:hover .edys-gallery-right{
-  border-color: transparent transparent transparent #ffffff;
-}
-
-.edys-gal-gallery-left-wrap:hover .edys-gal-gallery-left, .edys-gallery-left-wrap:hover .edys-gallery-left {
-  border-color: transparent #ffffff transparent transparent;
 }
 
 .edys-gal-gallery-loading, .edys-gallery-loading {
@@ -150,10 +108,11 @@
   width: 32px;
 }
 .edys-gal-gallery-loading-touch, .edys-gallery-loading-touch {
-  background: url('wait.gif') no-repeat;
+  background: url('wait.gif') no-repeat center 0;
   height: 32px;
-  width: 32px;
-  display: inline-block;
+  width: 100%;
+  display: block;
+  clear:both;
 }
 
 
@@ -166,7 +125,7 @@
   z-index: 1010;
   bottom: 52px;
   line-height: 18px;
-  border-radius: 32px;
+  border-radius: 4px;
   padding: 7px 20px;
   font-size: 14px;
 }
@@ -174,9 +133,13 @@
 .edys-gal-gallery-image-wrap-box-touch, .edys-gallery-image-wrap-box-touch {
   display: inline-block;
   width: 100%;
-  text-align: center;
   vertical-align: middle;
   margin-top: -30px;
+  text-align: center;
+}
+
+.edys-gal-gallery-image-wrap-box-touch img, .edys-gallery-image-wrap-box-touch img{
+  box-shadow: 2px 0px 10px #000000;
 }
 
 .edys-gal-gallery-image-wrap-touch, .edys-gallery-image-wrap-touch{
@@ -191,9 +154,9 @@
   display: inline-block;
   position: relative;
   z-index: 1010;
-  top: 30px;
+  top: 40px;
   line-height: 18px;
-  border-radius: 32px;
+  border-radius: 4px;
   padding: 7px 20px;
   font-size: 14px;
 }

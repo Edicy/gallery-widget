@@ -4,7 +4,7 @@
     var G = {
         defaults: {
             jquery_atleast_version: '1.5',
-            jquery_url: 'ajax.googleapis.com/ajax/libs/jquery/1.6.3/jquery.min.js',
+            jquery_url: 'ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js',
             gallery_elements: '.edys-gallery',
 
             user_defined_templates : false,
@@ -138,7 +138,7 @@
                     var l = $(this);
                     r.push({
                         'href': l.attr('href'),
-                        'rel': isset(l.attr('rel')) ? l.attr('rel') : '&nbsp;',
+                        'rel': (isset(l.attr('rel')) && l.attr('rel') != '') ? l.attr('rel') : '&nbsp;',
                         'el': l
                     });
                 });
@@ -269,10 +269,10 @@
 
                         /* set gallery position to clicked image */
                         p.pic_scroll.center_to_index(index);
-                        p.pic_scroll.after_scroll = function (ind){
+                        p.pic_scroll.after_stop = function (ind){
                             p.current_index = ind;
+                            p.popup.click_mode.show_hide_next_prev();
                         }
-
 
                     });
                 },
@@ -298,7 +298,6 @@
                                         });
                                     }
                                 });
-
 
                             }
 
@@ -362,7 +361,7 @@
                 resize: function(){
                     var   o = G.gallery.overlay_el;
                     o.width(1).height(1);
-                    var w = $(document).width(),
+                    var w = viewport.width(),
                         h = $(document).height();
                     o.width(w).height(h);
                 }
@@ -543,6 +542,9 @@
                             wrp = pop.find(G.get_classes('content_wrap')),
                             btns = pop.find(G.get_classes('bottom_btns'));
 
+                        pop.height(1);
+                        var    mh = viewport.height()+$(document).scrollTop();
+                        pop.height(mh);
                         G.gallery.set_img_size(img);
 
                         var vw =    viewport.width(),
@@ -561,6 +563,9 @@
                             'left': pleft+'px',
                             'top': ptop+'px'
                         });
+
+                        pop.height(mh);
+
                     },
 
                     set_next_prev_buttons: function(){
@@ -648,8 +653,6 @@
                                 ow = old_img.width(),
                                 oh = old_img.height();
 
-
-
                             new_image.css({'position':'absolute', 'visibility':'hidden'}).show();
                             pop.find(G.get_classes('image_wrap')).prepend(new_image);
                             if(list[index].rel != '&nbsp;'){
@@ -667,8 +670,8 @@
                                 nh =    ni.h,
                                 vw =    viewport.width(),
                                 vh =    viewport.height(),
-                                oleft = (vw/2)-(wrp.outerWidth() / 2)-((nw-ow)/2),
-                                otop =  ((vh-btns.outerHeight(true))/2)-((wrp.outerHeight(true))/2)-(((nh)-(oh))/2);
+                                oleft = (vw/2)-(wrp.outerWidth() / 2)-((nw-ow)/2)+$(document).scrollLeft(),
+                                otop =  ((vh-btns.outerHeight(true))/2)-((wrp.outerHeight(true))/2)-(((nh)-(oh))/2)+$(document).scrollTop();
 
                             wrp.animate({
                                 'left': oleft+'px',
@@ -704,9 +707,9 @@
                     var h = loading.outerHeight(),
                         w = loading.outerWidth();
                     loading.css({
-                        'top': ((vh/2)-(h/2))+'px',
-                        'left': ((vw/2)-(w/2))+'px',
-                        'visibility':'visible'
+                        'top':          ((vh / 2) - (h / 2)) + 'px',
+                        'left':         ((vw / 2) - (w / 2)) + 'px',
+                        'visibility':   'visible'
                     });
                 },
 
@@ -821,8 +824,8 @@
     var format_template =function(s,inserts){
 		var t = s;
 		for(var i  in inserts){
-			var regx = new RegExp('{'+i+'}','gi')
-			t = t.replace(regx,inserts[i]);
+			var regx = new RegExp('{'+i+'}','gi');
+            t = t.replace(regx,inserts[i]);
 		}
 		return t;
 	}
@@ -1030,7 +1033,6 @@
 
     }
 
-
     /* jquery delay is flawed - does not queue delay. untill fix has been implemented into new version this has to be implemented */
     var init_delay_fix = function(){
         $.fn.delay = function(time, callback){
@@ -1074,7 +1076,6 @@
                 }
 
                 function touchEnd(event) {
-                    //console.log('Ending swipe gesture...')
                     var changeY = originalCoord.y - finalCoord.y;
                     if(changeY < defaults.threshold.y && changeY > (defaults.threshold.y*-1)) {
                         changeX = originalCoord.x - finalCoord.x;
