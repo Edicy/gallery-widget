@@ -245,4 +245,3 @@ Css for redesigning starting point:
     .edys-gallery-title-touch.edys-gallery-title-notitle-touch {
       visibility: hidden;
     }
-    

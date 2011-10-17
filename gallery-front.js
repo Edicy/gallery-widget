@@ -65,7 +65,7 @@
                 notitle:        'edys-gal-gallery-title-notitle'
             },
 
-            title_dissapear_time: 1.5,
+            title_dissapear_time: 3,
             title_dissapear_time_touch: 3,
 
             touchscreen_class_suffix: '-touch',
@@ -182,6 +182,7 @@
             current_list:   null,
             current_index:  null,
             pic_scroll : new scroller(),
+            oc_timer: null,
 
             show: function(index,list){
                 var p = G.gallery;
@@ -228,7 +229,7 @@
                     window.addEventListener('orientationchange', G.gallery.initiate.resize_window_event, false);
                 } else {
                     $(window).unbind('resize').resize(function() {
-                        G.gallery.initiate.resize_window_event();
+                        G.gallery.initiate.resize_window_function();
                     });
                 }
 
@@ -260,23 +261,28 @@
                 touch_mode: function(){
                     var p =     G.gallery,
                         index = p.current_index,
-                        list =  p.current_list;
+                        list =  p.current_list,
+                        btns =  p.popup_el.find(G.get_classes('bottom_btns'));
 
                     p.loading.hide();
                     p.popup_el.find(G.get_classes('title')).remove(); /* hide global title element. all touch pictures have their own title */
 
                     p.popup_el.width(viewport.width())
                                     .css({
-                                            'top':$(document).scrollTop()+'px',
-                                            'left': $(document).scrollLeft()+'px'
+                                            'padding-top':($(document).scrollTop())+'px',
+                                            'padding-left': $(document).scrollLeft()+'px',
+                                            'padding-right': ($(document).width()-viewport.width()-$(document).scrollLeft())+'px',
+                                            'padding-bottom': ($(document).height()-viewport.height()-$(document).scrollTop())+'px'
                                     }).show(); /* set popup size/pos and show */
+                    btns.css({
+                        "bottom": ($(document).height()-viewport.height()-$(document).scrollTop())+'px'
+                    });
 
                     /* make swipable gallery elements, bind automatic loading to images and show gallery */
                     p.popup.touch_mode.make_all_img_element(index,list,function(){
 
                         if(G.defaults.title_dissapear_time_touch > -1){
-                            var btns =       p.popup_el.find(G.get_classes('bottom_btns')),
-                                titl =       p.popup_el.find(G.get_classes('title')),
+                            var titl =       p.popup_el.find(G.get_classes('title')),
                                 hidables = btns.add(titl);
 
                             hidables.stop(true, true).show().css('opacity',1).delay(G.defaults.title_dissapear_time_touch*1000).fadeTo(400,0);
@@ -353,9 +359,17 @@
                 },
 
                 resize_window_event: function(){ /* called on window resize and orientation change */
+                    if (G.gallery.oc_timer !== null) {clearTimeout(G.gallery.oc_timer);}
+                    G.gallery.oc_timer = setTimeout(function () {
+                        G.gallery.initiate.resize_window_function();
+                    }, 500);
+                },
+
+                resize_window_function: function(){
                     var p =     G.gallery,
                         imgs =  p.popup_el.find(G.get_classes('image_wrap')+' img'),
-                        img_wrap_boxes = p.popup_el.find(G.get_classes('image_wrap_box'));
+                        img_wrap_boxes = p.popup_el.find(G.get_classes('image_wrap_box')),
+                        btns =  p.popup_el.find(G.get_classes('bottom_btns'));
 
                     p.overlay.resize();
 
@@ -363,10 +377,15 @@
                     if(G.is_touch){
                         p.popup_el.width(viewport.width())
                                   .css({
-                                    'left': $(document).scrollLeft()+'px',
-                                    'top': $(document).scrollTop()+'px'
+                                    'padding-left': $(document).scrollLeft()+'px',
+                                    'padding-right': ($(document).width()-viewport.width()-$(document).scrollLeft())+'px',
+                                    'padding-top': $(document).scrollTop()+'px',
+                                    'padding-bottom': ($(document).height()-viewport.height()-$(document).scrollTop())+'px'
                                   });
                         img_wrap_boxes.width(viewport.width());
+                        btns.css({
+                            "bottom": ($(document).height()-viewport.height()-$(document).scrollTop())+'px'
+                        });
                     } else {
                         p.popup.click_mode.set_popup_size_pos();
                         var wrap_size = G.gallery.get_img_size(imgs);
@@ -572,7 +591,7 @@
                         })
 
                         var pw =    wrp.outerWidth(),
-                            ph =    wrp.outerHeight(true),
+                            ph =    wrp.outerHeight(),
                             pleft = (vw/2)-(pw/2)+$(document).scrollLeft(),
                             ptop = ((vh-btns.outerHeight(true))/2)-(ph/2)+$(document).scrollTop();
 
@@ -582,7 +601,8 @@
 
                         wrp.css({
                             'left': pleft+'px',
-                            'top': ptop+'px'
+                            'top': ptop+'px',
+                            'height': pop.find(G.get_classes('image_wrap') +' img').height()+'px',
                         });
 
                         pop.height(mh);
@@ -592,7 +612,7 @@
                     set_next_prev_buttons: function(){
                         var p = G.gallery,
                             list = p.current_list,
-                            index = p.current_index
+                            index = p.current_index,
                             pop = p.popup_el,
                             r_btn = pop.find(G.get_classes('right_btn')),
                             l_btn = pop.find(G.get_classes('left_btn')),
@@ -632,23 +652,24 @@
                             has_prev = (index-1 >= 0);
 
                         if(has_next){
-                            r_btn.show();
+                            r_btn.removeClass("disabled");
                         } else {
-                            r_btn.hide();
+                             r_btn.addClass("disabled");
                         }
 
                         if(has_prev){
-                            l_btn.show();
+                            l_btn.removeClass("disabled");
                         } else {
-                            l_btn.hide();
+                            l_btn.addClass("disabled");
                         }
                     },
 
                     change_to_image: function (index,list){
-                        var p = G.gallery,
-                            pop = p.popup_el,
-                            wrp = pop.find(G.get_classes('content_wrap')),
-                            btns = pop.find(G.get_classes('bottom_btns'));
+                        var p =         G.gallery,
+                            pop =       p.popup_el,
+                            wrp =       pop.find(G.get_classes('content_wrap')),
+                            img_wrp =   pop.find(G.get_classes('image_wrap')),
+                            btns =      pop.find(G.get_classes('bottom_btns'));
 
                         p.loading.show();
                         $(G.get_classes('content_wrap')).unbind('mouseleave');
