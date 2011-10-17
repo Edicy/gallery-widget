@@ -74,11 +74,9 @@
             image_to_wiewport_max_ratio_touch_x: 0.8,
             image_to_wiewport_max_ratio_touch_y: 0.97,
             swipe_move_treshold: 0.10,
+            tap_move_treshold: 0,
             jumping_mode: 'strict',
-            mode: "auto",
-            texts: {
-
-            }
+            mode: "auto"
         },
 
         is_touch: false,
@@ -296,6 +294,7 @@
                         p.pic_scroll.fixed_stop_width = viewport.width();
                         p.pic_scroll.max_stops = list.length-1;
                         p.pic_scroll.move_treshold = G.defaults.swipe_move_treshold;
+                        p.pic_scroll.tap_treshold = G.defaults.tap_move_treshold;
                         p.pic_scroll.bind_events();
 
                         /* set gallery position to clicked image */
