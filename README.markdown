@@ -32,16 +32,17 @@ Configuration variables:
     jumping_mode: defines if all gallery elements will be handled as a unified gallery or every gallery has its own pictures. Values > strict / loose. Default = strict.
     mode: defines if gallery is displayed in toush-swipe mode, ordinary click mode or detected automatically. Both modes work with touchscreen and mouse. Values > auto / touch / click. Default = auto.
     
-    title_dissapear_time: time in seconds for the image title to dissapear in ordinary click mode. Default = 1.5. If no fading is desired pass a value of -1.
+    title_dissapear_time: time in seconds for the image title to dissapear in ordinary click mode. Default = 3. If no fading is desired pass a value of -1.
     title_dissapear_time_touch: time in seconds for the image title and navigation buttons to dissapear in touch mode. Default = 3. If no fading is desired pass a value of -1.
     
     classnames: object that defines user confugurable classnames for gallery. Object structure: 
         classnames: {
                 overlay:        'edys-gallery-overlay',             => classname of overlay. The gray transparent background
-                loading:        'edys-gallery-loading',             => loading icon classname
+                loading:        'edys-gallery-loading',             => loading icon
+                loading_wrap:   'edys-gallery-loading-wrap',        => div around loading icon
                 popup:          'edys-gallery-popup',               => popup wrap classname
-                left_btn:       'edys-gallery-left',                => left button classname
-                right_btn:      'edys-gallery-right',               => right button classname
+                left_btn:       'edys-gallery-left',                => left button
+                right_btn:      'edys-gallery-right',               => right button
                 btn_wrap:       'edys-gallery-btn-wrap',            => wrap around each button element
                 btn_wrap_middle:'edys-gallery-btn-wrap-middle',     => additional class to define the wrap around middle button
                 close_btn:      'edys-gallery-close',               => close button
@@ -70,32 +71,57 @@ Configuration variables:
     
     default_styles: default = true. Defines if gallery adds its default css into dom head before all css-es or not.
     
+    texts: {
+      wait: "Wait"
+    }
+    Textual data. Currently only wait text that is displayed only for IE <= 8 as it cannot do css3 transforms and animations for loading spinner.
     
+    loader_template: Loading spinner html template
+        Default: <div class="edys-gallery-loading-wrap">
+                      <div class="edys-gallery-loading">
+                          <div class="bar1"></div>
+                          <div class="bar2"></div>
+                          <div class="bar3"></div>
+                          <div class="bar4"></div>
+                          <div class="bar5"></div>
+                          <div class="bar6"></div>
+                          <div class="bar7"></div>
+                          <div class="bar8"></div>
+                      </div>
+                  </div>
+
+    loader_template_ie_lt9: Loading spinner html template for IE ut to 8
+        Default:  <div class="edys-gallery-loading-wrap">
+                        <div class="edys-gallery-loading">
+                            {wait}
+                        </div>
+                   </div>
+
 #Designing HTML and css
       
 Default html for reference. For touch mode template all classes have "-touch" suffix:
 
-    <div class="edys-gallery-popup">\
-        <div class="edys-gallery-overlay"></div>\
-        <div class="edys-gallery-btns"></div>\
-        <div class="edys-gallery-bottom-btns">\
-            <div class="edys-gallery-btn-wrap"><div class="edys-gallery-left"></div></div>\
-            <div class="edys-gallery-btn-wrap edys-gallery-btn-wrap-middle"><div class="edys-gallery-close"></div></div>\
-            <div class="edys-gallery-btn-wrap"><div class="edys-gallery-right"></div></div>\
-        </div>\
-        <div class="edys-gallery-content-wrap">\
-           <div class="edys-gallery-image-wrap"></div>\
-           <div class="edys-gallery-title"></div>\
-        </div>\
+    <div class="edys-gallery-popup">
+        <div class="edys-gallery-overlay"></div>
+        <div class="edys-gallery-btns"></div>
+        <div class="edys-gallery-bottom-btns">
+            <div class="edys-gallery-btn-wrap"><div class="edys-gallery-left"></div></div>
+            <div class="edys-gallery-btn-wrap edys-gallery-btn-wrap-middle"><div class="edys-gallery-close"></div></div>
+            <div class="edys-gallery-btn-wrap"><div class="edys-gallery-right"></div></div>
+        </div>
+        <div class="edys-gallery-content-wrap">
+           <div class="edys-gallery-image-wrap"></div>
+           <div class="edys-gallery-title"></div>
+        </div>
     </div>
 
 Css for redesigning starting point:
 
     .edys-gallery-overlay, .edys-gallery-overlay-touch {
-      position: fixed;
+      position: absolute;
       background: #000000;
       opacity: 0.75;
-      filter: alpha(opacity = 50);
+      filter: alpha(opacity = 75);
       z-index: 1001;
       margin:0; padding:0;
       overflow: hidden;
@@ -114,43 +140,45 @@ Css for redesigning starting point:
     }
     .edys-gallery-popup-touch {
       text-align: left;
+      overflow: visible;
+      position: absolute;
+      left:0; top:0;
+      overflow: hidden;
+       margin:0; padding:0;
     }
     .edys-gallery-close, .edys-gallery-close-touch {
-      background: url("close.gif") no-repeat;
-      width: 33px;
-      height: 33px;
+      background: url("close.gif") no-repeat center center;
+      width: 68px;
+      height: 48px;
       display: inline-block;
       cursor: pointer;
-      vertical-align: middle;
+      margin: 10px 0;
+      border-color: #3c4143;
+      border-width: 0 1px;
+      border-style: solid;-moz-animation: 1s linear 0s normal none infinite rotate;
     }
-    .edys-gallery-bottom-btns,.edys-gallery-bottom-btns-touch {
+    .edys-gallery-bottom-btns, .edys-gallery-bottom-btns-touch {
       background: rgb(38,44,47);
       background: rgba(27,33,36,0.8);
       border-radius: 4px;
-      padding: 10px;
+      padding: 0px;
       display: inline-block;
       position: absolute;
-      bottom: 0px;
       margin-bottom: 0.5%;
       left: 50%;
-      margin-left: -97px;
+      margin-left: -102px;
       z-index: 1004;
+      bottom: 0;
     }
     .edys-gallery-btn-wrap, .edys-gallery-btn-wrap-touch {
-      width: 48px; height: 48px;
+      width: 68px; height: 68px;
       display: inline-block;
       vertical-align: middle;
       line-height: 48px;
       text-align: center;
     }
-    .edys-gallery-btn-wrap-middle, .edys-gallery-btn-wrap-middle-touch {
-      border-width: 0px 1px 0px 1px;
-      border-style: solid;
-      border-color: #3c4143;
-      padding: 0 10px;
-      text-align: center;
-    }
     .edys-gallery-content-wrap {
+      box-shadow: 2px 0px 10px #000000;
       clear: both;
       position: absolute;
       text-align: center;
@@ -164,7 +192,6 @@ Css for redesigning starting point:
       margin-top: 0.5%;
     }
     .edys-gallery-image-wrap {
-      box-shadow: 2px 0px 10px #000000;
       overflow: hidden;
     }
     .edys-gallery-image-wrap img {
@@ -179,7 +206,7 @@ Css for redesigning starting point:
       margin-top: -30px;
       text-align: center;
     }
-    .edys-gallery-image-wrap-box-touch img{
+    .edys-gallery-image-wrap-box-touch img {
       box-shadow: 2px 0px 10px #000000;
     }
     .edys-gallery-image-wrap-touch{
@@ -187,35 +214,26 @@ Css for redesigning starting point:
       white-space:nowrap;
     }
     .edys-gallery-right, .edys-gallery-right-touch {
-      background: url("right_arrow.gif") no-repeat 8px center;
-      width: 41px;
-      height: 41px;
+      background: url("right_arrow.gif") no-repeat center center;
+      width: 68px;
+      height: 68px;
       display: inline-block;
       cursor: pointer;
       vertical-align: middle;
     }
     .edys-gallery-left, .edys-gallery-left-touch {
-      background: url("left_arrow.gif") no-repeat 8px center;
-      width: 41px;
-      height: 41px;
+      background: url("left_arrow.gif") no-repeat center center;
+      width: 68px;
+      height: 68px;
       display: inline-block;
       cursor: pointer;
       vertical-align: middle;
     }
-    .edys-gallery-loading {
-      position: absolute;
-      z-index: 1010;
-      background: url('wait.gif') no-repeat;
-      height: 32px;
-      width: 32px;
+    .edys-gallery-right.disabled, .edys-gallery-right-touch.disabled, .edys-gallery-left.disabled, .edys-gallery-left-touch.disabled{
+      opacity: 0.1;
+      filter: alpha(opacity = 10);
     }
-    .edys-gallery-loading-touch {
-      background: url('wait.gif') no-repeat center 0;
-      height: 32px;
-      width: 100%;
-      display: block;
-      clear:both;
-    }
+
     .edys-gallery-title{
       background: rgb(38,44,47);
       background: rgba(27,33,36,0.8);
@@ -244,4 +262,124 @@ Css for redesigning starting point:
     }
     .edys-gallery-title-touch.edys-gallery-title-notitle-touch {
       visibility: hidden;
+    }
+    .edys-gallery-loading, .edys-gallery-loading-touch {
+      position:absolute;
+      width:40px;
+      height:40px;
+      margin-top: -20px;
+      z-index: 1010;
+      margin-left: -5px;
+      
+      -moz-border-radius:40px;
+      -webkit-border-radius:40px;
+      -webkit-animation-name: rotateThis;
+      -webkit-animation-duration:2s;
+      -webkit-animation-iteration-count:infinite;
+      -webkit-animation-timing-function:linear;
+
+      -moz-animation-name: rotateThisMoz;
+      -moz-animation-duration:2s;
+      -moz-animation-iteration-count:infinite;
+      -moz-animation-timing-function:linear;
+
+      -ms-animation-name: rotateThisMs;
+      -ms-animation-duration:2s;
+      -ms-animation-iteration-count:infinite;
+      -ms-animation-timing-function:linear;
+
+      -o-transition-duration: 0s;
+      -o-transition-timing-function: linear;
+      background: #cccccc;
+      background: rgba(255,255,255,0);
+      padding: 10px;
+    }
+    .edys-gallery-loading-rotate-touch{
+      -o-transition-duration: 2s;
+      -o-transform:rotate(359deg);
+    }
+    .edys-gallery-loading-touch {
+      display: inline-block;
+      position: relative;
+      margin-left:0;
+    }
+    .edys-gallery-loading-wrap-touch {
+      width: 100%;
+      display: block;
+      text-align: center;
+      position: relative;
+    }
+    .edys-gallery-loading-wrap {
+      position:absolute;
+      width:40px;
+      height:40px;
+    }
+    @-webkit-keyframes rotateThis {
+      from {-webkit-transform: rotate(0deg);} to {-webkit-transform: rotate(360deg);}
+    }
+    @-moz-keyframes rotateThisMoz {
+      from {-moz-transform: rotate(0deg);} to {-moz-transform: rotate(360deg);}
+    }
+    @-ms-keyframes rotateThisMs {
+      from {-ms-transform: rotate(0deg);} to {-ms-transform: rotate(360deg);}
+    }
+    .edys-gallery-loading div, .edys-gallery-loading-touch div {
+      width:10px;
+      height:10px;
+      background:#000;
+      -moz-border-radius:20px;
+      -webkit-border-radius:20px;
+      border-radius:20px;
+      position:absolute;
+      left:25px;
+      top:25px;
+    }
+    .edys-gallery-loading .bar1, .edys-gallery-loading-touch .bar1 {
+      -moz-transform:rotate(0deg) translate(0, -20px);
+      -ms-transform:rotate(0deg) translate(0, -20px);
+      -o-transform:rotate(0deg) translate(0, -20px);
+      -webkit-transform:rotate(0deg) translate(0, -20px);opacity:0.12;
+
+    }
+    .edys-gallery-loading .bar2 , .edys-gallery-loading-touch .bar2 {
+      -moz-transform:rotate(45deg) translate(0, -20px);
+      -ms-transform:rotate(45deg) translate(0, -20px);
+      -o-transform:rotate(45deg) translate(0, -20px);
+      -webkit-transform:rotate(45deg) translate(0, -20px);opacity:0.25;
+    }
+    .edys-gallery-loading .bar3, .edys-gallery-loading-touch .bar3 {
+      -moz-transform:rotate(90deg) translate(0, -20px);
+      -ms-transform:rotate(90deg) translate(0, -20px);
+      -o-transform:rotate(90deg) translate(0, -20px);
+      -webkit-transform:rotate(90deg) translate(0, -20px);opacity:0.37;
+    }
+    .edys-gallery-loading .bar4, .edys-gallery-loading-touch .bar4 {
+      -moz-transform:rotate(135deg) translate(0, -20px);
+      -ms-transform:rotate(135deg) translate(0, -20px);
+      -o-transform:rotate(135deg) translate(0, -20px);
+      -webkit-transform:rotate(135deg) translate(0, -20px);opacity:0.50;
+    }
+    .edys-gallery-loading .bar5, .edys-gallery-loading-touch .bar5 {
+      -moz-transform:rotate(180deg) translate(0, -20px);
+      -ms-transform:rotate(180deg) translate(0, -20px);
+      -o-transform:rotate(180deg) translate(0, -20px);
+      -webkit-transform:rotate(180deg) translate(0, -20px);opacity:0.62;
+    }
+    .edys-gallery-loading .bar6, .edys-gallery-loading-touch .bar6 {
+      -moz-transform:rotate(225deg) translate(0, -20px);
+      -ms-transform:rotate(225deg) translate(0, -20px);
+      -o-transform:rotate(225deg) translate(0, -20px);
+      -webkit-transform:rotate(225deg) translate(0, -20px);opacity:0.75;
+    }
+    .edys-gallery-loading .bar7, .edys-gallery-loading-touch .bar7 {
+      -moz-transform:rotate(270deg) translate(0, -20px);
+      -moz-transform:rotate(270deg) translate(0, -20px);
+      -o-transform:rotate(270deg) translate(0, -20px);
+      -webkit-transform:rotate(270deg) translate(0, -20px);opacity:0.87;
+    }
+    .edys-gallery-loading .bar8, .edys-gallery-loading-touch .bar8 {
+      -moz-transform:rotate(315deg) translate(0, -20px);
+      -ms-transform:rotate(315deg) translate(0, -20px);
+      -o-transform:rotate(315deg) translate(0, -20px);
+      -webkit-transform:rotate(315deg) translate(0, -20px);opacity:1;
     }
