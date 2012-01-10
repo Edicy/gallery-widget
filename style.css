@@ -9,7 +9,6 @@
 	overflow: hidden; 
 	left:0; 
 	top:0; 
-
 }
 .edys-gal-gallery-popup, .edys-gallery-popup, .edys-gal-gallery-popup-touch, .edys-gallery-popup-touch { 
 	position: absolute; 
@@ -21,7 +20,7 @@
 	left:0; 
 	top:0; 
 	overflow: hidden;
-	 
+	height: 100%; width: 100%; 
 } 
 .edys-gal-gallery-popup-touch, .edys-gallery-popup-touch { 
 	text-align: left; 
@@ -138,7 +137,7 @@
 	font-size: 14px; 
 } 
 .edys-gal-gallery-title-touch.edys-gal-gallery-title-notitle-touch, .edys-gallery-title-touch.edys-gallery-title-notitle-touch { visibility: hidden; } .edys-gallery-loading, .edys-gal-gallery-loading, .edys-gallery-loading-touch, .edys-gal-gallery-loading-touch { 
-	position:fixed; 
+	position:absolute; 
 	width:40px; 
 	height:40px; 
 	margin-top: -20px; 
@@ -166,7 +165,7 @@
 } 
 .edys-gallery-loading-rotate-touch { -o-transition-duration: 2s; -o-transform:rotate(359deg); } 
 .edys-gallery-loading-touch, .edys-gal-gallery-loading-touch { display: inline-block; position: relative; margin-left:0; } .edys-gallery-loading-wrap-touch, .edys-gal-gallery-loading-wrap-touch { width: 100%; display: block; text-align: center; position: relative; } .edys-gallery-loading-wrap, .edys-gal-gallery-loading-wrap { 
-	position:fixed; 
+	position:absolute; 
 	width:40px; 
 	height:40px; 
 } 
