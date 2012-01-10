@@ -51,7 +51,7 @@
 	background: rgba(27,33,36,0.8); 
 	border-radius: 4px; 
 	padding: 0px; 
-	display: inline-block; 
+	display: inline; 
 	position: absolute; 
 	margin-bottom: 0.5%; 
 	left: 50%; 
@@ -62,7 +62,10 @@
 .edys-gal-gallery-btn-wrap, .edys-gallery-btn-wrap, .edys-gal-gallery-btn-wrap-touch, .edys-gallery-btn-wrap-touch { 
 	width: 68px; 
 	height: 68px; 
+	
+	display: inline;
 	display: inline-block; 
+	float: left;
 	vertical-align: middle; 
 	line-height: 48px; 
 	text-align: center; 
@@ -84,17 +87,20 @@
 .edys-gal-gallery-image-wrap, .edys-gallery-image-wrap { overflow: hidden; } 
 .edys-gal-gallery-image-wrap img, .edys-gallery-image-wrap img { display: block; border:0; margin:0; } 
 .edys-gal-gallery-image-wrap-box-touch, .edys-gallery-image-wrap-box-touch { 
-	display: inline-block; 
+	display: inline-block;
 	width: 100%; 
 	vertical-align: middle; 
 	margin-top: -30px; 
 	text-align: center; 
 } 
+html>body .edys-gal-gallery-image-wrap-box-touch, html>body .edys-gallery-image-wrap-box-touch { *float:left; }
 .edys-gal-gallery-image-wrap-box-touch img, .edys-gallery-image-wrap-box-touch img{ box-shadow: 2px 0px 10px #000000; } .edys-gal-gallery-image-wrap-touch, .edys-gallery-image-wrap-touch{ position: relative; white-space:nowrap; } 
 .edys-gal-gallery-right, .edys-gallery-right, .edys-gal-gallery-right-touch, .edys-gallery-right-touch { 
 	background: url("right_arrow.gif") no-repeat center center; 
 	width: 68px; 
-	height: 68px; display: inline-block; 
+	height: 68px; display: inline; 
+	display: inline-block;
+	float:right;
 	cursor: pointer; 
 	vertical-align: middle; 
 } 
@@ -102,7 +108,9 @@
 	background: url("left_arrow.gif") no-repeat center center; 
 	width: 68px; 
 	height: 68px; 
-	display: inline-block; 
+	display: inline; 
+	display: inline-block;
+	float:left;
 	cursor: pointer; 
 	vertical-align: middle; 
 } 
@@ -114,7 +122,7 @@
 	background: rgb(38,44,47); 
 	background: rgba(27,33,36,0.8); 
 	color: #ffffff; 
-	display: inline-block; 
+	display: inline; 
 	position: relative; 
 	z-index: 1010; 
 	bottom: 52px; 

@@ -665,7 +665,7 @@
                 wrp.css({
                     'left': pleft+'px',
                     'top': ptop+'px',
-                    'height': pop.find( this.get_classes('image_wrap') +' img' ).height() + 'px',
+                    'height': pop.find( this.get_classes('image_wrap') +' img' ).height() + 'px'
                 });
 
 				pop.height(mh);
