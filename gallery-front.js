@@ -318,6 +318,7 @@
                 });
 
                 /* bind resize to window resize event */
+				this.overlay_resize();
                 if("onorientationchange" in window){
                     window.removeEventListener('orientationchange', this.resize_window_event, false);
                     window.addEventListener('orientationchange', this.resize_window_event, false);
@@ -356,7 +357,20 @@
 
 		         this.loading_hide();
 		         this.popup_el.find(this.get_classes('title')).remove(); /* hide global title element. all touch pictures have their own title */
-		         this.popup_el.show(); /* set popup size/pos and show */
+		         
+		         this.popup_el.width( viewport.width() )
+                             .css({
+                                'padding-top': $(document).scrollTop() + 'px',
+                                'padding-left': $(document).scrollLeft() + 'px',
+                                'padding-right': ( $(document).width() - viewport.width() - $(document).scrollLeft() ) + 'px',
+                                'padding-bottom': ($(document).height()-viewport.height() - $(document).scrollTop()) + 'px'
+                             }).show(); /* set popup size/pos and show */
+	             btns.css({
+			                    "bottom": ( $(document).height() - viewport.height() - $(document).scrollTop()) + 'px'
+			     });
+		
+		
+	   			 this.popup_el.show(); /* set popup size/pos and show */
 
 		         /* make swipable gallery elements, bind automatic loading to images and show gallery */
 		         this.make_all_img_element( index, list, $.proxy( function() {
@@ -410,7 +424,6 @@
                     title = $( this.get_classes('title') );
 
                 if ($.browser.opera) { this.opera_fix(); }
-
                 /*preload clicked image */
                 this.preload_image( list[index].href, $.proxy( function(img) {
 					/* set title */
@@ -434,6 +447,7 @@
                     this.popup_el.find( this.get_classes('image_wrap') ).html(img); /* draw first preloaded image */
                     this.popup_el.css( 'visibility', 'hidden' ).show(); /* reset popup and overlay size */
                     this.set_popup_size_pos();
+					this.overlay_resize();
                     this.popup_el.css('visibility','visible');
                     this.show_hide_next_prev();
                     this.loading_hide(); /* hide loading icon */
@@ -452,10 +466,21 @@
                     img_wrap_boxes = this.popup_el.find( this.get_classes('image_wrap_box') ),
                     btns =  this.popup_el.find( this.get_classes('bottom_btns') ),
 					me = this;
-
+				
+				this.overlay_resize();
                 /* keep popup element in viewport */
                 if ( this.is_touch ) {
+					this.popup_el.width( viewport.width() )
+                              .css({
+                                'padding-left': $(document).scrollLeft() + 'px',
+                                'padding-right': ( $(document).width() - viewport.width() - $(document).scrollLeft()) + 'px',
+                                'padding-top': $(document).scrollTop() + 'px',
+                                'padding-bottom': ( $(document).height() - viewport.height() - $(document).scrollTop() ) + 'px'
+                              });
                     img_wrap_boxes.width( viewport.width() );
+					btns.css({
+                        'bottom': ( $(document).height() - viewport.height() - $(document).scrollTop() ) + 'px'
+                    });;
                 } else {
                     this.set_popup_size_pos();
                     var wrap_size = this.get_img_size(imgs);
@@ -476,6 +501,14 @@
                 this.pic_scroll.fixed_stop_width = viewport.width();
                 this.pic_scroll.center_to_index();
             },
+
+			overlay_resize: function(){
+                var   o = this.overlay_el;
+                o.width(1).height(1);
+                var w = viewport.width(),
+                    h = $(document).height();
+                o.width(w).height(h);
+	        },
 
             popup_make: function (){
             	var popSrc = ( this.defaults.user_defined_templates === false ) ? format_template( this.defaults.popup_template, {
@@ -622,11 +655,10 @@
                     'width': 'auto'
                 })
 
-                var pw =    wrp.outerWidth(),
-                    ph =    wrp.outerHeight(),
+                var pw =    img.outerWidth(),
+                    ph =    img.outerHeight(),
                     pleft = ( vw / 2 ) - ( pw / 2 ),
                     ptop = (( vh - btns.outerHeight(true) ) / 2 ) - ( ph / 2 );
-
                 wrp.css({
                     'left': pleft+'px',
                     'top': ptop+'px',
@@ -804,7 +836,7 @@
                     ratio_y = ( this.is_touch ) ? def.image_to_wiewport_max_ratio_touch_y : def.image_to_wiewport_max_ratio_y;
 
                 img.height(1).width(1);
-                var vw =    $(window).width(),
+                var vw =    viewport.width(),
                     vh =    viewport.height(),
                     nph = ratio_y*vh,
                     npw = w/(h/nph);

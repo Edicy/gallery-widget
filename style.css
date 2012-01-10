@@ -1,5 +1,5 @@
 .edys-gal-gallery-overlay, .edys-gal-gallery-overlay-touch, .edys-gallery-overlay, .edys-gallery-overlay-touch { 
-	position: fixed; 
+	position: absolute; 
 	background: #000000; 
 	opacity: 0.75; 
 	filter: alpha(opacity = 75); 
@@ -9,11 +9,10 @@
 	overflow: hidden; 
 	left:0; 
 	top:0; 
-	bottom:0; 
-	right:0;
+
 }
 .edys-gal-gallery-popup, .edys-gallery-popup, .edys-gal-gallery-popup-touch, .edys-gallery-popup-touch { 
-	position: fixed; 
+	position: absolute; 
 	z-index: 1000; 
 	margin:0; 
 	padding:0; 
@@ -21,22 +20,20 @@
 	font-family: Helvetica, Arial; 
 	left:0; 
 	top:0; 
-	bottom:0;
-	right:0;
-	overflow: hidden; 
+	overflow: hidden;
+	 
 } 
 .edys-gal-gallery-popup-touch, .edys-gallery-popup-touch { 
 	text-align: left; 
-	overflow: visible; 
-	position: fixed; 
+	overflow: hidden; 
+	position: absolute; 
 	left:0; 
 	top:0; 
-	bottom:0;
-	right:0;
 	overflow: hidden;
 	font-family: Helvetica, Arial; 
 	margin:0; 
 	padding:0; 
+	height: 100%; width: 100%; 
 } 
 .edys-gal-gallery-close, .edys-gallery-close, .edys-gal-gallery-close-touch, .edys-gallery-close-touch { 
 	background: url("close.gif") no-repeat center center; 
@@ -56,7 +53,7 @@
 	border-radius: 4px; 
 	padding: 0px; 
 	display: inline-block; 
-	position: fixed; 
+	position: absolute; 
 	margin-bottom: 0.5%; 
 	left: 50%; 
 	margin-left: -102px; 
@@ -74,7 +71,7 @@
 .edys-gal-gallery-content-wrap, .edys-gallery-content-wrap { 
 	box-shadow: 2px 0px 10px #000000; 
 	clear: both; 
-	position: fixed; 
+	position: absolute; 
 	text-align: center; 
 	z-index: 1003; 
 } 
