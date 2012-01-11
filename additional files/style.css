@@ -48,8 +48,6 @@
 	border-style: solid;
 } 
 .edys-gal-gallery-bottom-btns, .edys-gallery-bottom-btns, .edys-gal-gallery-bottom-btns-touch, .edys-gallery-bottom-btns-touch { 
-	background: rgb(38,44,47); 
-	background: rgba(27,33,36,0.8); 
 	-moz-border-radius: 4px; 
 	-webkit-border-radius: 4px; 
 	border-radius: 4px; 
@@ -61,6 +59,8 @@
 	margin-left: -102px; 
 	z-index: 1004; 
 	bottom: 0; 
+	background: #262c2f;
+	background: rgba(27,33,36,0.8);
 } 
 .edys-gal-gallery-btn-wrap, .edys-gallery-btn-wrap, .edys-gal-gallery-btn-wrap-touch, .edys-gallery-btn-wrap-touch { 
 	width: 68px; 
@@ -94,7 +94,6 @@
 	margin-top: -30px; 
 	text-align: center; 
 } 
-html>body .edys-gal-gallery-image-wrap-box-touch, html>body .edys-gallery-image-wrap-box-touch { *float:left; }
 .edys-gal-gallery-image-wrap-box-touch img, .edys-gallery-image-wrap-box-touch img{ box-shadow: 2px 0px 10px #000000; } .edys-gal-gallery-image-wrap-touch, .edys-gallery-image-wrap-touch{ position: relative; white-space:nowrap; } 
 .edys-gal-gallery-right, .edys-gallery-right, .edys-gal-gallery-right-touch, .edys-gallery-right-touch { 
 	background: url("http://static.kraftal.com/gallery/3.0/edys_gallery_right_arrow.gif") no-repeat center center; 
@@ -122,7 +121,7 @@ html>body .edys-gal-gallery-image-wrap-box-touch, html>body .edys-gallery-image-
 	filter: alpha(opacity = 10); 
 } 
 .edys-gal-gallery-title, .edys-gallery-title{ 
-	background: rgb(38,44,47); 
+	background: #262c2f; 
 	background: rgba(27,33,36,0.8); 
 	color: #ffffff; 
 	display: inline; 
@@ -135,7 +134,7 @@ html>body .edys-gal-gallery-image-wrap-box-touch, html>body .edys-gallery-image-
 	font-size: 14px; 
 } 
 .edys-gal-gallery-title-touch, .edys-gallery-title-touch { 
-	background: rgb(38,44,47); 
+	background: #262c2f; 
 	background: rgba(27,33,36,0.8); 
 	color: #ffffff; 
 	display: inline-block; 
@@ -257,3 +256,5 @@ html>body .edys-gal-gallery-image-wrap-box-touch, html>body .edys-gallery-image-
 	-webkit-transform:rotate(315deg) translate(0, -20px);
 	opacity:1; 
 }
+html>body .edys-gal-gallery-image-wrap-box-touch, html>body .edys-gallery-image-wrap-box-touch { *float:left; }
+html>body .edys-gal-gallery-title-touch, html>body  .edys-gal-gallery-title, html>body .edys-gallery-title-touch, html>body .edys-gallery-title, html>body .edys-gal-gallery-bottom-btns, html>body .edys-gal-gallery-bottom-btns-touch, html>body .edys-gallery-bottom-btns, html>body .edys-gallery-bottom-btns-touch, html>body .edys-gallery-loading, html>body .edys-gal-gallery-loading, html>body .edys-gallery-loading-touch, html>body .edys-gal-gallery-loading-touch  { *background: #262c2f; }
