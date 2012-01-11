@@ -7,13 +7,6 @@ Minimal required snippet:
     </div>
     <script src="gallery-front.js" type="text/javascript"></script>
 
-Required files:
-
-    wait.gif
-    close.gif
-    left_arrow.gif
-    right_arrow.gif
-
 # Configuration:
 
 To configure a javascript object "edys_gallery_options" for configuration can be applied before <script src="gallery-front.js" type="text/javascript"> </script> tag  like this:
@@ -174,7 +167,7 @@ Css for redesigning starting point:
 		height: 100%; width: 100%; 
 	} 
 	.edys-gallery-close, .edys-gallery-close-touch { 
-		background: url("close.gif") no-repeat center center; 
+		background: url("http://static.kraftal.com/gallery/3.0/edys_gallery_close.gif") no-repeat center center; 
 		width: 68px; 
 		height: 48px; 
 		display: inline-block; 
@@ -235,7 +228,7 @@ Css for redesigning starting point:
 	.edys-gallery-image-wrap-box-touch img { box-shadow: 2px 0px 10px #000000; } 
 	.edys-gallery-image-wrap-touch{ position: relative; white-space:nowrap; } 
 	.edys-gallery-right, .edys-gallery-right-touch { 
-		background: url("right_arrow.gif") no-repeat center center; 
+		background: url("http://static.kraftal.com/gallery/3.0/edys_gallery_right_arrow.gif") no-repeat center center; 
 		width: 68px; 
 		height: 68px; display: inline; 
 		display: inline-block;
@@ -244,7 +237,7 @@ Css for redesigning starting point:
 		vertical-align: middle; 
 	} 
 	.edys-gallery-left, .edys-gallery-left-touch { 
-		background: url("left_arrow.gif") no-repeat center center; 
+		background: url("http://static.kraftal.com/gallery/3.0/edys_gallery_left_arrow.gif") no-repeat center center; 
 		width: 68px; 
 		height: 68px; 
 		display: inline; 
