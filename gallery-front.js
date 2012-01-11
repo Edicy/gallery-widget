@@ -737,13 +737,20 @@
                 $( this.get_classes('content_wrap') ).unbind('mouseleave');
 
                 this.preload_image( list[index].href, $.proxy( function(new_image) {
-                    var old_img = $( this.get_classes('image_wrap')+' img'),
-                        ow = old_img.width(),
-                        oh = old_img.height();
+                    var old_img = $( this.get_classes('image_wrap')+' img:not(.edys_image_ending_anim)');
+                        
+
+					$( this.get_classes('image_wrap')+' img.edys_image_ending_anim').stop(true,true).remove();
+					old_img.addClass('edys_image_ending_anim');
+					wrp.stop(true,true);
+					$(old_img).stop(true,true);
 					
-						btns.css({
-					                    "bottom": ( $(document).height() - viewport.height() - $(document).scrollTop()) + 'px'
-					     });
+					var ow = old_img.width(),
+                    	oh = old_img.height();
+					
+					btns.css({
+						"bottom": ( $(document).height() - viewport.height() - $(document).scrollTop()) + 'px'
+					});
                     new_image.css({'position':'absolute', 'visibility':'hidden'}).show();
                     pop.find( this.get_classes('image_wrap') ).prepend(new_image);
                     if ( list[index].rel != '&nbsp;' ) {
@@ -770,13 +777,18 @@
                         'width': nw+'px',
                         'height': (nh)+'px'
                     }, 300 );
-                    $(old_img).add(new_image).animate({
+                    $(old_img).animate({
+                        'width': nw+'px',
+                        'height': (nh)+'px'
+                    },300 );
+
+					$(new_image).animate({
                         'width': nw+'px',
                         'height': (nh)+'px'
                     }, 300, function() {
-                        new_image.css({'position': "absolute",'visibility':'visible', 'top':0, 'left':0}).fadeIn( 500, $.proxy(function() {
-                            new_image.css( {'position': "static"} );
-                            old_img.remove();
+                        new_image.css({'position': "absolute",'visibility':'visible', 'top':0, 'left':0}).fadeIn( 300, $.proxy(function() {
+							old_img.remove();
+							new_image.css( {'position': "static"} );
                             me.loading_hide();
                         }, me));
                     });
@@ -826,7 +838,11 @@
             },
 
             loading_hide: function(){
-                $( this.get_classes('loading_wrap') ).remove();
+                if( /chrome/.test(navigator.userAgent.toLowerCase()) ) { 
+					setTimeout( $.proxy( function() { $(this.get_classes('loading_wrap')).remove(); }, this), 200);
+				} else {
+					$(this.get_classes('loading_wrap')).remove();
+				}
             },
 
             set_img_size: function(img){
