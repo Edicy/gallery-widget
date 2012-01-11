@@ -309,7 +309,7 @@
                     }
                 }
 
-                $(document).unbind('keydown').keydown(function(e){
+                $(document).unbind('keydown').keydown($.proxy(function(e){
                     switch(e.which){
                         case 39: /* fw */
                             this.next();
@@ -321,7 +321,7 @@
                             this.hide_gallery();
                         break;
                     }
-                });
+                },this));
 
                 /* bind resize to window resize event */
 				this.overlay_resize();
@@ -648,7 +648,7 @@
 				
 				pop.height(1);
                 var mh = viewport.height() + $(document).scrollTop();
-                pop.height(mh);
+                pop.height($(document).height());
                 this.set_img_size(img);
                 var vw =    viewport.width(),
                     vh =    viewport.height();
@@ -667,7 +667,10 @@
                     'height': pop.find( this.get_classes('image_wrap') +' img' ).height() + 'px'
                 });
 
-				pop.height(mh);
+				pop.height($(document).height());
+				 btns.css({
+			                    "bottom": ( $(document).height() - viewport.height() - $(document).scrollTop()) + 'px'
+			     });
             },
 
             click_set_next_prev_buttons: function(){
@@ -737,7 +740,10 @@
                     var old_img = $( this.get_classes('image_wrap')+' img'),
                         ow = old_img.width(),
                         oh = old_img.height();
-
+					
+						btns.css({
+					                    "bottom": ( $(document).height() - viewport.height() - $(document).scrollTop()) + 'px'
+					     });
                     new_image.css({'position':'absolute', 'visibility':'hidden'}).show();
                     pop.find( this.get_classes('image_wrap') ).prepend(new_image);
                     if ( list[index].rel != '&nbsp;' ) {
