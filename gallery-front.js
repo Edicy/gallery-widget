@@ -70,11 +70,20 @@
         },
 
         get_jquery: function(f) {
-            if (window.jQuery === undefined || window.jQuery.fn.jquery < this.settings.jquery_atleast_version) {
+            if (window.jQuery === undefined ) {
                 this.load_script(this.settings.jquery_url,function() {
                    $ = window.jQuery.noConflict(true);
                    f();
                 });
+			} else if ( window.jQuery.fn.jquery < this.settings.jquery_atleast_version ) {
+	        	var old_script = window.jQuery;
+				var old$ = (window.$ !== undefined ) ? window.$ : null;
+				this.load_script(this.settings.jquery_url,function() {
+	            	$ = window.jQuery.noConflict(true);
+					window.jQuery = old_script;
+					if( old$ != null ) { window.$ = old$; }
+	                f();
+	            });
             } else {
                 $ = window.jQuery;
                 f();
@@ -85,15 +94,16 @@
 	Edys_gallery_init.run();
     /* initialisation module end*/
 	
+	/* wrapper function for applying jQuery edys_gallery plugin */
 	var apply_edys_gallery_module = function($){
+		
     	var G = function(gal_elements, user_options){
 	        this.defaults = {
-	            jquery_atleast_version: '1.5',
-	            jquery_url: 'ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js',
-	            gallery_elements: '.edys-gallery',
 	            user_defined_templates : false,
 	            gallery_template: null,
 	            gallery_touch_template: null,
+		        default_styles: true,
+	
 	            popup_template: '<div class="{popup_class}">\
 	                                <div class="{overlay_class}"></div>\
 	                                <div class="{buttons_class}"></div>\
@@ -124,9 +134,7 @@
 	                                                {wait}\
 	                                            </div>\
 	                                       </div>',
-	            stylesheet: '.edys-gal-gallery-overlay, .edys-gal-gallery-overlay-touch, .edys-gallery-overlay, .edys-gallery-overlay-touch { position: absolute; background: #000000; opacity: 0.75; filter: alpha(opacity = 75); z-index: 1001; margin:0; padding:0; overflow: hidden; left:0; top:0; } .edys-gal-gallery-popup, .edys-gallery-popup, .edys-gal-gallery-popup-touch, .edys-gallery-popup-touch { position: absolute; z-index: 1000; margin:0; padding:0; text-align: center; font-family: Helvetica, Arial; left:0; top:0; overflow: hidden; height: 100%; width: 100%; } .edys-gal-gallery-popup-touch, .edys-gallery-popup-touch { text-align: left; overflow: hidden; position: absolute; left:0; top:0; overflow: hidden; font-family: Helvetica, Arial; margin:0; padding:0; height: 100%; width: 100%; } .edys-gal-gallery-close, .edys-gallery-close, .edys-gal-gallery-close-touch, .edys-gallery-close-touch { background: url("close.gif") no-repeat center center; width: 68px; height: 48px; display: inline-block; cursor: pointer; margin: 10px 0; border-color: #3c4143; border-width: 0 1px; border-style: solid; -moz-animation: 1s linear 0s normal none infinite rotate; } .edys-gal-gallery-bottom-btns, .edys-gallery-bottom-btns, .edys-gal-gallery-bottom-btns-touch, .edys-gallery-bottom-btns-touch { background: rgb(38,44,47); background: rgba(27,33,36,0.8); border-radius: 4px; padding: 0px; display: inline; position: absolute; margin-bottom: 0.5%; left: 50%; margin-left: -102px; z-index: 1004; bottom: 0; } .edys-gal-gallery-btn-wrap, .edys-gallery-btn-wrap, .edys-gal-gallery-btn-wrap-touch, .edys-gallery-btn-wrap-touch { width: 68px; height: 68px; display: inline; display: inline-block; float: left; vertical-align: middle; line-height: 48px; text-align: center; } .edys-gal-gallery-content-wrap, .edys-gallery-content-wrap { box-shadow: 2px 0px 10px #000000; clear: both; position: absolute; text-align: center; z-index: 1003; } .edys-gal-gallery-content-wrap-touch, .edys-gallery-content-wrap-touch { width: 100%; position: relative; overflow: hidden; z-index: 1003; margin-top: 0.5%; } .edys-gal-gallery-image-wrap, .edys-gallery-image-wrap { overflow: hidden; } .edys-gal-gallery-image-wrap img, .edys-gallery-image-wrap img { display: block; border:0; margin:0; } .edys-gal-gallery-image-wrap-box-touch, .edys-gallery-image-wrap-box-touch { display: inline-block; width: 100%; vertical-align: middle; margin-top: -30px; text-align: center; } html>body .edys-gal-gallery-image-wrap-box-touch, html>body .edys-gallery-image-wrap-box-touch { *float:left; } .edys-gal-gallery-image-wrap-box-touch img, .edys-gallery-image-wrap-box-touch img{ box-shadow: 2px 0px 10px #000000; } .edys-gal-gallery-image-wrap-touch, .edys-gallery-image-wrap-touch{ position: relative; white-space:nowrap; } .edys-gal-gallery-right, .edys-gallery-right, .edys-gal-gallery-right-touch, .edys-gallery-right-touch { background: url("right_arrow.gif") no-repeat center center; width: 68px; height: 68px; display: inline; display: inline-block; float:right; cursor: pointer; vertical-align: middle; } .edys-gal-gallery-left, .edys-gallery-left, .edys-gal-gallery-left-touch, .edys-gallery-left-touch { background: url("left_arrow.gif") no-repeat center center; width: 68px; height: 68px; display: inline; display: inline-block; float:left; cursor: pointer; vertical-align: middle; } .edys-gal-gallery-right.disabled, .edys-gallery-right.disabled, .edys-gal-gallery-right-touch.disabled, .edys-gallery-right-touch.disabled, .edys-gal-gallery-left.disabled, .edys-gallery-left.disabled, .edys-gal-gallery-left-touch.disabled, .edys-gallery-left-touch.disabled { opacity: 0.1; filter: alpha(opacity = 10); } .edys-gal-gallery-title, .edys-gallery-title{ background: rgb(38,44,47); background: rgba(27,33,36,0.8); color: #ffffff; display: inline; position: relative; z-index: 1010; bottom: 52px; line-height: 18px; border-radius: 4px; padding: 7px 20px; font-size: 14px; } .edys-gal-gallery-title-touch, .edys-gallery-title-touch { background: rgb(38,44,47); background: rgba(27,33,36,0.8); color: #ffffff; display: inline-block; position: relative; z-index: 1010; top: 40px; line-height: 18px; border-radius: 4px; padding: 7px 20px; font-size: 14px; } .edys-gal-gallery-title-touch.edys-gal-gallery-title-notitle-touch, .edys-gallery-title-touch.edys-gallery-title-notitle-touch { visibility: hidden; } .edys-gallery-loading, .edys-gal-gallery-loading, .edys-gallery-loading-touch, .edys-gal-gallery-loading-touch { position:absolute; width:40px; height:40px; margin-top: -20px; z-index: 1010; margin-left: -5px; -moz-border-radius:40px; -webkit-border-radius:40px; -webkit-animation-name: rotateThis; -webkit-animation-duration:2s; -webkit-animation-iteration-count:infinite; -webkit-animation-timing-function:linear; -moz-animation-name: rotateThisMoz; -moz-animation-duration:2s; -moz-animation-iteration-count:infinite; -moz-animation-timing-function:linear; -ms-animation-name: rotateThisMs; -ms-animation-duration:2s; -ms-animation-iteration-count:infinite; -ms-animation-timing-function:linear; -o-transition-duration: 0s; -o-transition-timing-function: linear; background: #cccccc; background: rgba(255,255,255,0); padding: 10px; } .edys-gallery-loading-rotate-touch { -o-transition-duration: 2s; -o-transform:rotate(359deg); } .edys-gallery-loading-touch, .edys-gal-gallery-loading-touch { display: inline-block; position: relative; margin-left:0; } .edys-gallery-loading-wrap-touch, .edys-gal-gallery-loading-wrap-touch { width: 100%; display: block; text-align: center; position: relative; } .edys-gallery-loading-wrap, .edys-gal-gallery-loading-wrap { position:absolute; width:40px; height:40px; } @-webkit-keyframes rotateThis { from {-webkit-transform: rotate(0deg);} to {-webkit-transform: rotate(360deg);} } @-moz-keyframes rotateThisMoz { from {-moz-transform: rotate(0deg);} to {-moz-transform: rotate(360deg);} } @-ms-keyframes rotateThisMs { from {-ms-transform: rotate(0deg);} to {-ms-transform: rotate(360deg);} } .edys-gallery-loading div, .edys-gal-gallery-loading div, .edys-gallery-loading-touch div, .edys-gal-gallery-loading-touch div { width:10px; height:10px; background:#000; -moz-border-radius:20px; -webkit-border-radius:20px; border-radius:20px; position:absolute; left:25px; top:25px; } .edys-gallery-loading .bar1, .edys-gal-gallery-loading .bar1, .edys-gallery-loading-touch .bar1, .edys-gal-gallery-loading-touch .bar1 { -moz-transform:rotate(0deg) translate(0, -20px); -ms-transform:rotate(0deg) translate(0, -20px); -o-transform:rotate(0deg) translate(0, -20px); -webkit-transform:rotate(0deg) translate(0, -20px);opacity:0.12; } .edys-gallery-loading .bar2 , .edys-gal-gallery-loading .bar2 , .edys-gallery-loading-touch .bar2 , .edys-gal-gallery-loading-touch .bar2 { -moz-transform:rotate(45deg) translate(0, -20px); -ms-transform:rotate(45deg) translate(0, -20px); -o-transform:rotate(45deg) translate(0, -20px); -webkit-transform:rotate(45deg) translate(0, -20px); opacity:0.25; } .edys-gallery-loading .bar3, .edys-gal-gallery-loading .bar3, .edys-gallery-loading-touch .bar3, .edys-gal-gallery-loading-touch .bar3 { -moz-transform:rotate(90deg) translate(0, -20px); -ms-transform:rotate(90deg) translate(0, -20px); -o-transform:rotate(90deg) translate(0, -20px); -webkit-transform:rotate(90deg) translate(0, -20px); opacity:0.37; } .edys-gallery-loading .bar4, .edys-gal-gallery-loading .bar4, .edys-gallery-loading-touch .bar4, .edys-gal-gallery-loading-touch .bar4 { -moz-transform:rotate(135deg) translate(0, -20px); -ms-transform:rotate(135deg) translate(0, -20px); -o-transform:rotate(135deg) translate(0, -20px); -webkit-transform:rotate(135deg) translate(0, -20px); opacity:0.50; } .edys-gallery-loading .bar5, .edys-gal-gallery-loading .bar5, .edys-gallery-loading-touch .bar5, .edys-gal-gallery-loading-touch .bar5 { -moz-transform:rotate(180deg) translate(0, -20px); -ms-transform:rotate(180deg) translate(0, -20px); -o-transform:rotate(180deg) translate(0, -20px); -webkit-transform:rotate(180deg) translate(0, -20px); opacity:0.62; } .edys-gallery-loading .bar6, .edys-gal-gallery-loading .bar6, .edys-gallery-loading-touch .bar6, .edys-gal-gallery-loading-touch .bar6 { -moz-transform:rotate(225deg) translate(0, -20px); -ms-transform:rotate(225deg) translate(0, -20px); -o-transform:rotate(225deg) translate(0, -20px); -webkit-transform:rotate(225deg) translate(0, -20px); opacity:0.75; } .edys-gallery-loading .bar7, .edys-gal-gallery-loading .bar7, .edys-gallery-loading-touch .bar7, .edys-gal-gallery-loading-touch .bar7 { -moz-transform:rotate(270deg) translate(0, -20px); -moz-transform:rotate(270deg) translate(0, -20px); -o-transform:rotate(270deg) translate(0, -20px); -webkit-transform:rotate(270deg) translate(0, -20px); opacity:0.87; } .edys-gallery-loading .bar8, .edys-gal-gallery-loading .bar8, .edys-gallery-loading-touch .bar8, .edys-gal-gallery-loading-touch .bar8 { -moz-transform:rotate(315deg) translate(0, -20px); -ms-transform:rotate(315deg) translate(0, -20px); -o-transform:rotate(315deg) translate(0, -20px); -webkit-transform:rotate(315deg) translate(0, -20px); opacity:1; }',
-
-	            default_styles: true,
+	            stylesheet: '.edys-gal-gallery-overlay, .edys-gal-gallery-overlay-touch, .edys-gallery-overlay, .edys-gallery-overlay-touch { position: absolute; background: #000000; -moz-opacity: 0.75; -webkit-opacity: 0.75; opacity: 0.75; filter: alpha(opacity = 75); z-index: 1001; margin:0; padding:0; overflow: hidden; left:0; top:0; } .edys-gal-gallery-popup, .edys-gallery-popup, .edys-gal-gallery-popup-touch, .edys-gallery-popup-touch { position: absolute; z-index: 1000; margin:0; padding:0; text-align: center; font-family: Helvetica, Arial; left:0; top:0; overflow: hidden; height: 100%; width: 100%; } .edys-gal-gallery-popup-touch, .edys-gallery-popup-touch { text-align: left; overflow: hidden; position: absolute; left:0; top:0; overflow: hidden; font-family: Helvetica, Arial; margin:0; padding:0; height: 100%; width: 100%; } .edys-gal-gallery-close, .edys-gallery-close, .edys-gal-gallery-close-touch, .edys-gallery-close-touch { background: url("close.gif") no-repeat center center; width: 68px; height: 48px; display: inline-block; cursor: pointer; margin: 10px 0; border-color: #3c4143; border-width: 0 1px; border-style: solid; } .edys-gal-gallery-bottom-btns, .edys-gallery-bottom-btns, .edys-gal-gallery-bottom-btns-touch, .edys-gallery-bottom-btns-touch { background: rgb(38,44,47); background: rgba(27,33,36,0.8); -moz-border-radius: 4px; -webkit-border-radius: 4px; border-radius: 4px; padding: 0px; display: inline; position: absolute; margin-bottom: 0.5%; left: 50%; margin-left: -102px; z-index: 1004; bottom: 0; } .edys-gal-gallery-btn-wrap, .edys-gallery-btn-wrap, .edys-gal-gallery-btn-wrap-touch, .edys-gallery-btn-wrap-touch { width: 68px; height: 68px; display: inline-block; float: left; vertical-align: middle; line-height: 48px; text-align: center; } .edys-gal-gallery-content-wrap, .edys-gallery-content-wrap { box-shadow: 2px 0px 10px #000000; clear: both; position: absolute; text-align: center; z-index: 1003; } .edys-gal-gallery-content-wrap-touch, .edys-gallery-content-wrap-touch { width: 100%; position: relative; overflow: hidden; z-index: 1003; margin-top: 0.5%; } .edys-gal-gallery-image-wrap, .edys-gallery-image-wrap { overflow: hidden; } .edys-gal-gallery-image-wrap img, .edys-gallery-image-wrap img { display: block; border:0; margin:0; } .edys-gal-gallery-image-wrap-box-touch, .edys-gallery-image-wrap-box-touch { display: inline-block; width: 100%; vertical-align: middle; margin-top: -30px; text-align: center; } html>body .edys-gal-gallery-image-wrap-box-touch, html>body .edys-gallery-image-wrap-box-touch { *float:left; } .edys-gal-gallery-image-wrap-box-touch img, .edys-gallery-image-wrap-box-touch img{ box-shadow: 2px 0px 10px #000000; } .edys-gal-gallery-image-wrap-touch, .edys-gallery-image-wrap-touch{ position: relative; white-space:nowrap; } .edys-gal-gallery-right, .edys-gallery-right, .edys-gal-gallery-right-touch, .edys-gallery-right-touch { background: url("right_arrow.gif") no-repeat center center; width: 68px; height: 68px; display: inline; display: inline-block; float:right; cursor: pointer; vertical-align: middle; } .edys-gal-gallery-left, .edys-gallery-left, .edys-gal-gallery-left-touch, .edys-gallery-left-touch { background: url("left_arrow.gif") no-repeat center center; width: 68px; height: 68px; display: inline; display: inline-block; float:left; cursor: pointer; vertical-align: middle; } .edys-gal-gallery-right.disabled, .edys-gallery-right.disabled, .edys-gal-gallery-right-touch.disabled, .edys-gallery-right-touch.disabled, .edys-gal-gallery-left.disabled, .edys-gallery-left.disabled, .edys-gal-gallery-left-touch.disabled, .edys-gallery-left-touch.disabled { -moz-opacity: 0.1; -webkit-opacity: 0.1; opacity: 0.1; filter: alpha(opacity = 10); } .edys-gal-gallery-title, .edys-gallery-title{ background: rgb(38,44,47); background: rgba(27,33,36,0.8); color: #ffffff; display: inline; position: relative; z-index: 1010; bottom: 52px; line-height: 18px; border-radius: 4px; padding: 7px 20px; font-size: 14px; } .edys-gal-gallery-title-touch, .edys-gallery-title-touch { background: rgb(38,44,47); background: rgba(27,33,36,0.8); color: #ffffff; display: inline-block; position: relative; z-index: 1010; top: 40px; line-height: 18px; -moz-border-radius: 4px; -webkit-border-radius: 4px; border-radius: 4px; padding: 7px 20px; font-size: 14px; } .edys-gal-gallery-title-touch.edys-gal-gallery-title-notitle-touch, .edys-gallery-title-touch.edys-gallery-title-notitle-touch { visibility: hidden; } .edys-gallery-loading, .edys-gal-gallery-loading, .edys-gallery-loading-touch, .edys-gal-gallery-loading-touch { position:absolute; width:40px; height:40px; margin-top: -20px; z-index: 1010; margin-left: -5px; -moz-border-radius: 40px; -webkit-border-radius: 40px; border-radius: 40px; -webkit-animation-name: rotateThis; -webkit-animation-duration:2s; -webkit-animation-iteration-count:infinite; -webkit-animation-timing-function:linear; -moz-animation-name: rotateThisMoz; -moz-animation-duration:2s; -moz-animation-iteration-count:infinite; -moz-animation-timing-function:linear; -ms-animation-name: rotateThisMs; -ms-animation-duration:2s; -ms-animation-iteration-count:infinite; -ms-animation-timing-function:linear; -o-transition-duration: 0s; -o-transition-timing-function: linear; background: #cccccc; background: rgba(255,255,255,0); padding: 10px; } .edys-gallery-loading-rotate-touch { -o-transition-duration: 2s; -o-transform:rotate(359deg); } .edys-gallery-loading-touch, .edys-gal-gallery-loading-touch { display: inline-block; position: relative; margin-left:0; } .edys-gallery-loading-wrap-touch, .edys-gal-gallery-loading-wrap-touch { width: 100%; display: block; text-align: center; position: relative; } .edys-gallery-loading-wrap, .edys-gal-gallery-loading-wrap { position:absolute; width:40px; height:40px; } @-webkit-keyframes rotateThis { from {-webkit-transform: rotate(0deg);} to {-webkit-transform: rotate(360deg);} } @-moz-keyframes rotateThisMoz { from {-moz-transform: rotate(0deg);} to {-moz-transform: rotate(360deg);} } @-ms-keyframes rotateThisMs { from {-ms-transform: rotate(0deg);} to {-ms-transform: rotate(360deg);} } .edys-gallery-loading div, .edys-gal-gallery-loading div, .edys-gallery-loading-touch div, .edys-gal-gallery-loading-touch div { width:10px; height:10px; background:#000; -moz-border-radius:20px; -webkit-border-radius:20px; border-radius:20px; position:absolute; left:25px; top:25px; } .edys-gallery-loading .bar1, .edys-gal-gallery-loading .bar1, .edys-gallery-loading-touch .bar1, .edys-gal-gallery-loading-touch .bar1 { -moz-transform:rotate(0deg) translate(0, -20px); -ms-transform:rotate(0deg) translate(0, -20px); -o-transform:rotate(0deg) translate(0, -20px); -webkit-transform:rotate(0deg) translate(0, -20px);opacity:0.12; } .edys-gallery-loading .bar2 , .edys-gal-gallery-loading .bar2 , .edys-gallery-loading-touch .bar2 , .edys-gal-gallery-loading-touch .bar2 { -moz-transform:rotate(45deg) translate(0, -20px); -ms-transform:rotate(45deg) translate(0, -20px); -o-transform:rotate(45deg) translate(0, -20px); -webkit-transform:rotate(45deg) translate(0, -20px); opacity:0.25; } .edys-gallery-loading .bar3, .edys-gal-gallery-loading .bar3, .edys-gallery-loading-touch .bar3, .edys-gal-gallery-loading-touch .bar3 { -moz-transform:rotate(90deg) translate(0, -20px); -ms-transform:rotate(90deg) translate(0, -20px); -o-transform:rotate(90deg) translate(0, -20px); -webkit-transform:rotate(90deg) translate(0, -20px); opacity:0.37; } .edys-gallery-loading .bar4, .edys-gal-gallery-loading .bar4, .edys-gallery-loading-touch .bar4, .edys-gal-gallery-loading-touch .bar4 { -moz-transform:rotate(135deg) translate(0, -20px); -ms-transform:rotate(135deg) translate(0, -20px); -o-transform:rotate(135deg) translate(0, -20px); -webkit-transform:rotate(135deg) translate(0, -20px); opacity:0.50; } .edys-gallery-loading .bar5, .edys-gal-gallery-loading .bar5, .edys-gallery-loading-touch .bar5, .edys-gal-gallery-loading-touch .bar5 { -moz-transform:rotate(180deg) translate(0, -20px); -ms-transform:rotate(180deg) translate(0, -20px); -o-transform:rotate(180deg) translate(0, -20px); -webkit-transform:rotate(180deg) translate(0, -20px); opacity:0.62; } .edys-gallery-loading .bar6, .edys-gal-gallery-loading .bar6, .edys-gallery-loading-touch .bar6, .edys-gal-gallery-loading-touch .bar6 { -moz-transform:rotate(225deg) translate(0, -20px); -ms-transform:rotate(225deg) translate(0, -20px); -o-transform:rotate(225deg) translate(0, -20px); -webkit-transform:rotate(225deg) translate(0, -20px); opacity:0.75; } .edys-gallery-loading .bar7, .edys-gal-gallery-loading .bar7, .edys-gallery-loading-touch .bar7, .edys-gal-gallery-loading-touch .bar7 { -moz-transform:rotate(270deg) translate(0, -20px); -moz-transform:rotate(270deg) translate(0, -20px); -o-transform:rotate(270deg) translate(0, -20px); -webkit-transform:rotate(270deg) translate(0, -20px); opacity:0.87; } .edys-gallery-loading .bar8, .edys-gal-gallery-loading .bar8, .edys-gallery-loading-touch .bar8, .edys-gal-gallery-loading-touch .bar8 { -moz-transform:rotate(315deg) translate(0, -20px); -ms-transform:rotate(315deg) translate(0, -20px); -o-transform:rotate(315deg) translate(0, -20px); -webkit-transform:rotate(315deg) translate(0, -20px); opacity:1; }',
 
 	            classnames: {
 	                overlay:        'edys-gallery-overlay',
@@ -168,7 +176,6 @@
 
 	            title_dissapear_time: 3,
 	            title_dissapear_time_touch: 3,
-
 	            touchscreen_class_suffix: '-touch',
 	            image_to_wiewport_max_ratio_x: 0.8,
 	            image_to_wiewport_max_ratio_y: 0.8,
@@ -183,10 +190,9 @@
 	            }
 
 	        };
-
-	        this.is_touch = false;
-			this.gallery_elements = gal_elements;
 			
+			this.gallery_elements = gal_elements;
+	        this.is_touch = false;
 			this.overlay_el = 		null;
             this.popup_el =   		null;
             this.current_list =  	null;
@@ -357,23 +363,12 @@
 
 		         this.loading_hide();
 		         this.popup_el.find(this.get_classes('title')).remove(); /* hide global title element. all touch pictures have their own title */
-		         
-		         this.popup_el.width( viewport.width() )
-                             .css({
-                                'padding-top': $(document).scrollTop() + 'px',
-                                'padding-left': $(document).scrollLeft() + 'px',
-                                'padding-right': ( $(document).width() - viewport.width() - $(document).scrollLeft() ) + 'px',
-                                'padding-bottom': ($(document).height()-viewport.height() - $(document).scrollTop()) + 'px'
-                             }).show(); /* set popup size/pos and show */
-	             btns.css({
-			                    "bottom": ( $(document).height() - viewport.height() - $(document).scrollTop()) + 'px'
-			     });
-		
-		
-	   			 this.popup_el.show(); /* set popup size/pos and show */
+		         this.align_touch_popup();
+	   			 this.popup_el.show();
 
 		         /* make swipable gallery elements, bind automatic loading to images and show gallery */
 		         this.make_all_img_element( index, list, $.proxy( function() {
+					/* setup picture titles */
 		         	if ( this.defaults.title_dissapear_time_touch > -1 ) {
 		            	var titl = this.popup_el.find(this.get_classes('title')),
 		                           hidables = btns.add(titl);
@@ -401,18 +396,17 @@
 			                                                  .add(this.popup_el.find(this.get_classes('content_wrap')))
 			                                                  .add(this.popup_el.find(this.get_classes('image_wrap_box')));
 
-	                this.pic_scroll.fixed_stop_width = viewport.width();
-	                this.pic_scroll.max_stops = list.length-1;
-	                this.pic_scroll.move_treshold = this.defaults.swipe_move_treshold;
-	                this.pic_scroll.tap_treshold = this.defaults.tap_move_treshold;
+	                this.pic_scroll.fixed_stop_width 	= viewport.width();
+	                this.pic_scroll.max_stops 			= list.length-1;
+	                this.pic_scroll.move_treshold 		= this.defaults.swipe_move_treshold;
+	                this.pic_scroll.tap_treshold 		= this.defaults.tap_move_treshold;
 	                this.pic_scroll.bind_events();
-
-		            /* set gallery position to clicked image */
-		            this.pic_scroll.center_to_index(index);
-		            this.pic_scroll.after_stop = $.proxy( function (ind){
+		            this.pic_scroll.center_to_index(index); /* set gallery position to clicked image */
+		            this.pic_scroll.after_stop 			= $.proxy( function (ind){
 	                    this.current_index = ind;
 	                    this.show_hide_next_prev();
 	                }, this );
+	
 		            this.show_hide_next_prev();
 					if ( $.browser.opera ) { this.opera_fix(); }
 				}, this));
@@ -426,7 +420,7 @@
                 if ($.browser.opera) { this.opera_fix(); }
                 /*preload clicked image */
                 this.preload_image( list[index].href, $.proxy( function(img) {
-					/* set title */
+					/* setup title */
                     if ( list[index].rel != '&nbsp;' ) {
                     	title.show().html( list[index].rel );
                         if( this.defaults.title_dissapear_time > -1 ){
@@ -464,23 +458,13 @@
             resize_window_function: function(){
 				var imgs =  this.popup_el.find( this.get_classes('image_wrap') +' img' ),
                     img_wrap_boxes = this.popup_el.find( this.get_classes('image_wrap_box') ),
-                    btns =  this.popup_el.find( this.get_classes('bottom_btns') ),
 					me = this;
 				
 				this.overlay_resize();
                 /* keep popup element in viewport */
                 if ( this.is_touch ) {
-					this.popup_el.width( viewport.width() )
-                              .css({
-                                'padding-left': $(document).scrollLeft() + 'px',
-                                'padding-right': ( $(document).width() - viewport.width() - $(document).scrollLeft()) + 'px',
-                                'padding-top': $(document).scrollTop() + 'px',
-                                'padding-bottom': ( $(document).height() - viewport.height() - $(document).scrollTop() ) + 'px'
-                              });
+					this.align_touch_popup();
                     img_wrap_boxes.width( viewport.width() );
-					btns.css({
-                        'bottom': ( $(document).height() - viewport.height() - $(document).scrollTop() ) + 'px'
-                    });;
                 } else {
                     this.set_popup_size_pos();
                     var wrap_size = this.get_img_size(imgs);
@@ -547,19 +531,20 @@
 
             /* touch mode specific popup functions */
             make_all_img_element: function(index,list,f) {
-                var imgs_wrap    = this.popup_el.find( this.get_classes('image_wrap') ),
-                    max     = list.length-1,
-                    img_tpl = $('<div />').addClass( this.get_classes('image_wrap_box',true,false) )
-                                          .html( this.get_loading_html() )
-                                          .width( viewport.width() )
-                                          .css({ 'min-height':'10px' }),
-                    img_w_c = img_tpl.clone(),
-                    current_title = $('<div/>').addClass( this.get_classes('title',true,false) ).html( list[index].rel ),
-					me = this;
+                var imgs_wrap   	= this.popup_el.find( this.get_classes('image_wrap') ),
+                    max     		= list.length-1,
+                    img_tpl 		= $('<div />').addClass( this.get_classes('image_wrap_box',true,false) )
+                                          		  .html( this.get_loading_html() )
+                                          		  .width( viewport.width() )
+                                          		  .css({ 'min-height':'10px' }),
+                    img_w_c 		= img_tpl.clone(),
+                    current_title 	= $('<div/>').addClass( this.get_classes('title', true, false) ).html( list[index].rel ),
+					me 				= this;
 					
                 if ( list[index].rel == '&nbsp;' ) {
                     current_title.addClass( this.get_classes('notitle',true,false) );
                 }
+
                 img_w_c.append( current_title ).append('<br/>');
                 imgs_wrap.width( ( max + 1 ) * viewport.width() ).html(img_w_c);
                 this.preload_image( list[index].href, $.proxy( function(img_c) {
@@ -639,6 +624,20 @@
                     }, this ));
                 }
             },
+
+			align_touch_popup: function() {
+				var btns =  this.popup_el.find( this.get_classes('bottom_btns') );
+		        this.popup_el.width( viewport.width() )
+                              .css({
+                                 'padding-top'		: $(document).scrollTop() + 'px',
+                                 'padding-left'		: $(document).scrollLeft() + 'px',
+                                 'padding-right'	: ( $(document).width() - viewport.width() - $(document).scrollLeft() ) + 'px',
+                                 'padding-bottom'	: ( $(document).height() - viewport.height() - $(document).scrollTop()) + 'px'
+                              }); /* set popup size/pos and show */
+	             btns.css({
+			                    "bottom": ( $(document).height() - viewport.height() - $(document).scrollTop()) + 'px'
+			     });
+			},
 
             /* click mode specific popup functions */
             set_popup_size_pos: function() {
@@ -815,7 +814,7 @@
                     el.addEventListener('oTransitionEnd', function(event){
                         var e = event.target;
                         $(e).removeClass( 'edys-gallery-loading-rotate-touch' );
-                        setTimeout( function(){ $(e).addClass( 'edys-gallery-loading-rotate-touch' ); },50);
+                        setTimeout( function(){ $(e).addClass( 'edys-gallery-loading-rotate-touch' ); }, 50);
                     }, true);
                 });
             },
@@ -825,10 +824,10 @@
             },
 
             set_img_size: function(img){
-                var pop =   this.popup_el,
-                    def =   this.defaults,
-                    w =     img.width(),
-                    h =     img.height(),
+                var pop 	= this.popup_el,
+                    def 	= this.defaults,
+                    w 		= img.width(),
+                    h 		= img.height(),
                     ratio_x = ( this.is_touch ) ? def.image_to_wiewport_max_ratio_touch_x : def.image_to_wiewport_max_ratio_x,
                     ratio_y = ( this.is_touch ) ? def.image_to_wiewport_max_ratio_touch_y : def.image_to_wiewport_max_ratio_y;
 
@@ -845,7 +844,6 @@
 
                 if (h > nph){
                     img.add( this.get_classes('content_wrap') ).height(nph).width(npw);
-                    //img.add(G.get_classes('content_wrap')).height(nph).width(npw);
                 } else {
                     img.height(h).width(w);
                 }
@@ -919,7 +917,6 @@
 	    };
 
 	    /* LOCAL FUNCTIONS */
-
 	    var load_script = function(source,f){
 	        (function(d, t) {
 	            var js = d.createElement(t);
@@ -1226,7 +1223,9 @@
 	            });
 	        };
 	    }
+	 	/* ENDOF LOCAL FUNCTIONS */
 	
+		/* jQuery module initiation */
 		var methods = {
             init: function( options ) {
                 new G($(this), options);
@@ -1249,7 +1248,7 @@
         };
 		
 	};
-    /* ENDOF LOCAL FUNCTIONS */
+   
 
     window.apply_edys_gallery_module = apply_edys_gallery_module;
 })();

@@ -1,7 +1,9 @@
 .edys-gal-gallery-overlay, .edys-gal-gallery-overlay-touch, .edys-gallery-overlay, .edys-gallery-overlay-touch { 
 	position: absolute; 
 	background: #000000; 
-	opacity: 0.75; 
+	-moz-opacity: 0.75;
+	-webkit-opacity: 0.75;
+	opacity: 0.75;
 	filter: alpha(opacity = 75); 
 	z-index: 1001; 
 	margin:0; 
@@ -44,11 +46,12 @@
 	border-color: #3c4143; 
 	border-width: 0 1px; 
 	border-style: solid;
-	-moz-animation: 1s linear 0s normal none infinite rotate; 
 } 
 .edys-gal-gallery-bottom-btns, .edys-gallery-bottom-btns, .edys-gal-gallery-bottom-btns-touch, .edys-gallery-bottom-btns-touch { 
 	background: rgb(38,44,47); 
 	background: rgba(27,33,36,0.8); 
+	-moz-border-radius: 4px; 
+	-webkit-border-radius: 4px; 
 	border-radius: 4px; 
 	padding: 0px; 
 	display: inline; 
@@ -62,8 +65,6 @@
 .edys-gal-gallery-btn-wrap, .edys-gallery-btn-wrap, .edys-gal-gallery-btn-wrap-touch, .edys-gallery-btn-wrap-touch { 
 	width: 68px; 
 	height: 68px; 
-	
-	display: inline;
 	display: inline-block; 
 	float: left;
 	vertical-align: middle; 
@@ -115,7 +116,9 @@ html>body .edys-gal-gallery-image-wrap-box-touch, html>body .edys-gallery-image-
 	vertical-align: middle; 
 } 
 .edys-gal-gallery-right.disabled, .edys-gallery-right.disabled, .edys-gal-gallery-right-touch.disabled, .edys-gallery-right-touch.disabled, .edys-gal-gallery-left.disabled, .edys-gallery-left.disabled, .edys-gal-gallery-left-touch.disabled, .edys-gallery-left-touch.disabled { 
-	opacity: 0.1; 
+	-moz-opacity: 0.1;
+	-webkit-opacity: 0.1;
+	opacity: 0.1;
 	filter: alpha(opacity = 10); 
 } 
 .edys-gal-gallery-title, .edys-gallery-title{ 
@@ -140,7 +143,9 @@ html>body .edys-gal-gallery-image-wrap-box-touch, html>body .edys-gallery-image-
 	z-index: 1010; 
 	top: 40px; 
 	line-height: 18px; 
-	border-radius: 4px; 
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
 	padding: 7px 20px; 
 	font-size: 14px; 
 } 
@@ -151,8 +156,9 @@ html>body .edys-gal-gallery-image-wrap-box-touch, html>body .edys-gallery-image-
 	margin-top: -20px; 
 	z-index: 1010; 
 	margin-left: -5px; 
-	-moz-border-radius:40px; 
-	-webkit-border-radius:40px; 
+	-moz-border-radius: 40px; 
+	-webkit-border-radius: 40px;
+	border-radius: 40px;
 	-webkit-animation-name: rotateThis; 
 	-webkit-animation-duration:2s; 
 	-webkit-animation-iteration-count:infinite; 

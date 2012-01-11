@@ -32,7 +32,11 @@ Configuration variables:
     jumping_mode: defines if all gallery elements will be handled as a unified gallery or every gallery has its own pictures. Values > strict / loose. Default = strict.
     mode: defines if gallery is displayed in toush-swipe mode, ordinary click mode or detected automatically. Both modes work with touchscreen and mouse. Values > auto / touch / click. Default = auto.
     
-    title_dissapear_time: time in seconds for the image title to dissapear in ordinary click mode. Default = 3. If no fading is desired pass a value of -1.
+	autorun_init => default = true. if set to false bloks all automatic loading of module. if edys_gallery jquery module is needed only, it can be called out in javascript "apply_edys_gallery_module(jQuery);" (jQuery must be preloaded then).
+    autorun_gallery => default = true. jQuery / jquery.edys_gallery modules will be loaded, but site gallery jquery will not be automatically bound to gallery elements.
+    init_complete  => default = null; function can be bound to init complete and will be fired after module has been loaded. ex:  edys_galery_options = { init_complete: function($){ alert("foo"); } }
+    
+	title_dissapear_time: time in seconds for the image title to dissapear in ordinary click mode. Default = 3. If no fading is desired pass a value of -1.
     title_dissapear_time_touch: time in seconds for the image title and navigation buttons to dissapear in touch mode. Default = 3. If no fading is desired pass a value of -1.
     
     classnames: object that defines user confugurable classnames for gallery. Object structure: 
@@ -90,12 +94,26 @@ Configuration variables:
                       </div>
                   </div>
 
-    loader_template_ie_lt9: Loading spinner html template for IE ut to 8
+    loader_template_ie_lt9: Loading spinner html template for IE up to 8
         Default:  <div class="edys-gallery-loading-wrap">
                         <div class="edys-gallery-loading">
                             {wait}
                         </div>
                    </div>
+
+#Configuring manually edys_gallery on elements and its events
+
+	edys_gallery can be initiated manually on forms as such if jQuery and google.seach is loaded. options are similiar to main configuration variables and passed as object.
+
+	    $('#element-id').edys_gallery(options);
+
+	gallery elements edys_gallery javascript object bound to it can be called out as follows to access its functions
+
+	    var obj = $('#element-id').edys_gallery('get_object');
+
+	if jquery preloaded you can access module loaded event like this (alernatively to edys_gallery_options.init_complete. If edys_gallery_options.init_complete is set this event is not listened to):
+
+	    $('body').bind('Edys_gallery_complete', function (){ alert('foo'); });
 
 #Designing HTML and css
       
@@ -117,269 +135,266 @@ Default html for reference. For touch mode template all classes have "-touch" su
 
 Css for redesigning starting point:
 
-    .edys-gallery-overlay, .edys-gallery-overlay-touch {
-      position: absolute;
-      background: #000000;
-      opacity: 0.75;
-      filter: alpha(opacity = 75);
-      z-index: 1001;
-      margin:0; padding:0;
-      overflow: hidden;
-      left:0; top:0;
-    }
-    .edys-gallery-popup, .edys-gallery-popup-touch {
-      position: absolute;
-      z-index: 1000;
-      margin:0; padding:0;
-      text-align: center;
-      font-family: Helvetica, Arial;
-      height: 100%;
-      width: 100%;
-      left:0; top:0;
-      overflow: hidden;
-    }
-    .edys-gallery-popup-touch {
-      text-align: left;
-      overflow: visible;
-      position: absolute;
-      left:0; top:0;
-      overflow: hidden;
-       margin:0; padding:0;
-    }
-    .edys-gallery-close, .edys-gallery-close-touch {
-      background: url("close.gif") no-repeat center center;
-      width: 68px;
-      height: 48px;
-      display: inline-block;
-      cursor: pointer;
-      margin: 10px 0;
-      border-color: #3c4143;
-      border-width: 0 1px;
-      border-style: solid;-moz-animation: 1s linear 0s normal none infinite rotate;
-    }
-    .edys-gallery-bottom-btns, .edys-gallery-bottom-btns-touch {
-      background: rgb(38,44,47);
-      background: rgba(27,33,36,0.8);
-      border-radius: 4px;
-      padding: 0px;
-      display: inline-block;
-      position: absolute;
-      margin-bottom: 0.5%;
-      left: 50%;
-      margin-left: -102px;
-      z-index: 1004;
-      bottom: 0;
-    }
-    .edys-gallery-btn-wrap, .edys-gallery-btn-wrap-touch {
-      width: 68px; height: 68px;
-      display: inline-block;
-      vertical-align: middle;
-      line-height: 48px;
-      text-align: center;
-    }
-    .edys-gallery-content-wrap {
-      box-shadow: 2px 0px 10px #000000;
-      clear: both;
-      position: absolute;
-      text-align: center;
-      z-index: 1003;
-    }
-    .edys-gallery-content-wrap-touch {
-      width: 100%;
-      position: relative;
-      overflow: hidden;
-      z-index: 1003;
-      margin-top: 0.5%;
-    }
-    .edys-gallery-image-wrap {
-      overflow: hidden;
-    }
-    .edys-gallery-image-wrap img {
-      display: block;
-      border:0;
-      margin:0;
-    }
-    .edys-gallery-image-wrap-box-touch {
-      display: inline-block;
-      width: 100%;
-      vertical-align: middle;
-      margin-top: -30px;
-      text-align: center;
-    }
-    .edys-gallery-image-wrap-box-touch img {
-      box-shadow: 2px 0px 10px #000000;
-    }
-    .edys-gallery-image-wrap-touch{
-      position: relative;
-      white-space:nowrap;
-    }
-    .edys-gallery-right, .edys-gallery-right-touch {
-      background: url("right_arrow.gif") no-repeat center center;
-      width: 68px;
-      height: 68px;
-      display: inline-block;
-      cursor: pointer;
-      vertical-align: middle;
-    }
-    .edys-gallery-left, .edys-gallery-left-touch {
-      background: url("left_arrow.gif") no-repeat center center;
-      width: 68px;
-      height: 68px;
-      display: inline-block;
-      cursor: pointer;
-      vertical-align: middle;
-    }
-    .edys-gallery-right.disabled, .edys-gallery-right-touch.disabled, .edys-gallery-left.disabled, .edys-gallery-left-touch.disabled{
-      opacity: 0.1;
-      filter: alpha(opacity = 10);
-    }
-
-    .edys-gallery-title{
-      background: rgb(38,44,47);
-      background: rgba(27,33,36,0.8);
-      color: #ffffff;
-      display: inline-block;
-      position: relative;
-      z-index: 1010;
-      bottom: 52px;
-      line-height: 18px;
-      border-radius: 4px;
-      padding: 7px 20px;
-      font-size: 14px;
-    }
-    .edys-gallery-title-touch {
-      background: rgb(38,44,47);
-      background: rgba(27,33,36,0.8);
-      color: #ffffff;
-      display: inline-block;
-      position: relative;
-      z-index: 1010;
-      top: 40px;
-      line-height: 18px;
-      border-radius: 4px;
-      padding: 7px 20px;
-      font-size: 14px;
-    }
-    .edys-gallery-title-touch.edys-gallery-title-notitle-touch {
-      visibility: hidden;
-    }
-    .edys-gallery-loading, .edys-gallery-loading-touch {
-      position:absolute;
-      width:40px;
-      height:40px;
-      margin-top: -20px;
-      z-index: 1010;
-      margin-left: -5px;
-      
-      -moz-border-radius:40px;
-      -webkit-border-radius:40px;
-      -webkit-animation-name: rotateThis;
-      -webkit-animation-duration:2s;
-      -webkit-animation-iteration-count:infinite;
-      -webkit-animation-timing-function:linear;
-
-      -moz-animation-name: rotateThisMoz;
-      -moz-animation-duration:2s;
-      -moz-animation-iteration-count:infinite;
-      -moz-animation-timing-function:linear;
-
-      -ms-animation-name: rotateThisMs;
-      -ms-animation-duration:2s;
-      -ms-animation-iteration-count:infinite;
-      -ms-animation-timing-function:linear;
-
-      -o-transition-duration: 0s;
-      -o-transition-timing-function: linear;
-      background: #cccccc;
-      background: rgba(255,255,255,0);
-      padding: 10px;
-    }
-    .edys-gallery-loading-rotate-touch{
-      -o-transition-duration: 2s;
-      -o-transform:rotate(359deg);
-    }
-    .edys-gallery-loading-touch {
-      display: inline-block;
-      position: relative;
-      margin-left:0;
-    }
-    .edys-gallery-loading-wrap-touch {
-      width: 100%;
-      display: block;
-      text-align: center;
-      position: relative;
-    }
-    .edys-gallery-loading-wrap {
-      position:absolute;
-      width:40px;
-      height:40px;
-    }
-    @-webkit-keyframes rotateThis {
-      from {-webkit-transform: rotate(0deg);} to {-webkit-transform: rotate(360deg);}
-    }
-    @-moz-keyframes rotateThisMoz {
-      from {-moz-transform: rotate(0deg);} to {-moz-transform: rotate(360deg);}
-    }
-    @-ms-keyframes rotateThisMs {
-      from {-ms-transform: rotate(0deg);} to {-ms-transform: rotate(360deg);}
-    }
-    .edys-gallery-loading div, .edys-gallery-loading-touch div {
-      width:10px;
-      height:10px;
-      background:#000;
-      -moz-border-radius:20px;
-      -webkit-border-radius:20px;
-      border-radius:20px;
-      position:absolute;
-      left:25px;
-      top:25px;
-    }
-    .edys-gallery-loading .bar1, .edys-gallery-loading-touch .bar1 {
-      -moz-transform:rotate(0deg) translate(0, -20px);
-      -ms-transform:rotate(0deg) translate(0, -20px);
-      -o-transform:rotate(0deg) translate(0, -20px);
-      -webkit-transform:rotate(0deg) translate(0, -20px);opacity:0.12;
-
-    }
-    .edys-gallery-loading .bar2 , .edys-gallery-loading-touch .bar2 {
-      -moz-transform:rotate(45deg) translate(0, -20px);
-      -ms-transform:rotate(45deg) translate(0, -20px);
-      -o-transform:rotate(45deg) translate(0, -20px);
-      -webkit-transform:rotate(45deg) translate(0, -20px);opacity:0.25;
-    }
-    .edys-gallery-loading .bar3, .edys-gallery-loading-touch .bar3 {
-      -moz-transform:rotate(90deg) translate(0, -20px);
-      -ms-transform:rotate(90deg) translate(0, -20px);
-      -o-transform:rotate(90deg) translate(0, -20px);
-      -webkit-transform:rotate(90deg) translate(0, -20px);opacity:0.37;
-    }
-    .edys-gallery-loading .bar4, .edys-gallery-loading-touch .bar4 {
-      -moz-transform:rotate(135deg) translate(0, -20px);
-      -ms-transform:rotate(135deg) translate(0, -20px);
-      -o-transform:rotate(135deg) translate(0, -20px);
-      -webkit-transform:rotate(135deg) translate(0, -20px);opacity:0.50;
-    }
-    .edys-gallery-loading .bar5, .edys-gallery-loading-touch .bar5 {
-      -moz-transform:rotate(180deg) translate(0, -20px);
-      -ms-transform:rotate(180deg) translate(0, -20px);
-      -o-transform:rotate(180deg) translate(0, -20px);
-      -webkit-transform:rotate(180deg) translate(0, -20px);opacity:0.62;
-    }
-    .edys-gallery-loading .bar6, .edys-gallery-loading-touch .bar6 {
-      -moz-transform:rotate(225deg) translate(0, -20px);
-      -ms-transform:rotate(225deg) translate(0, -20px);
-      -o-transform:rotate(225deg) translate(0, -20px);
-      -webkit-transform:rotate(225deg) translate(0, -20px);opacity:0.75;
-    }
-    .edys-gallery-loading .bar7, .edys-gallery-loading-touch .bar7 {
-      -moz-transform:rotate(270deg) translate(0, -20px);
-      -moz-transform:rotate(270deg) translate(0, -20px);
-      -o-transform:rotate(270deg) translate(0, -20px);
-      -webkit-transform:rotate(270deg) translate(0, -20px);opacity:0.87;
-    }
-    .edys-gallery-loading .bar8, .edys-gallery-loading-touch .bar8 {
-      -moz-transform:rotate(315deg) translate(0, -20px);
-      -ms-transform:rotate(315deg) translate(0, -20px);
-      -o-transform:rotate(315deg) translate(0, -20px);
-      -webkit-transform:rotate(315deg) translate(0, -20px);opacity:1;
-    }
+    .edys-gallery-overlay, .edys-gallery-overlay-touch { 
+		position: absolute; 
+		background: #000000; 
+		-moz-opacity: 0.75;
+		-webkit-opacity: 0.75;
+		opacity: 0.75;
+		filter: alpha(opacity = 75); 
+		z-index: 1001; 
+		margin:0; 
+		padding:0; 
+		overflow: hidden; 
+		left:0; 
+		top:0; 
+	}
+	.edys-gallery-popup, .edys-gallery-popup-touch { 
+		position: absolute; 
+		z-index: 1000; 
+		margin:0; 
+		padding:0; 
+		text-align: center; 
+		font-family: Helvetica, Arial; 
+		left:0; 
+		top:0; 
+		overflow: hidden;
+		height: 100%; width: 100%; 
+	} 
+	.edys-gallery-popup-touch { 
+		text-align: left; 
+		overflow: hidden; 
+		position: absolute; 
+		left:0; 
+		top:0; 
+		overflow: hidden;
+		font-family: Helvetica, Arial; 
+		margin:0; 
+		padding:0; 
+		height: 100%; width: 100%; 
+	} 
+	.edys-gallery-close, .edys-gallery-close-touch { 
+		background: url("close.gif") no-repeat center center; 
+		width: 68px; 
+		height: 48px; 
+		display: inline-block; 
+		cursor: pointer; 
+		margin: 10px 0; 
+		border-color: #3c4143; 
+		border-width: 0 1px; 
+		border-style: solid;
+	} 
+	.edys-gallery-bottom-btns, .edys-gallery-bottom-btns-touch { 
+		background: rgb(38,44,47); 
+		background: rgba(27,33,36,0.8); 
+		-moz-border-radius: 4px; 
+		-webkit-border-radius: 4px; 
+		border-radius: 4px; 
+		padding: 0px; 
+		display: inline; 
+		position: absolute; 
+		margin-bottom: 0.5%; 
+		left: 50%; 
+		margin-left: -102px; 
+		z-index: 1004; 
+		bottom: 0; 
+	} 
+	.edys-gallery-btn-wrap, .edys-gallery-btn-wrap-touch { 
+		width: 68px; 
+		height: 68px; 
+		display: inline-block; 
+		float: left;
+		vertical-align: middle; 
+		line-height: 48px; 
+		text-align: center; 
+	} 
+	.edys-gallery-content-wrap { 
+		box-shadow: 2px 0px 10px #000000; 
+		clear: both; 
+		position: absolute; 
+		text-align: center; 
+		z-index: 1003; 
+	} 
+	.edys-gallery-content-wrap-touch { 
+		width: 100%; 
+		position: relative; 
+		overflow: hidden; 
+		z-index: 1003; 
+		margin-top: 0.5%; 
+	} 
+	.edys-gallery-image-wrap { overflow: hidden; } 
+	.edys-gallery-image-wrap img { display: block; border:0; margin:0; } 
+	.edys-gallery-image-wrap-box-touch { 
+		display: inline-block;
+		width: 100%; 
+		vertical-align: middle; 
+		margin-top: -30px; 
+		text-align: center; 
+	} 
+	html>body .edys-gallery-image-wrap-box-touch { *float:left; }
+	.edys-gallery-image-wrap-box-touch img { box-shadow: 2px 0px 10px #000000; } 
+	.edys-gallery-image-wrap-touch{ position: relative; white-space:nowrap; } 
+	.edys-gallery-right, .edys-gallery-right-touch { 
+		background: url("right_arrow.gif") no-repeat center center; 
+		width: 68px; 
+		height: 68px; display: inline; 
+		display: inline-block;
+		float:right;
+		cursor: pointer; 
+		vertical-align: middle; 
+	} 
+	.edys-gallery-left, .edys-gallery-left-touch { 
+		background: url("left_arrow.gif") no-repeat center center; 
+		width: 68px; 
+		height: 68px; 
+		display: inline; 
+		display: inline-block;
+		float:left;
+		cursor: pointer; 
+		vertical-align: middle; 
+	} 
+	.edys-gallery-right.disabled, .edys-gallery-right-touch.disabled, .edys-gallery-left.disabled, .edys-gallery-left-touch.disabled { 
+		-moz-opacity: 0.1;
+		-webkit-opacity: 0.1;
+		opacity: 0.1;
+		filter: alpha(opacity = 10); 
+	} 
+	.edys-gallery-title{ 
+		background: rgb(38,44,47); 
+		background: rgba(27,33,36,0.8); 
+		color: #ffffff; 
+		display: inline; 
+		position: relative; 
+		z-index: 1010; 
+		bottom: 52px; 
+		line-height: 18px; 
+		border-radius: 4px; 
+		padding: 7px 20px; 
+		font-size: 14px; 
+	} 
+	.edys-gallery-title-touch { 
+		background: rgb(38,44,47); 
+		background: rgba(27,33,36,0.8); 
+		color: #ffffff; 
+		display: inline-block; 
+		position: relative; 
+		z-index: 1010; 
+		top: 40px; 
+		line-height: 18px; 
+		-moz-border-radius: 4px;
+		-webkit-border-radius: 4px;
+		border-radius: 4px;
+		padding: 7px 20px; 
+		font-size: 14px; 
+	} 
+	.edys-gallery-title-touch.edys-gallery-title-notitle-touch { visibility: hidden; } 
+	.edys-gallery-loading, .edys-gallery-loading-touch { 
+		position:absolute; 
+		width:40px; 
+		height:40px; 
+		margin-top: -20px; 
+		z-index: 1010; 
+		margin-left: -5px; 
+		-moz-border-radius: 40px; 
+		-webkit-border-radius: 40px;
+		border-radius: 40px;
+		-webkit-animation-name: rotateThis; 
+		-webkit-animation-duration:2s; 
+		-webkit-animation-iteration-count:infinite; 
+		-webkit-animation-timing-function:linear; 
+		-moz-animation-name: rotateThisMoz; 
+		-moz-animation-duration:2s; 
+		-moz-animation-iteration-count:infinite; 
+		-moz-animation-timing-function:linear; 
+		-ms-animation-name: rotateThisMs; 
+		-ms-animation-duration:2s; 
+		-ms-animation-iteration-count:infinite; 
+		-ms-animation-timing-function:linear; 
+		-o-transition-duration: 0s; 
+		-o-transition-timing-function: linear; 
+		background: #cccccc; 
+		background: rgba(255,255,255,0); 
+		padding: 10px; 
+	} 
+	.edys-gallery-loading-rotate-touch { -o-transition-duration: 2s; -o-transform:rotate(359deg); } 
+	.edys-gallery-loading-touch { display: inline-block; position: relative; margin-left:0; } 
+	.edys-gallery-loading-wrap-touch { width: 100%; display: block; text-align: center; position: relative; } 
+	.edys-gallery-loading-wrap { 
+		position:absolute; 
+		width:40px; 
+		height:40px; 
+	} 
+	@-webkit-keyframes rotateThis { 
+		from {-webkit-transform: rotate(0deg);} to {-webkit-transform: rotate(360deg);} 
+	} 
+	@-moz-keyframes rotateThisMoz { 
+		from {-moz-transform: rotate(0deg);} to {-moz-transform: rotate(360deg);} 
+	} 
+	@-ms-keyframes rotateThisMs { 
+		from {-ms-transform: rotate(0deg);} to {-ms-transform: rotate(360deg);} 
+	} 
+	.edys-gallery-loading div, .edys-gallery-loading-touch div { 
+		width:10px; 
+		height:10px; 
+		background:#000; 
+		-moz-border-radius:20px; 
+		-webkit-border-radius:20px; 
+		border-radius:20px; 
+		position:absolute; 
+		left:25px; 
+		top:25px; 
+	} 
+	.edys-gallery-loading .bar1, .edys-gallery-loading-touch .bar1 {
+		-moz-transform:rotate(0deg) translate(0, -20px); 
+		-ms-transform:rotate(0deg) translate(0, -20px); 
+		-o-transform:rotate(0deg) translate(0, -20px); 
+		-webkit-transform:rotate(0deg) translate(0, -20px);opacity:0.12; 
+	} 
+	.edys-gallery-loading .bar2, .edys-gallery-loading-touch .bar2 {
+		-moz-transform:rotate(45deg) translate(0, -20px); 
+		-ms-transform:rotate(45deg) translate(0, -20px); 
+		-o-transform:rotate(45deg) translate(0, -20px); 
+		-webkit-transform:rotate(45deg) translate(0, -20px);
+		opacity:0.25; 
+	} 
+	.edys-gallery-loading .bar3, .edys-gallery-loading-touch .bar3 {
+		-moz-transform:rotate(90deg) translate(0, -20px); 
+		-ms-transform:rotate(90deg) translate(0, -20px); 
+		-o-transform:rotate(90deg) translate(0, -20px); 
+		-webkit-transform:rotate(90deg) translate(0, -20px);
+		opacity:0.37; 
+	} 
+	.edys-gallery-loading .bar4, .edys-gallery-loading-touch .bar4 { 
+		-moz-transform:rotate(135deg) translate(0, -20px); 
+		-ms-transform:rotate(135deg) translate(0, -20px); 
+		-o-transform:rotate(135deg) translate(0, -20px); 
+		-webkit-transform:rotate(135deg) translate(0, -20px);
+		opacity:0.50; 
+	} 
+	.edys-gallery-loading .bar5, .edys-gallery-loading-touch .bar5 { 
+		-moz-transform:rotate(180deg) translate(0, -20px); 
+		-ms-transform:rotate(180deg) translate(0, -20px); 
+		-o-transform:rotate(180deg) translate(0, -20px); 
+		-webkit-transform:rotate(180deg) translate(0, -20px);
+		opacity:0.62; 
+	} .edys-gallery-loading .bar6, .edys-gallery-loading-touch .bar6 { 
+		-moz-transform:rotate(225deg) translate(0, -20px); 
+		-ms-transform:rotate(225deg) translate(0, -20px); 
+		-o-transform:rotate(225deg) translate(0, -20px); 
+		-webkit-transform:rotate(225deg) translate(0, -20px);
+		opacity:0.75; 
+	} 
+	.edys-gallery-loading .bar7, .edys-gallery-loading-touch .bar7{ 
+		-moz-transform:rotate(270deg) translate(0, -20px); 
+		-moz-transform:rotate(270deg) translate(0, -20px); 
+		-o-transform:rotate(270deg) translate(0, -20px); 
+		-webkit-transform:rotate(270deg) translate(0, -20px);
+		opacity:0.87; 
+	} 
+	.edys-gallery-loading .bar8, .edys-gallery-loading-touch .bar8 { 
+		-moz-transform:rotate(315deg) translate(0, -20px); 
+		-ms-transform:rotate(315deg) translate(0, -20px); 
+		-o-transform:rotate(315deg) translate(0, -20px); 
+		-webkit-transform:rotate(315deg) translate(0, -20px);
+		opacity:1; 
+	}
