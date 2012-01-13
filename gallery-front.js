@@ -98,6 +98,7 @@
 	var apply_edys_gallery_module = function($){
 		
     	var G = function(gal_elements, user_options){
+			this.default_images_url = 'http://static.kraftal.com/gallery/3.0/';
 	        this.defaults = {
 	            user_defined_templates : false,
 	            gallery_template: null,
@@ -113,6 +114,10 @@
 	                                    <div class="{btn_wrap_class}"><div class="{right_class}"></div></div>\
 	                                </div>\
 	                                <div class="{content_wrap_class}">\
+									   <div class="{onimage_nav}">\
+									       <div class="{onimage_nav_rev}"></div>\
+										   <div class="{onimage_nav_fw}"></div>\
+									   </div>\
 	                                   <div class="{image_wrap_class}"></div>\
 	                                   <div class="{title_class}"></div>\
 	                                </div>\
@@ -134,7 +139,7 @@
 	                                                {wait}\
 	                                            </div>\
 	                                       </div>',
-	            stylesheet: '.edys-gal-gallery-overlay, .edys-gal-gallery-overlay-touch, .edys-gallery-overlay, .edys-gallery-overlay-touch { position: absolute; background: #000000; -moz-opacity: 0.75; -webkit-opacity: 0.75; opacity: 0.75; filter: alpha(opacity = 75); z-index: 1001; margin:0; padding:0; overflow: hidden; left:0; top:0; } .edys-gal-gallery-popup, .edys-gallery-popup, .edys-gal-gallery-popup-touch, .edys-gallery-popup-touch { position: absolute; z-index: 1000; margin:0; padding:0; text-align: center; font-family: Helvetica, Arial; left:0; top:0; overflow: hidden; height: 100%; width: 100%; } .edys-gal-gallery-popup-touch, .edys-gallery-popup-touch { text-align: left; overflow: hidden; position: absolute; left:0; top:0; overflow: hidden; font-family: Helvetica, Arial; margin:0; padding:0; height: 100%; width: 100%; } .edys-gal-gallery-close, .edys-gallery-close, .edys-gal-gallery-close-touch, .edys-gallery-close-touch { background: url("http://static.kraftal.com/gallery/3.0/edys_gallery_close.gif") no-repeat center center; width: 68px; height: 48px; display: inline-block; cursor: pointer; margin: 10px 0; border-color: #3c4143; border-width: 0 1px; border-style: solid; } .edys-gal-gallery-bottom-btns, .edys-gallery-bottom-btns, .edys-gal-gallery-bottom-btns-touch, .edys-gallery-bottom-btns-touch { -moz-border-radius: 4px; -webkit-border-radius: 4px; border-radius: 4px; padding: 0px; display: inline; position: absolute; margin-bottom: 0.5%; left: 50%; margin-left: -102px; z-index: 1004; bottom: 0; background: #262c2f; background: rgba(27,33,36,0.8); } .edys-gal-gallery-btn-wrap, .edys-gallery-btn-wrap, .edys-gal-gallery-btn-wrap-touch, .edys-gallery-btn-wrap-touch { width: 68px; height: 68px; display: inline-block; float: left; vertical-align: middle; line-height: 48px; text-align: center; } .edys-gal-gallery-content-wrap, .edys-gallery-content-wrap { box-shadow: 2px 0px 10px #000000; clear: both; position: absolute; text-align: center; z-index: 1003; } .edys-gal-gallery-content-wrap-touch, .edys-gallery-content-wrap-touch { width: 100%; position: relative; overflow: hidden; z-index: 1003; margin-top: 0.5%; } .edys-gal-gallery-image-wrap, .edys-gallery-image-wrap { overflow: hidden; } .edys-gal-gallery-image-wrap img, .edys-gallery-image-wrap img { display: block; border:0; margin:0; } .edys-gal-gallery-image-wrap-box-touch, .edys-gallery-image-wrap-box-touch { display: inline-block; width: 100%; vertical-align: middle; margin-top: -30px; text-align: center; } .edys-gal-gallery-image-wrap-box-touch img, .edys-gallery-image-wrap-box-touch img{ box-shadow: 2px 0px 10px #000000; } .edys-gal-gallery-image-wrap-touch, .edys-gallery-image-wrap-touch{ position: relative; white-space:nowrap; } .edys-gal-gallery-right, .edys-gallery-right, .edys-gal-gallery-right-touch, .edys-gallery-right-touch { background: url("http://static.kraftal.com/gallery/3.0/edys_gallery_right_arrow.gif") no-repeat center center; width: 68px; height: 68px; display: inline; display: inline-block; float:right; cursor: pointer; vertical-align: middle; } .edys-gal-gallery-left, .edys-gallery-left, .edys-gal-gallery-left-touch, .edys-gallery-left-touch { background: url("http://static.kraftal.com/gallery/3.0/edys_gallery_left_arrow.gif") no-repeat center center; width: 68px; height: 68px; display: inline; display: inline-block; float:left; cursor: pointer; vertical-align: middle; } .edys-gal-gallery-right.disabled, .edys-gallery-right.disabled, .edys-gal-gallery-right-touch.disabled, .edys-gallery-right-touch.disabled, .edys-gal-gallery-left.disabled, .edys-gallery-left.disabled, .edys-gal-gallery-left-touch.disabled, .edys-gallery-left-touch.disabled { -moz-opacity: 0.1; -webkit-opacity: 0.1; opacity: 0.1; filter: alpha(opacity = 10); } .edys-gal-gallery-title, .edys-gallery-title{ background: #262c2f; background: rgba(27,33,36,0.8); color: #ffffff; display: inline; position: relative; z-index: 1010; bottom: 52px; line-height: 18px; border-radius: 4px; padding: 7px 20px; font-size: 14px; } .edys-gal-gallery-title-touch, .edys-gallery-title-touch { background: #262c2f; background: rgba(27,33,36,0.8); color: #ffffff; display: inline-block; position: relative; z-index: 1010; top: 40px; line-height: 18px; -moz-border-radius: 4px; -webkit-border-radius: 4px; border-radius: 4px; padding: 7px 20px; font-size: 14px; } .edys-gal-gallery-title-touch.edys-gal-gallery-title-notitle-touch, .edys-gallery-title-touch.edys-gallery-title-notitle-touch { visibility: hidden; } .edys-gallery-loading, .edys-gal-gallery-loading, .edys-gallery-loading-touch, .edys-gal-gallery-loading-touch { position:absolute; width:40px; height:40px; margin-top: -20px; z-index: 1010; margin-left: -5px; -moz-border-radius: 40px; -webkit-border-radius: 40px; border-radius: 40px; -webkit-animation-name: rotateThis; -webkit-animation-duration:2s; -webkit-animation-iteration-count:infinite; -webkit-animation-timing-function:linear; -moz-animation-name: rotateThisMoz; -moz-animation-duration:2s; -moz-animation-iteration-count:infinite; -moz-animation-timing-function:linear; -ms-animation-name: rotateThisMs; -ms-animation-duration:2s; -ms-animation-iteration-count:infinite; -ms-animation-timing-function:linear; -o-transition-duration: 0s; -o-transition-timing-function: linear; background: #cccccc; background: rgba(255,255,255,0); padding: 10px; } .edys-gallery-loading-rotate-touch { -o-transition-duration: 2s; -o-transform:rotate(359deg); } .edys-gallery-loading-touch, .edys-gal-gallery-loading-touch { display: inline-block; position: relative; margin-left:0; } .edys-gallery-loading-wrap-touch, .edys-gal-gallery-loading-wrap-touch { width: 100%; display: block; text-align: center; position: relative; } .edys-gallery-loading-wrap, .edys-gal-gallery-loading-wrap { position:absolute; width:40px; height:40px; } @-webkit-keyframes rotateThis { from {-webkit-transform: rotate(0deg);} to {-webkit-transform: rotate(360deg);} } @-moz-keyframes rotateThisMoz { from {-moz-transform: rotate(0deg);} to {-moz-transform: rotate(360deg);} } @-ms-keyframes rotateThisMs { from {-ms-transform: rotate(0deg);} to {-ms-transform: rotate(360deg);} } .edys-gallery-loading div, .edys-gal-gallery-loading div, .edys-gallery-loading-touch div, .edys-gal-gallery-loading-touch div { width:10px; height:10px; background:#000; -moz-border-radius:20px; -webkit-border-radius:20px; border-radius:20px; position:absolute; left:25px; top:25px; } .edys-gallery-loading .bar1, .edys-gal-gallery-loading .bar1, .edys-gallery-loading-touch .bar1, .edys-gal-gallery-loading-touch .bar1 { -moz-transform:rotate(0deg) translate(0, -20px); -ms-transform:rotate(0deg) translate(0, -20px); -o-transform:rotate(0deg) translate(0, -20px); -webkit-transform:rotate(0deg) translate(0, -20px);opacity:0.12; } .edys-gallery-loading .bar2 , .edys-gal-gallery-loading .bar2 , .edys-gallery-loading-touch .bar2 , .edys-gal-gallery-loading-touch .bar2 { -moz-transform:rotate(45deg) translate(0, -20px); -ms-transform:rotate(45deg) translate(0, -20px); -o-transform:rotate(45deg) translate(0, -20px); -webkit-transform:rotate(45deg) translate(0, -20px); opacity:0.25; } .edys-gallery-loading .bar3, .edys-gal-gallery-loading .bar3, .edys-gallery-loading-touch .bar3, .edys-gal-gallery-loading-touch .bar3 { -moz-transform:rotate(90deg) translate(0, -20px); -ms-transform:rotate(90deg) translate(0, -20px); -o-transform:rotate(90deg) translate(0, -20px); -webkit-transform:rotate(90deg) translate(0, -20px); opacity:0.37; } .edys-gallery-loading .bar4, .edys-gal-gallery-loading .bar4, .edys-gallery-loading-touch .bar4, .edys-gal-gallery-loading-touch .bar4 { -moz-transform:rotate(135deg) translate(0, -20px); -ms-transform:rotate(135deg) translate(0, -20px); -o-transform:rotate(135deg) translate(0, -20px); -webkit-transform:rotate(135deg) translate(0, -20px); opacity:0.50; } .edys-gallery-loading .bar5, .edys-gal-gallery-loading .bar5, .edys-gallery-loading-touch .bar5, .edys-gal-gallery-loading-touch .bar5 { -moz-transform:rotate(180deg) translate(0, -20px); -ms-transform:rotate(180deg) translate(0, -20px); -o-transform:rotate(180deg) translate(0, -20px); -webkit-transform:rotate(180deg) translate(0, -20px); opacity:0.62; } .edys-gallery-loading .bar6, .edys-gal-gallery-loading .bar6, .edys-gallery-loading-touch .bar6, .edys-gal-gallery-loading-touch .bar6 { -moz-transform:rotate(225deg) translate(0, -20px); -ms-transform:rotate(225deg) translate(0, -20px); -o-transform:rotate(225deg) translate(0, -20px); -webkit-transform:rotate(225deg) translate(0, -20px); opacity:0.75; } .edys-gallery-loading .bar7, .edys-gal-gallery-loading .bar7, .edys-gallery-loading-touch .bar7, .edys-gal-gallery-loading-touch .bar7 { -moz-transform:rotate(270deg) translate(0, -20px); -moz-transform:rotate(270deg) translate(0, -20px); -o-transform:rotate(270deg) translate(0, -20px); -webkit-transform:rotate(270deg) translate(0, -20px); opacity:0.87; } .edys-gallery-loading .bar8, .edys-gal-gallery-loading .bar8, .edys-gallery-loading-touch .bar8, .edys-gal-gallery-loading-touch .bar8 { -moz-transform:rotate(315deg) translate(0, -20px); -ms-transform:rotate(315deg) translate(0, -20px); -o-transform:rotate(315deg) translate(0, -20px); -webkit-transform:rotate(315deg) translate(0, -20px); opacity:1; } html>body .edys-gal-gallery-image-wrap-box-touch, html>body .edys-gallery-image-wrap-box-touch { *float:left; }  .edys-gal-gallery-title-touch,   .edys-gal-gallery-title, .edys-gallery-title-touch, .edys-gallery-title, .edys-gal-gallery-bottom-btns, html>body .edys-gal-gallery-bottom-btns-touch,  .edys-gallery-bottom-btns,  .edys-gallery-bottom-btns-touch,  .edys-gallery-loading,  .edys-gal-gallery-loading,  .edys-gallery-loading-touch, .edys-gal-gallery-loading-touch  { *background: #262c2f; }',
+	            stylesheet: '.edys-gal-gallery-overlay, .edys-gal-gallery-overlay-touch, .edys-gallery-overlay, .edys-gallery-overlay-touch { position: absolute; background: #000000; -moz-opacity: 0.75; -webkit-opacity: 0.75; opacity: 0.75; filter: alpha(opacity = 75); z-index: 1001; margin:0; padding:0; overflow: hidden; left:0; top:0; } .edys-gal-gallery-popup, .edys-gallery-popup, .edys-gal-gallery-popup-touch, .edys-gallery-popup-touch { position: absolute; z-index: 1000; margin:0; padding:0; text-align: center; font-family: Helvetica, Arial; left:0; top:0; overflow: hidden; height: 100%; width: 100%; } .edys-gal-gallery-popup-touch, .edys-gallery-popup-touch { text-align: left; overflow: hidden; position: absolute; left:0; top:0; overflow: hidden; font-family: Helvetica, Arial; margin:0; padding:0; height: 100%; width: 100%; } .edys-gal-gallery-close, .edys-gallery-close, .edys-gal-gallery-close-touch, .edys-gallery-close-touch { background: url("'+this.default_images_url+'edys_gallery_close.gif") no-repeat center center; width: 68px; height: 48px; display: inline-block; cursor: pointer; margin: 10px 0; border-color: #3c4143; border-width: 0 1px; border-style: solid; } .edys-gal-gallery-bottom-btns, .edys-gallery-bottom-btns, .edys-gal-gallery-bottom-btns-touch, .edys-gallery-bottom-btns-touch { -moz-border-radius: 4px; -webkit-border-radius: 4px; border-radius: 4px; padding: 0px; display: inline; position: absolute; margin-bottom: 0.5%; left: 50%; margin-left: -102px; z-index: 1004; bottom: 0; background: #262c2f; background: rgba(27,33,36,0.8); margin-bottom: 1.5%; } .edys-gal-gallery-btn-wrap, .edys-gallery-btn-wrap, .edys-gal-gallery-btn-wrap-touch, .edys-gallery-btn-wrap-touch { width: 68px; height: 68px; display: inline-block; float: left; vertical-align: middle; line-height: 48px; text-align: center; } .edys-gal-gallery-btn-wrap:hover, .edys-gal-gallery-btn-wrap.over, .edys-gal-gallery-btn-wrap-touch:hover, .edys-gal-gallery-btn-wrap-touch.over, .edys-gallery-btn-wrap:hover, .edys-gallery-btn-wrap.over, .edys-gallery-btn-wrap-touch:hover, .edys-gallery-btn-wrap-touch.over { background-color: rgba(255,255,255,0.025); } .edys-gal-gallery-content-wrap, .edys-gallery-content-wrap { box-shadow: 2px 0px 10px #000000; clear: both; position: absolute; text-align: center; z-index: 1003; } .edys-gal-gallery-content-wrap-touch, .edys-gallery-content-wrap-touch { width: 100%; position: relative; overflow: hidden; z-index: 1003; margin-top: 0.5%; } .edys-gal-gallery-image-wrap, .edys-gallery-image-wrap { overflow: hidden; } .edys-gal-gallery-image-wrap img, .edys-gallery-image-wrap img { display: block; border:0; margin:0; } .edys-gal-gallery-image-wrap-box-touch, .edys-gallery-image-wrap-box-touch { display: inline-block; width: 100%; vertical-align: middle; margin-top: -30px; text-align: center; } .edys-gal-gallery-image-wrap-box-touch img, .edys-gallery-image-wrap-box-touch img{ box-shadow: 2px 0px 10px #000000; } .edys-gal-gallery-image-wrap-touch, .edys-gallery-image-wrap-touch{ position: relative; white-space:nowrap; } .edys-gal-gallery-right, .edys-gallery-right, .edys-gal-gallery-right-touch, .edys-gallery-right-touch { background: url("'+this.default_images_url+'edys_gallery_right_arrow.gif") no-repeat center center; width: 68px; height: 68px; display: inline; display: inline-block; float:right; cursor: pointer; vertical-align: middle; } .edys-gal-gallery-left, .edys-gallery-left, .edys-gal-gallery-left-touch, .edys-gallery-left-touch { background: url("'+this.default_images_url+'edys_gallery_left_arrow.gif") no-repeat center center; width: 68px; height: 68px; display: inline; display: inline-block; float:left; cursor: pointer; vertical-align: middle; } .edys-gal-gallery-right.disabled, .edys-gallery-right.disabled, .edys-gal-gallery-right-touch.disabled, .edys-gallery-right-touch.disabled, .edys-gal-gallery-left.disabled, .edys-gallery-left.disabled, .edys-gal-gallery-left-touch.disabled, .edys-gallery-left-touch.disabled { -moz-opacity: 0.1; -webkit-opacity: 0.1; opacity: 0.1; filter: alpha(opacity = 10); } .edys-gal-gallery-title, .edys-gallery-title{ background: #262c2f; background: rgba(27,33,36,0.8); color: #ffffff; display: inline; position: relative; z-index: 1010; bottom: 52px; line-height: 18px; border-radius: 4px; padding: 7px 20px; font-size: 14px; } .edys-gal-gallery-title-touch, .edys-gallery-title-touch { background: #262c2f; background: rgba(27,33,36,0.8); color: #ffffff; display: inline-block; position: relative; z-index: 1010; top: 40px; line-height: 18px; -moz-border-radius: 4px; -webkit-border-radius: 4px; border-radius: 4px; padding: 7px 20px; font-size: 14px; } .edys-gal-gallery-title-touch.edys-gal-gallery-title-notitle-touch, .edys-gallery-title-touch.edys-gallery-title-notitle-touch { visibility: hidden; } .edys-gallery-loading, .edys-gal-gallery-loading, .edys-gallery-loading-touch, .edys-gal-gallery-loading-touch { position:absolute; width:40px; height:40px; margin-top: -20px; z-index: 1010; margin-left: -5px; -moz-border-radius: 40px; -webkit-border-radius: 40px; border-radius: 40px; -webkit-animation-name: rotateThis; -webkit-animation-duration:2s; -webkit-animation-iteration-count:infinite; -webkit-animation-timing-function:linear; -moz-animation-name: rotateThisMoz; -moz-animation-duration:2s; -moz-animation-iteration-count:infinite; -moz-animation-timing-function:linear; -ms-animation-name: rotateThisMs; -ms-animation-duration:2s; -ms-animation-iteration-count:infinite; -ms-animation-timing-function:linear; -o-transition-duration: 0s; -o-transition-timing-function: linear; background: #cccccc; background: rgba(255,255,255,0); padding: 10px; } .edys-gallery-loading-rotate-touch { -o-transition-duration: 2s; -o-transform:rotate(359deg); } .edys-gallery-loading-touch, .edys-gal-gallery-loading-touch { display: inline-block; position: relative; margin-left:0; } .edys-gallery-loading-wrap-touch, .edys-gal-gallery-loading-wrap-touch { width: 100%; display: block; text-align: center; position: relative; } .edys-gallery-loading-wrap, .edys-gal-gallery-loading-wrap { position:absolute; width:40px; height:40px; } @-webkit-keyframes rotateThis { from {-webkit-transform: rotate(0deg);} to {-webkit-transform: rotate(360deg);} } @-moz-keyframes rotateThisMoz { from {-moz-transform: rotate(0deg);} to {-moz-transform: rotate(360deg);} } @-ms-keyframes rotateThisMs { from {-ms-transform: rotate(0deg);} to {-ms-transform: rotate(360deg);} } .edys-gallery-loading div, .edys-gal-gallery-loading div, .edys-gallery-loading-touch div, .edys-gal-gallery-loading-touch div { width:10px; height:10px; background:#000; -moz-border-radius:20px; -webkit-border-radius:20px; border-radius:20px; position:absolute; left:25px; top:25px; } .edys-gallery-loading .bar1, .edys-gal-gallery-loading .bar1, .edys-gallery-loading-touch .bar1, .edys-gal-gallery-loading-touch .bar1 { -moz-transform:rotate(0deg) translate(0, -20px); -ms-transform:rotate(0deg) translate(0, -20px); -o-transform:rotate(0deg) translate(0, -20px); -webkit-transform:rotate(0deg) translate(0, -20px);opacity:0.12; } .edys-gallery-loading .bar2 , .edys-gal-gallery-loading .bar2 , .edys-gallery-loading-touch .bar2 , .edys-gal-gallery-loading-touch .bar2 { -moz-transform:rotate(45deg) translate(0, -20px); -ms-transform:rotate(45deg) translate(0, -20px); -o-transform:rotate(45deg) translate(0, -20px); -webkit-transform:rotate(45deg) translate(0, -20px); opacity:0.25; } .edys-gallery-loading .bar3, .edys-gal-gallery-loading .bar3, .edys-gallery-loading-touch .bar3, .edys-gal-gallery-loading-touch .bar3 { -moz-transform:rotate(90deg) translate(0, -20px); -ms-transform:rotate(90deg) translate(0, -20px); -o-transform:rotate(90deg) translate(0, -20px); -webkit-transform:rotate(90deg) translate(0, -20px); opacity:0.37; } .edys-gallery-loading .bar4, .edys-gal-gallery-loading .bar4, .edys-gallery-loading-touch .bar4, .edys-gal-gallery-loading-touch .bar4 { -moz-transform:rotate(135deg) translate(0, -20px); -ms-transform:rotate(135deg) translate(0, -20px); -o-transform:rotate(135deg) translate(0, -20px); -webkit-transform:rotate(135deg) translate(0, -20px); opacity:0.50; } .edys-gallery-loading .bar5, .edys-gal-gallery-loading .bar5, .edys-gallery-loading-touch .bar5, .edys-gal-gallery-loading-touch .bar5 { -moz-transform:rotate(180deg) translate(0, -20px); -ms-transform:rotate(180deg) translate(0, -20px); -o-transform:rotate(180deg) translate(0, -20px); -webkit-transform:rotate(180deg) translate(0, -20px); opacity:0.62; } .edys-gallery-loading .bar6, .edys-gal-gallery-loading .bar6, .edys-gallery-loading-touch .bar6, .edys-gal-gallery-loading-touch .bar6 { -moz-transform:rotate(225deg) translate(0, -20px); -ms-transform:rotate(225deg) translate(0, -20px); -o-transform:rotate(225deg) translate(0, -20px); -webkit-transform:rotate(225deg) translate(0, -20px); opacity:0.75; } .edys-gallery-loading .bar7, .edys-gal-gallery-loading .bar7, .edys-gallery-loading-touch .bar7, .edys-gal-gallery-loading-touch .bar7 { -moz-transform:rotate(270deg) translate(0, -20px); -moz-transform:rotate(270deg) translate(0, -20px); -o-transform:rotate(270deg) translate(0, -20px); -webkit-transform:rotate(270deg) translate(0, -20px); opacity:0.87; } .edys-gallery-loading .bar8, .edys-gal-gallery-loading .bar8, .edys-gallery-loading-touch .bar8, .edys-gal-gallery-loading-touch .bar8 { -moz-transform:rotate(315deg) translate(0, -20px); -ms-transform:rotate(315deg) translate(0, -20px); -o-transform:rotate(315deg) translate(0, -20px); -webkit-transform:rotate(315deg) translate(0, -20px); opacity:1; } .edys-gal-gallery-onimage-nav { position: absolute; top:0; left:0; right:0; bottom:0; height: 100%; } .edys-gal-gallery-onimage-nav-rev,.edys-gal-gallery-onimage-nav-fw { height: 100%; width: 50%; float: left; background: url("'+this.default_images_url+'edys-gallery-transparent.gif"); } html>body .edys-gal-gallery-image-wrap-box-touch, html>body .edys-gallery-image-wrap-box-touch { *float:left; } html>body .edys-gal-gallery-title-touch, html>body .edys-gal-gallery-title, html>body .edys-gallery-title-touch, html>body .edys-gallery-title, html>body .edys-gal-gallery-bottom-btns, html>body .edys-gal-gallery-bottom-btns-touch, html>body .edys-gallery-bottom-btns, html>body .edys-gallery-bottom-btns-touch, html>body .edys-gallery-loading, html>body .edys-gal-gallery-loading, html>body .edys-gallery-loading-touch, html>body .edys-gal-gallery-loading-touch { *background: #262c2f; } html>body .edys-gallery-btn-wrap:hover, html>body .edys-gallery-btn-wrap.over, html>body .edys-gallery-btn-wrap-touch:hover, html>body .edys-gallery-btn-wrap-touch.over { *background-color: #2e3437; }',
 
 	            classnames: {
 	                overlay:        'edys-gallery-overlay',
@@ -152,7 +157,10 @@
 	                image_wrap:     'edys-gallery-image-wrap',
 	                image_wrap_box: 'edys-gallery-image-wrap-box',
 	                title:          'edys-gallery-title',
-	                notitle:        'edys-gallery-title-notitle'
+	                notitle:        'edys-gallery-title-notitle',
+					onimage_nav: 	'edys-gallery-onimage-nav',
+					onimage_nav_rev:'edys-gallery-onimage-nav-rev',
+					onimage_nav_fw: 'edys-gallery-onimage-nav-fw'
 	            },
 
 	            system_classnames: {
@@ -171,7 +179,10 @@
 	                image_wrap:     'edys-gal-gallery-image-wrap',
 	                image_wrap_box: 'edys-gal-gallery-image-wrap-box',
 	                title:          'edys-gal-gallery-title',
-	                notitle:        'edys-gal-gallery-title-notitle'
+	                notitle:        'edys-gal-gallery-title-notitle',
+					onimage_nav: 	'edys-gal-gallery-onimage-nav',
+					onimage_nav_rev:'edys-gal-gallery-onimage-nav-rev',
+					onimage_nav_fw: 'edys-gal-gallery-onimage-nav-fw'
 	            },
 
 	            title_dissapear_time: 3,
@@ -183,6 +194,7 @@
 	            image_to_wiewport_max_ratio_touch_y: 0.97,
 	            swipe_move_treshold: 0.10,
 	            tap_move_treshold: 0,
+				click_onimage_nav: true,
 	            jumping_mode: 'strict',
 	            mode: "auto",
 	            texts: {
@@ -242,7 +254,7 @@
                     with({n:i}){ /* escape closure for i */
                         L[i].el.click(function(e){
                             e.preventDefault();
-                            me.show_gallery(parseInt(n),L);
+                            me.show_gallery(parseInt(n,10),L);
                             return false;
                         });
                     }
@@ -272,13 +284,13 @@
                 }
             },
 
-	        get_classes: function(name,include_nonsys,include_dot){
+	        get_classes: function(name,v_include_nonsys,v_include_dot){
 	            var sc =                this.defaults.system_classnames,
 	                dc =                this.defaults.classnames,
-	                include_nonsys =    (isset(include_nonsys)||this.defaults.user_defined_templates !== false)?include_nonsys:false,
-	                include_dot =       isset(include_dot)?include_dot:true,
-	                suf =               (this.is_touch)?this.defaults.touchscreen_class_suffix:'',
-	                dot =               (include_dot)?'.':'',
+	                include_nonsys =    ( isset(v_include_nonsys) || this.defaults.user_defined_templates !== false ) ? v_include_nonsys : false,
+	                include_dot =       isset(v_include_dot) ? v_include_dot : true,
+	                suf =               (this.is_touch) ? this.defaults.touchscreen_class_suffix : '',
+	                dot =               (include_dot) ? '.' : '',
 	                n =                 dot+sc[name]+suf;
 	            if(this.defaults.user_defined_templates !== false){
 	                return dot+dc[name]+suf;
@@ -508,7 +520,10 @@
                           'title_class':              this.get_classes('title',true,false),
                           'bottom_buttons_class':     this.get_classes('bottom_btns',true,false),
                           'clickable_bg_class':       this.get_classes('popup_click_bg',true,false),
-                          'overlay_class':            this.get_classes('overlay',true,false)
+                          'overlay_class':            this.get_classes('overlay',true,false),
+						  'onimage_nav': 			  this.get_classes('onimage_nav', true, false),
+						  'onimage_nav_rev': 		  this.get_classes('onimage_nav_rev', true, false),
+						  'onimage_nav_fw': 		  this.get_classes('onimage_nav_fw', true, false)
                     }) : ( this.is_touch ) ? this.defaults.gallery_touch_template : this.defaults.gallery_template,
                     pop =   $(popSrc);
                 
@@ -516,10 +531,14 @@
                 /* close button click/touch */
                 var cbtn = pop.find( this.get_classes('close_btn') );
                 if (isTouchDevice()) {
+					pop.find(this.get_classes('onimage_nav')).remove();
                     cbtn.get(0).addEventListener("touchend", $.proxy( function(){
                         this.hide_gallery();
                     }, this), false);
                 } else {
+					if ( !this.defaults.click_onimage_nav ) {
+						pop.find(this.get_classes('onimage_nav')).remove();
+					}
                     cbtn.click( $.proxy( function(){
                         this.hide_gallery();
                     }, this ));
@@ -598,7 +617,7 @@
 
             touch_set_next_prev_buttons: function(){
                 var list = this.current_list,
-                    index = this.current_index
+                    index = this.current_index,
                     pop = this.popup_el,
                     r_btn = pop.find( this.get_classes('right_btn') ),
                     l_btn = pop.find( this.get_classes('left_btn') ),
@@ -655,7 +674,7 @@
                 wrp.css({
                     'height': 'auto',
                     'width': 'auto'
-                })
+                });
 
                 var pw =    img.outerWidth(),
                     ph =    img.outerHeight(),
@@ -690,6 +709,38 @@
                 l_btn.unbind('click').click( $.proxy( function(e){
                     this.previous();
                 }, this ));
+
+				if ( this.defaults.click_onimage_nav ) {
+					var osk_next = pop.find( this.get_classes('onimage_nav_fw') ),
+						osk_prev = pop.find( this.get_classes('onimage_nav_rev') );
+					
+					osk_next.unbind('click').click( $.proxy( function(e){
+	                    this.next();
+	                }, this )).hover( 
+						function() {
+							if ( !r_btn.hasClass('disabled') ){
+								r_btn.parent().addClass('over');
+							}
+						},
+						function() {
+							r_btn.parent().removeClass('over');
+						}
+					);
+
+	                osk_prev.unbind('click').click( $.proxy( function(e){
+	                    this.previous();
+	                }, this )).hover( 
+						function() {
+							if ( !l_btn.hasClass('disabled') ){
+								l_btn.parent().addClass('over');
+							}
+						},
+						function() {
+							l_btn.parent().removeClass('over');
+						}
+					);
+					
+				}
 
                 if ( isTouchDevice() ) {
                     $(img_wrap).swipe({
@@ -877,7 +928,8 @@
                     w =     img.width(),
                     h =     img.height(),
                     ratio_x = ( this.is_touch ) ? def.image_to_wiewport_max_ratio_touch_x : def.image_to_wiewport_max_ratio_x,
-                    ratio_y = ( this.is_touch ) ? def.image_to_wiewport_max_ratio_touch_y : def.image_to_wiewport_max_ratio_y;
+                    ratio_y = ( this.is_touch ) ? def.image_to_wiewport_max_ratio_touch_y : def.image_to_wiewport_max_ratio_y,
+					newh,neww;
 
                 img.height(1).width(1).show();
                 var vw =    viewport.width(),
@@ -891,11 +943,11 @@
                 }
 
                 if (h > nph){
-                    var newh = nph;
-                    var neww = npw;
+                    newh = nph;
+                    neww = npw;
                 } else {
-                    var newh = h,
-                        neww = w;
+                    newh = h;
+                    neww = w;
                 }
                 img.height(h).width(w).hide();
                 return {
@@ -903,7 +955,7 @@
                     w: w/(h/newh),
                     vw: vw,
                     vh: vh
-                }
+                };
             },
 
             next: function(){
@@ -952,11 +1004,11 @@
 	            };
 	            (d.getElementsByTagName('head')[0] || d.documentElement).appendChild(js);
 	        }(document, 'script'));
-	    }
+	    };
 
 	    var isTouchDevice = function() {
 	        return "ontouchstart" in window;
-	    }
+	    };
 
 	    var format_template =function(s,inserts){
 			var t = s;
@@ -965,7 +1017,7 @@
 	            t = t.replace(regx,inserts[i]);
 			}
 			return t;
-		}
+		};
 
 	    var viewport ={
 	        width: function(){
@@ -975,11 +1027,11 @@
 	        height: function(){
 	            return (window.innerHeight < $(window).height()) ? window.innerHeight : $(window).height();
 	        }
-	    }
+	    };
 
 	    var isset = function(v){
 			return(typeof v != 'undefined');
-		}
+		};
 
 	    /* scroller class. needs jQuery to operate */
 	    function scroller(){
@@ -1003,11 +1055,11 @@
 
 	        function isset(v){
 	            return(typeof v != 'undefined');
-	        }
+	        };
 
 	        function mouse_x(e){
 	            return (isset(e.targetTouches)) ? e.targetTouches[0].pageX : e.pageX;
-	        }
+	        };
 
 	        this.bind_events = function(){
 	            if(this.is_touch){
@@ -1015,7 +1067,7 @@
 	            } else {
 	                this.bind_click_events();
 	            }
-	        }
+	        };
 
 	        function start(e){
 	            e.preventDefault();
@@ -1023,7 +1075,7 @@
 	            if($.browser.webkit){
 	                me.scrollable_element.css("-webkit-transition-duration", "0s");
 	            }
-	        }
+	        };
 
 	        function move(e){
 	            e.preventDefault();
@@ -1036,7 +1088,7 @@
 	                    me.scrollable_element.css({'left':val+'px'});
 	                }
 	            }
-	        }
+	        };
 
 	        function end(e){
 	            e.preventDefault();
@@ -1051,7 +1103,7 @@
 	            }
 
 	            me.start_x = me.end_x = null;
-	        }
+	        };
 
 	        function cancel(e){
 	            e.preventDefault();
@@ -1059,7 +1111,7 @@
 	                me.move_to_closest();
 	            }
 	            me.start_x = me.end_x = null;
-	        }
+	        };
 
 	        this.move_to_closest = function (){
 	            var move_x = this.start_x-this.end_x,
@@ -1088,7 +1140,7 @@
 
 	            this.after_stop(new_i);
 
-	        }
+	        };
 
 	        this.move_to = function(index){
 	            var newloc = this.fixed_stop_width*(index);
@@ -1101,27 +1153,29 @@
 	            this.current_index = index;
 	            this.x = -1*(newloc);
 	            this.after_stop(index);
-	        }
+	        };
 
 	        this.next = function(){
 	            if(this.current_index+1 <= this.max_stops){
 	                this.move_to(this.current_index+1);
 	            }
-	        }
+	        };
 
 	        this.previous = function(){
 	            if(this.current_index-1 >= 0){
 	                this.move_to(this.current_index-1);
 	            }
-	        }
+	        };
 
 	        /* set image with index to viewport center */
-	        this.center_to_index = function (index){
+	        this.center_to_index = function (v_index){
+				var index;
 	            if (this.scrollable_element !== null){
-	                if(isset(index)){
-	                    this.current_index = index;
+	                if(isset(v_index)){
+	                    this.current_index = v_index;
+						index = v_index;
 	                } else {
-	                    var index = this.current_index;
+	                    index = this.current_index;
 	                }
 	                var loc = -1*((index)*this.fixed_stop_width);
 	                if($.browser.webkit){
@@ -1134,7 +1188,7 @@
 	                }
 	                this.x = loc;
 	            }
-	        }
+	        };
 
 	        this.bind_touch_events = function(){
 	            if(this.scroller_elemets !== null){
@@ -1152,7 +1206,7 @@
 	                    this.addEventListener("touchcancel", cancel, false);
 	                });
 	            }
-	        }
+	        };
 
 	        this.bind_click_events = function(){
 	            if(this.scroller_elemets !== null){
@@ -1166,9 +1220,9 @@
 	                                     .mousemove(move)
 	                                     .mouseup(end);
 	            }
-	        }
+	        };
 
-	    }
+	    };
 
 	    /* jquery delay is flawed - does not queue delay. untill fix has been implemented into new version this has to be implemented */
 	    var init_delay_fix = function(){
@@ -1177,40 +1231,35 @@
 	            $.fx.step.delay = function(){};
 	            // Return meaningless animation, (will be added to queue)
 	            return this.animate({delay:1}, time, callback);
-	        }
-	    }
+	        };
+	    };
 
 	    /* add swipe to jquery */
 	    var init_swipe = function(){
-	        $.fn.swipe = function(options) {
+	        $.fn.swipe = function(v_options) {
 	            // Default thresholds & swipe functions
 	            var defaults = {
 	                threshold: {
 	                    x: 30,
 	                    y: 400
 	                },
-	                swipeLeft: function() { alert('swiped left') },
-	                swipeRight: function() { alert('swiped right') }
+	                swipeLeft: function() {},
+	                swipeRight: function() {}
 	            };
 
-	            var options = $.extend(defaults, options);
+	            var options = $.extend(defaults, v_options);
 
 	            if (!this) return false;
 
 	            return this.each(function() {
-	                var originalCoord = { x: 0, y: 0 }
-	                var finalCoord = { x: 0, y: 0 }
-
-	                function touchStart(event) {
-	                    originalCoord.x = event.targetTouches[0].pageX;
-	                    originalCoord.y = event.targetTouches[0].pageY;
-	                }
+	                var originalCoord = { x: 0, y: 0 };
+	                var finalCoord = { x: 0, y: 0 };
 
 	                function touchMove(event) {
 	                    event.preventDefault();
 	                    finalCoord.x = event.targetTouches[0].pageX; // Updated X,Y coordinates
 	                    finalCoord.y = event.targetTouches[0].pageY;
-	                }
+	                };
 
 	                function touchEnd(event) {
 	                    var changeY = originalCoord.y - finalCoord.y;
@@ -1224,17 +1273,17 @@
 	                            defaults.swipeRight();
 	                        }
 	                    }
-	                }
+	                };
 
 	                function touchStart(event) {
 	                    originalCoord.x = event.targetTouches[0].pageX;
 	                    originalCoord.y = event.targetTouches[0].pageY;
 	                    finalCoord.x = originalCoord.x;
 	                    finalCoord.y = originalCoord.y;
-	                }
+	                };
 
 	                function touchCancel(event) {
-	                }
+	                };
 
 	                // Add gestures to all swipable areas
 	                this.addEventListener("touchstart", touchStart, false);
@@ -1244,7 +1293,7 @@
 
 	            });
 	        };
-	    }
+	    };
 	 	/* ENDOF LOCAL FUNCTIONS */
 	
 		/* jQuery module initiation */
@@ -1266,6 +1315,7 @@
                 return methods.init.apply( this, arguments );
             } else {
                 $.error( 'Method ' +  method + ' does not exist on jQuery.edys_gallery' );
+				return null;
             }
         };
 		

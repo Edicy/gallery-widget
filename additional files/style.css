@@ -61,6 +61,7 @@
 	bottom: 0; 
 	background: #262c2f;
 	background: rgba(27,33,36,0.8);
+	margin-bottom: 1.5%;
 } 
 .edys-gal-gallery-btn-wrap, .edys-gallery-btn-wrap, .edys-gal-gallery-btn-wrap-touch, .edys-gallery-btn-wrap-touch { 
 	width: 68px; 
@@ -71,6 +72,9 @@
 	line-height: 48px; 
 	text-align: center; 
 } 
+.edys-gal-gallery-btn-wrap:hover, .edys-gal-gallery-btn-wrap.over, .edys-gal-gallery-btn-wrap-touch:hover, .edys-gal-gallery-btn-wrap-touch.over, .edys-gallery-btn-wrap:hover, .edys-gallery-btn-wrap.over, .edys-gallery-btn-wrap-touch:hover, .edys-gallery-btn-wrap-touch.over {
+	background-color: rgba(255,255,255,0.025);
+}
 .edys-gal-gallery-content-wrap, .edys-gallery-content-wrap { 
 	box-shadow: 2px 0px 10px #000000; 
 	clear: both; 
@@ -256,5 +260,21 @@
 	-webkit-transform:rotate(315deg) translate(0, -20px);
 	opacity:1; 
 }
+.edys-gal-gallery-onimage-nav {
+	position: absolute;
+	top:0; left:0; right:0; bottom:0;
+	height: 100%;
+}
+.edys-gal-gallery-onimage-nav-rev,.edys-gal-gallery-onimage-nav-fw {
+	height: 100%;
+	width: 50%;
+	float: left;
+	background: url('../edys-gallery-transparent.gif');
+}
 html>body .edys-gal-gallery-image-wrap-box-touch, html>body .edys-gallery-image-wrap-box-touch { *float:left; }
+
 html>body .edys-gal-gallery-title-touch, html>body  .edys-gal-gallery-title, html>body .edys-gallery-title-touch, html>body .edys-gallery-title, html>body .edys-gal-gallery-bottom-btns, html>body .edys-gal-gallery-bottom-btns-touch, html>body .edys-gallery-bottom-btns, html>body .edys-gallery-bottom-btns-touch, html>body .edys-gallery-loading, html>body .edys-gal-gallery-loading, html>body .edys-gallery-loading-touch, html>body .edys-gal-gallery-loading-touch  { *background: #262c2f; }
+
+html>body .edys-gallery-btn-wrap:hover, html>body .edys-gallery-btn-wrap.over, html>body .edys-gallery-btn-wrap-touch:hover, html>body .edys-gallery-btn-wrap-touch.over {
+	*background-color: #2e3437;
+}
