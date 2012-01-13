@@ -98,7 +98,7 @@
 	var apply_edys_gallery_module = function($){
 		
     	var G = function(gal_elements, user_options){
-			this.default_images_url = 'http://static.kraftal.com/gallery/3.0/';
+			this.default_images_url = 'https://github.com/Edicy/gallery-widget/raw/master/additional files/';
 	        this.defaults = {
 	            user_defined_templates : false,
 	            gallery_template: null,
