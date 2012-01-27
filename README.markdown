@@ -20,7 +20,7 @@ To configure a javascript object "edys_gallery_options" for configuration can be
 
 Configuration variables:
 
-    gallery_elements: defines DOM elements tat will be defined as gallery. Default = ".edys-gallery"
+   gallery_elements: defines DOM elements tat will be defined as gallery. Default = ".edys-gallery"
     
     jumping_mode: defines if all gallery elements will be handled as a unified gallery or every gallery has its own pictures. Values > strict / loose. Default = strict.
     mode: defines if gallery is displayed in toush-swipe mode, ordinary click mode or detected automatically. Both modes work with touchscreen and mouse. Values > auto / touch / click. Default = auto.
