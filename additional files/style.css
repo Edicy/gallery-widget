@@ -325,9 +325,6 @@
 	float: left;
 	background: url("'+this.default_images_url+'edys-gallery-transparent.gif");
 }
-html>body .edys-gal-gallery-image-wrap-box-touch, html>body .edys-gallery-image-wrap-box-touch {*float:left;
-}
-html>body .edys-gal-gallery-title-touch, html>body .edys-gal-gallery-title, html>body .edys-gallery-title-touch, html>body .edys-gallery-title, html>body .edys-gal-gallery-bottom-btns, html>body .edys-gal-gallery-bottom-btns-touch, html>body .edys-gallery-bottom-btns, html>body .edys-gallery-bottom-btns-touch, html>body .edys-gallery-loading, html>body .edys-gal-gallery-loading, html>body .edys-gallery-loading-touch, html>body .edys-gal-gallery-loading-touch {*background: #262c2f;
-}
-html>body .edys-gallery-btn-wrap:hover, html>body .edys-gallery-btn-wrap.over, html>body .edys-gallery-btn-wrap-touch:hover, html>body .edys-gallery-btn-wrap-touch.over {*background-color: #2e3437;
-}
+html>body .edys-gal-gallery-image-wrap-box-touch, html>body .edys-gallery-image-wrap-box-touch {*float:left;}
+html>body .edys-gal-gallery-title-touch, html>body .edys-gal-gallery-title, html>body .edys-gallery-title-touch, html>body .edys-gallery-title, html>body .edys-gal-gallery-bottom-btns, html>body .edys-gal-gallery-bottom-btns-touch, html>body .edys-gallery-bottom-btns, html>body .edys-gallery-bottom-btns-touch, html>body .edys-gallery-loading, html>body .edys-gal-gallery-loading, html>body .edys-gallery-loading-touch, html>body .edys-gal-gallery-loading-touch {*background: #262c2f;}
+html>body .edys-gallery-btn-wrap:hover, html>body .edys-gallery-btn-wrap.over, html>body .edys-gallery-btn-wrap-touch:hover, html>body .edys-gallery-btn-wrap-touch.over {*background-color: #2e3437;}
