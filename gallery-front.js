@@ -1,5 +1,8 @@
 (function(){
     var $;
+    
+    //fgnass.github.com/spin.js#v1.2.2 */
+    (function(a,b,c){function n(a){var b={x:a.offsetLeft,y:a.offsetTop};while(a=a.offsetParent)b.x+=a.offsetLeft,b.y+=a.offsetTop;return b}function m(a){for(var b=1;b<arguments.length;b++){var d=arguments[b];for(var e in d)a[e]===c&&(a[e]=d[e])}return a}function l(a,b){for(var c in b)a.style[k(a,c)||c]=b[c];return a}function k(a,b){var e=a.style,f,g;if(e[b]!==c)return b;b=b.charAt(0).toUpperCase()+b.slice(1);for(g=0;g<d.length;g++){f=d[g]+b;if(e[f]!==c)return f}}function j(a,b,c,d){var g=["opacity",b,~~(a*100),c,d].join("-"),h=.01+c/d*100,j=Math.max(1-(1-a)/b*(100-h),a),k=f.substring(0,f.indexOf("Animation")).toLowerCase(),l=k&&"-"+k+"-"||"";e[g]||(i.insertRule("@"+l+"keyframes "+g+"{"+"0%{opacity:"+j+"}"+h+"%{opacity:"+a+"}"+(h+.01)+"%{opacity:1}"+(h+b)%100+"%{opacity:"+a+"}"+"100%{opacity:"+j+"}"+"}",0),e[g]=1);return g}function h(a,b,c){c&&!c.parentNode&&h(a,c),a.insertBefore(b,c||null);return a}function g(a,c){var d=b.createElement(a||"div"),e;for(e in c)d[e]=c[e];return d}var d=["webkit","Moz","ms","O"],e={},f,i=function(){var a=g("style");h(b.getElementsByTagName("head")[0],a);return a.sheet||a.styleSheet}(),o=function r(a){if(!this.spin)return new r(a);this.opts=m(a||{},r.defaults,p)},p=o.defaults={lines:12,length:7,width:5,radius:10,color:"#000",speed:1,trail:100,opacity:.25,fps:20},q=o.prototype={spin:function(a){this.stop();var b=this,c=b.el=l(g(),{position:"relative"}),d,e;a&&(e=n(h(a,c,a.firstChild)),d=n(c),l(c,{left:(a.offsetWidth>>1)-d.x+e.x+"px",top:(a.offsetHeight>>1)-d.y+e.y+"px"})),c.setAttribute("aria-role","progressbar"),b.lines(c,b.opts);if(!f){var i=b.opts,j=0,k=i.fps,m=k/i.speed,o=(1-i.opacity)/(m*i.trail/100),p=m/i.lines;(function q(){j++;for(var a=i.lines;a;a--){var d=Math.max(1-(j+a*p)%m*o,i.opacity);b.opacity(c,i.lines-a,d,i)}b.timeout=b.el&&setTimeout(q,~~(1e3/k))})()}return b},stop:function(){var a=this.el;a&&(clearTimeout(this.timeout),a.parentNode&&a.parentNode.removeChild(a),this.el=c);return this}};q.lines=function(a,b){function e(a,d){return l(g(),{position:"absolute",width:b.length+b.width+"px",height:b.width+"px",background:a,boxShadow:d,transformOrigin:"left",transform:"rotate("+~~(360/b.lines*c)+"deg) translate("+b.radius+"px"+",0)",borderRadius:(b.width>>1)+"px"})}var c=0,d;for(;c<b.lines;c++)d=l(g(),{position:"absolute",top:1+~(b.width/2)+"px",transform:"translate3d(0,0,0)",opacity:b.opacity,animation:f&&j(b.opacity,b.trail,c,b.lines)+" "+1/b.speed+"s linear infinite"}),b.shadow&&h(d,l(e("#000","0 0 4px #000"),{top:"2px"})),h(a,h(d,e(b.color,"0 0 1px rgba(0,0,0,.1)")));return a},q.opacity=function(a,b,c){b<a.childNodes.length&&(a.childNodes[b].style.opacity=c)},function(){var a=l(g("group"),{behavior:"url(#default#VML)"}),b;if(!k(a,"transform")&&a.adj){for(b=4;b--;)i.addRule(["group","roundrect","fill","stroke"][b],"behavior:url(#default#VML)");q.lines=function(a,b){function k(a,d,i){h(f,h(l(e(),{rotation:360/b.lines*a+"deg",left:~~d}),h(l(g("roundrect",{arcsize:1}),{width:c,height:b.width,left:b.radius,top:-b.width>>1,filter:i}),g("fill",{color:b.color,opacity:b.opacity}),g("stroke",{opacity:0}))))}function e(){return l(g("group",{coordsize:d+" "+d,coordorigin:-c+" "+ -c}),{width:d,height:d})}var c=b.length+b.width,d=2*c,f=e(),i=~(b.length+b.radius+b.width)+"px",j;if(b.shadow)for(j=1;j<=b.lines;j++)k(j,-2,"progid:DXImageTransform.Microsoft.Blur(pixelradius=2,makeshadow=1,shadowopacity=.3)");for(j=1;j<=b.lines;j++)k(j);return h(l(a,{margin:i+" 0 0 "+i,zoom:1}),f)},q.opacity=function(a,b,c,d){var e=a.firstChild;d=d.shadow&&d.lines||0,e&&b+d<e.childNodes.length&&(e=e.childNodes[b+d],e=e&&e.firstChild,e=e&&e.firstChild,e&&(e.opacity=c))}}else f=k(a,"animation")}(),a.Spinner=o})(window,document);
 
     var Edys_gallery_init = {
         settings: {
@@ -29,26 +32,49 @@
             if ( this.settings.autorun_init ){
                 if (typeof window.edys_gallery_options.loaded == "undefined") {
                     window.edys_gallery_options.loaded = true;
-                    this.get_jquery( function() {
-                        $.extend(true, me.settings, window.edys_gallery_options);
-                        apply_edys_gallery_module($);
-                        if ( me.settings.autorun_gallery ) {
-                            $(document).ready( $.proxy(function() {
-                                  $(me.settings.gallery_elements).edys_gallery(me.settings);
-                                if(me.settings.init_complete){
-                                    me.settings.init_complete($);
-                                } else {
-                                    $('body').trigger('Edys_gallery_init_complete',$);
-                                }
-                            }, me));
-                           } else {
-                            if(me.settings.init_complete){
-                                me.settings.init_complete($);
-                            } else {
-                                $('body').trigger('Edys_gallery_init_complete',$);
-                            }
-                        }
+                    this.get_jquery( function() { 
+                        me.add_spinner.call();
+                        me.handeAllLoaded();
                     });
+                }
+            }
+        },
+        
+        add_spinner: function (f){
+            $.fn.spin = function(opts) {
+                this.each( function() {
+                    var $this = $(this),
+                        data = $this.data();
+                    
+                    if (data.spinner) {
+                        data.spinner.stop();
+                        delete data.spinner;
+                    }
+                    if (opts !== false) {
+                        data.spinner = new Spinner($.extend({color: $this.css('color')}, opts)).spin(this);
+                    }
+                });
+                return this;
+            };
+        },
+        
+        handeAllLoaded: function() {
+            $.extend(true, this.settings, window.edys_gallery_options);
+            apply_edys_gallery_module($);
+            if ( this.settings.autorun_gallery ) {
+                $(document).ready( $.proxy(function() {
+                    $(this.settings.gallery_elements).edys_gallery(this.settings);
+                    if(this.settings.init_complete){
+                        this.settings.init_complete($);
+                    } else {
+                        $('body').trigger('Edys_gallery_init_complete',$);
+                    }
+                }, this));
+            } else {
+                if(this.settings.init_complete){
+                    this.settings.init_complete($);
+                } else {
+                    $('body').trigger('Edys_gallery_init_complete',$);
                 }
             }
         },
@@ -96,18 +122,14 @@
         }
     };
     
-    
-    
     /* wrapper function for applying jQuery edys_gallery plugin */
     var apply_edys_gallery_module = function($){
         
         var G = function(gal_elements, user_options){
-            this.default_images_url = 'http://static.kraftal.com/gallery/3.0/';
             this.defaults = {
                 user_defined_templates : false,
                 gallery_template: null,
                 gallery_touch_template: null,
-                default_styles: true,
     
                 popup_template: '<div class="{popup_class}">\
                                     <div class="{overlay_class}"></div>\
@@ -126,26 +148,10 @@
                                        <div class="{title_class}"></div>\
                                     </div>\
                                 </div>',
-                loader_template:   '<div class="{loader_wrap_class}">\
-                                        <div class="{loader_class}">\
-                                            <div class="bar1"></div>\
-                                            <div class="bar2"></div>\
-                                            <div class="bar3"></div>\
-                                            <div class="bar4"></div>\
-                                            <div class="bar5"></div>\
-                                            <div class="bar6"></div>\
-                                            <div class="bar7"></div>\
-                                            <div class="bar8"></div>\
-                                        </div>\
-                                    </div>',
-                loader_template_ie_lt9:   '<div class="{loader_wrap_class}">\
-                                                <div class="{loader_class} {loader_text_class}">\
-                                                    {wait}\
-                                                </div>\
-                                           </div>',
-                stylesheet: '.edys-gal-gallery-overlay, .edys-gal-gallery-overlay-touch, .edys-gallery-overlay, .edys-gallery-overlay-touch { position: absolute; background: #000000; -moz-opacity: 0.75; -webkit-opacity: 0.75; opacity: 0.75; filter: alpha(opacity = 75); z-index: 1001; margin: 0; padding: 0; overflow: hidden; left: 0; top: 0; } .edys-gal-gallery-popup, .edys-gallery-popup, .edys-gal-gallery-popup-touch, .edys-gallery-popup-touch { position: absolute; z-index: 1000; margin: 0; padding: 0; text-align: center; font-family: Helvetica, Arial; left: 0; top: 0; overflow: hidden; height: 100%; width: 100%; } .edys-gal-gallery-popup-touch, .edys-gallery-popup-touch { text-align: left; overflow: hidden; position: absolute; left: 0; top: 0; overflow: hidden; font-family: Helvetica, Arial; margin: 0; padding: 0; height: 100%; width: 100%; } .edys-gal-gallery-close, .edys-gallery-close, .edys-gal-gallery-close-touch, .edys-gallery-close-touch { background: url("'+this.default_images_url+'edys_gallery_close.gif") no-repeat center center; width: 68px; height: 48px; display: inline-block; cursor: pointer; margin: 10px 0; border-color: #3c4143; border-width: 0 1px; border-style: solid; } .edys-gal-gallery-bottom-btns, .edys-gallery-bottom-btns, .edys-gal-gallery-bottom-btns-touch, .edys-gallery-bottom-btns-touch { -moz-border-radius: 4px; -webkit-border-radius: 4px; border-radius: 4px; padding: 0px; display: inline; position: absolute; margin-bottom: 0.5%; left: 50%; margin-left: -102px; z-index: 1004; bottom: 0; background: #262c2f; background: rgba(27,33,36,0.8); margin-bottom: 1.5%; } .edys-gal-gallery-btn-wrap, .edys-gallery-btn-wrap, .edys-gal-gallery-btn-wrap-touch, .edys-gallery-btn-wrap-touch { width: 68px; height: 68px; display: inline-block; float: left; vertical-align: middle; line-height: 48px; text-align: center; } .edys-gal-gallery-btn-wrap:hover, .edys-gal-gallery-btn-wrap.over, .edys-gal-gallery-btn-wrap-touch:hover, .edys-gal-gallery-btn-wrap-touch.over, .edys-gallery-btn-wrap:hover, .edys-gallery-btn-wrap.over, .edys-gallery-btn-wrap-touch:hover, .edys-gallery-btn-wrap-touch.over { background-color: rgba(255,255,255,0.025); } .edys-gal-gallery-content-wrap, .edys-gallery-content-wrap { box-shadow: 2px 0px 10px #000000; clear: both; position: absolute; text-align: center; z-index: 1003; } .edys-gal-gallery-content-wrap-touch, .edys-gallery-content-wrap-touch { width: 100%; position: relative; overflow: hidden; z-index: 1003; margin-top: 0.5%; } .edys-gal-gallery-image-wrap, .edys-gallery-image-wrap { overflow: hidden; } .edys-gal-gallery-image-wrap img, .edys-gallery-image-wrap img { position:static; display: block; border: 0; margin: 0; max-width: none; padding:0; max-height: none; float: none; width: auto; height: auto; } .edys-gal-gallery-image-wrap-box-touch, .edys-gallery-image-wrap-box-touch { display: inline-block; width: 100%; vertical-align: middle; margin-top: -30px; text-align: center; } .edys-gal-gallery-image-wrap-box-touch img, .edys-gallery-image-wrap-box-touch img { position:static; display: inline; border: 0; margin: 0; max-width: none; padding:0; max-height: none; float: none; width: auto; height: auto; box-shadow: 2px 0px 10px #000000; } .edys-gal-gallery-image-wrap-touch, .edys-gallery-image-wrap-touch { position: relative; white-space: nowrap; } .edys-gal-gallery-right, .edys-gallery-right, .edys-gal-gallery-right-touch, .edys-gallery-right-touch { background: url("'+this.default_images_url+'edys_gallery_right_arrow.gif") no-repeat center center; width: 68px; height: 68px; display: inline; display: inline-block; float: right; cursor: pointer; vertical-align: middle; } .edys-gal-gallery-left, .edys-gallery-left, .edys-gal-gallery-left-touch, .edys-gallery-left-touch { background: url("'+this.default_images_url+'edys_gallery_left_arrow.gif") no-repeat center center; width: 68px; height: 68px; display: inline; display: inline-block; float: left; cursor: pointer; vertical-align: middle; } .edys-gal-gallery-right.disabled, .edys-gallery-right.disabled, .edys-gal-gallery-right-touch.disabled, .edys-gallery-right-touch.disabled, .edys-gal-gallery-left.disabled, .edys-gallery-left.disabled, .edys-gal-gallery-left-touch.disabled, .edys-gallery-left-touch.disabled { -moz-opacity: 0.1; -webkit-opacity: 0.1; opacity: 0.1; filter: alpha(opacity = 10); } .edys-gal-gallery-title, .edys-gallery-title { background: #262c2f; background: rgba(27,33,36,0.8); color: #ffffff; display: inline; position: relative; z-index: 1010; bottom: 52px; line-height: 18px; overflow: hidden; border-radius: 4px; padding: 7px 20px; font-size: 14px; } .edys-gal-gallery-title-touch, .edys-gallery-title-touch { background: #262c2f; background: rgba(27,33,36,0.8); color: #ffffff; display: inline-block; position: relative; z-index: 1010; top: 40px; line-height: 18px; -moz-border-radius: 4px; -webkit-border-radius: 4px; border-radius: 4px; padding: 7px 20px; font-size: 14px; } .edys-gal-gallery-title-touch.edys-gal-gallery-title-notitle-touch, .edys-gallery-title-touch.edys-gallery-title-notitle-touch { visibility: hidden; } .edys-gallery-loading, .edys-gal-gallery-loading, .edys-gallery-loading-touch, .edys-gal-gallery-loading-touch { position: absolute; width: 40px; height: 40px; margin-top: -20px; z-index: 1010; margin-left: -5px; -moz-border-radius: 40px; -webkit-border-radius: 40px; border-radius: 40px; -webkit-animation-name: rotateThis; -webkit-animation-duration: 2s; -webkit-animation-iteration-count: infinite; -webkit-animation-timing-function: linear; -moz-animation-name: rotateThisMoz; -moz-animation-duration: 2s; -moz-animation-iteration-count: infinite; -moz-animation-timing-function: linear; -ms-animation-name: rotateThisMs; -ms-animation-duration: 2s; -ms-animation-iteration-count: infinite; -ms-animation-timing-function: linear; -o-transition-duration: 0s; -o-transition-timing-function: linear; background: #cccccc; background: rgba(255,255,255,0); padding: 10px; } .edys-gallery-loading-rotate-touch { -o-transition-duration: 2s; -o-transform: rotate(359deg);} .edys-gallery-loading-touch, .edys-gal-gallery-loading-touch { display: inline-block; position: relative; margin-left: 0; } .edys-gallery-loading-wrap-touch, .edys-gal-gallery-loading-wrap-touch { width: 100%; display: block; text-align: center; position: relative; } .edys-gallery-loading-wrap, .edys-gal-gallery-loading-wrap { position: absolute; width: 40px; height: 40px; } @-webkit-keyframes rotateThis {from {-webkit-transform: rotate(0deg);} to {-webkit-transform: rotate(360deg);}} @-moz-keyframes rotateThisMoz {from {-moz-transform: rotate(0deg);} to {-moz-transform: rotate(360deg);}} @-ms-keyframes rotateThisMs {from {-ms-transform: rotate(0deg);} to {-ms-transform: rotate(360deg);}} .edys-gallery-loading div, .edys-gal-gallery-loading div, .edys-gallery-loading-touch div, .edys-gal-gallery-loading-touch div { width: 10px; height: 10px; background: #000; -moz-border-radius: 20px; -webkit-border-radius: 20px; border-radius: 20px; position: absolute; left: 25px; top: 25px; } .edys-gallery-loading .bar1, .edys-gal-gallery-loading .bar1, .edys-gallery-loading-touch .bar1, .edys-gal-gallery-loading-touch .bar1 { -moz-transform: rotate(0deg) translate(0, -20px); -ms-transform: rotate(0deg) translate(0, -20px); -o-transform: rotate(0deg) translate(0, -20px); -webkit-transform: rotate(0deg) translate(0, -20px); opacity: 0.12; } .edys-gallery-loading .bar2 , .edys-gal-gallery-loading .bar2 , .edys-gallery-loading-touch .bar2 , .edys-gal-gallery-loading-touch .bar2 { -moz-transform: rotate(45deg) translate(0, -20px); -ms-transform: rotate(45deg) translate(0, -20px); -o-transform: rotate(45deg) translate(0, -20px); -webkit-transform: rotate(45deg) translate(0, -20px); opacity: 0.25; } .edys-gallery-loading .bar3, .edys-gal-gallery-loading .bar3, .edys-gallery-loading-touch .bar3, .edys-gal-gallery-loading-touch .bar3 { -moz-transform: rotate(90deg) translate(0, -20px); -ms-transform: rotate(90deg) translate(0, -20px); -o-transform: rotate(90deg) translate(0, -20px); -webkit-transform: rotate(90deg) translate(0, -20px); opacity: 0.37; } .edys-gallery-loading .bar4, .edys-gal-gallery-loading .bar4, .edys-gallery-loading-touch .bar4, .edys-gal-gallery-loading-touch .bar4 { -moz-transform: rotate(135deg) translate(0, -20px); -ms-transform: rotate(135deg) translate(0, -20px); -o-transform: rotate(135deg) translate(0, -20px); -webkit-transform: rotate(135deg) translate(0, -20px); opacity: 0.50; } .edys-gallery-loading .bar5, .edys-gal-gallery-loading .bar5, .edys-gallery-loading-touch .bar5, .edys-gal-gallery-loading-touch .bar5 { -moz-transform: rotate(180deg) translate(0, -20px); -ms-transform: rotate(180deg) translate(0, -20px); -o-transform: rotate(180deg) translate(0, -20px); -webkit-transform: rotate(180deg) translate(0, -20px); opacity: 0.62; } .edys-gallery-loading .bar6, .edys-gal-gallery-loading .bar6, .edys-gallery-loading-touch .bar6, .edys-gal-gallery-loading-touch .bar6 { -moz-transform: rotate(225deg) translate(0, -20px); -ms-transform: rotate(225deg) translate(0, -20px); -o-transform: rotate(225deg) translate(0, -20px); -webkit-transform: rotate(225deg) translate(0, -20px); opacity: 0.75; } .edys-gallery-loading .bar7, .edys-gal-gallery-loading .bar7, .edys-gallery-loading-touch .bar7, .edys-gal-gallery-loading-touch .bar7 { -moz-transform: rotate(270deg) translate(0, -20px); -ms-transform: rotate(270deg) translate(0, -20px); -o-transform: rotate(270deg) translate(0, -20px); -webkit-transform: rotate(270deg) translate(0, -20px); opacity: 0.87; } .edys-gallery-loading .bar8, .edys-gal-gallery-loading .bar8, .edys-gallery-loading-touch .bar8, .edys-gal-gallery-loading-touch .bar8 { -moz-transform: rotate(315deg) translate(0, -20px); -ms-transform: rotate(315deg) translate(0, -20px); -o-transform: rotate(315deg) translate(0, -20px); -webkit-transform: rotate(315deg) translate(0, -20px); opacity: 1; } .edys-gal-gallery-onimage-nav { position: absolute; top: 0; left: 0; right: 0; bottom: 0; height: 100%; } .edys-gal-gallery-onimage-nav-rev,.edys-gal-gallery-onimage-nav-fw { height: 100%; width: 50%; float: left; background: url("'+this.default_images_url+'edys-gallery-transparent.gif"); }',
-                
-                stylesheet_lte_ie7: '.edys-gal-gallery-title-touch, .edys-gal-gallery-title, .edys-gallery-title-touch, .edys-gallery-title { display: inline-block; } .edys-gal-gallery-image-wrap-box-touch, .edys-gallery-image-wrap-box-touch { float:left; }    .edys-gal-gallery-title-touch, .edys-gal-gallery-title, .edys-gallery-title-touch, .edys-gallery-title, .edys-gal-gallery-bottom-btns, .edys-gal-gallery-bottom-btns-touch, .edys-gallery-bottom-btns, .edys-gallery-bottom-btns-touch, .edys-gallery-loading, .edys-gal-gallery-loading,    .edys-gallery-loading-touch, .edys-gal-gallery-loading-touch { background: #262c2f; } .edys-gallery-btn-wrap:hover, .edys-gallery-btn-wrap.over, .edys-gallery-btn-wrap-touch:hover, .edys-gallery-btn-wrap-touch.over { background-color: #2e3437; } .edys-gallery-loading.ie-fix, .edys-gal-gallery-loading.ie-fix, .edys-gallery-loading-touch.ie-fix, .edys-gal-gallery-loading-touch.ie-fix { color: #ffffff; background-color: #2e3437; border-radius: 5px; text-align: center; height: auto; }',
+                loader_template: '<div class="{loader_wrap_class}">\
+                                     <div class="{loader_class}">\
+                                     </div>\
+                                 </div>',
 
                 classnames: {
                     overlay:        'edys-gallery-overlay',
@@ -190,6 +196,15 @@
                     onimage_nav_rev:'edys-gal-gallery-onimage-nav-rev',
                     onimage_nav_fw: 'edys-gal-gallery-onimage-nav-fw'
                 },
+                
+                spinner_options: {
+                    lines: 10,
+                    length: 8,
+                    width:6,
+                    radius: 9,
+                    trail: 57,
+                    speed: 1.4
+                },
 
                 title_dissapear_time: 3,
                 title_dissapear_time_touch: 3,
@@ -233,12 +248,6 @@
             run: function() {
                 var def = this.defaults,
                     me = this;
-                if (def.default_styles) {
-                    if($.browser.msie && $.browser.version < 8){
-                        this.add_stylesheet(def.stylesheet_lte_ie7);
-                    }
-                    this.add_stylesheet(def.stylesheet);
-                }
                 
                 if ( def.jumping_mode == 'strict' ) {
                     this.gallery_elements.each( function() {
@@ -281,16 +290,6 @@
                     });
                 });
                 return r;
-            },
-
-            add_stylesheet: function(source) {
-                var styles = $("head").children("style, link");
-                var style = $("<style>" + source + "</style>").attr("type", "text/css");
-                if (styles.length > 0){
-                    styles.eq(0).before(style);
-                } else {
-                    $("head").append(style);
-                }
             },
 
             get_classes: function(name,v_include_nonsys,v_include_dot){
@@ -429,7 +428,6 @@
                     }, this );
     
                     this.show_hide_next_prev();
-                    this.loading_no_animation_fix();
                 }, this));
             },
 
@@ -438,7 +436,6 @@
                     list  = this.current_list,
                     title = $( this.get_classes('title') );
 
-                this.loading_no_animation_fix();
                 /*preload clicked image */
                 this.preload_image( list[index].href, $.proxy( function(img) {
                     this.popup_el.find( this.get_classes('image_wrap') ).html(img); /* draw first preloaded image */
@@ -568,12 +565,12 @@
                 var imgs_wrap       = this.popup_el.find( this.get_classes('image_wrap') ),
                     max             = list.length-1,
                     img_tpl         = $('<div />').addClass( this.get_classes('image_wrap_box',true,false) )
-                                                    .html( this.get_loading_html() )
                                                     .width( viewport.width() )
+                                                    .html(this.get_loading_html())
                                                     .css({ 'min-height':'10px' }),
                     img_w_c         = img_tpl.clone(),
-                    current_title     = $('<div/>').addClass( this.get_classes('title', true, false) ).html( list[index].rel ),
-                    me                 = this;
+                    current_title   = $('<div/>').addClass( this.get_classes('title', true, false) ).html( list[index].rel ),
+                    me              = this;
                     
                 if ( list[index].rel == '&nbsp;' ) {
                     current_title.addClass( this.get_classes('notitle',true,false) );
@@ -581,8 +578,9 @@
 
                 img_w_c.append( current_title ).append('<br/>');
                 imgs_wrap.width( ( max + 1 ) * viewport.width() ).html(img_w_c);
+                imgs_wrap.find(this.get_classes('loading')).spin(this.defaults.spinner_options);
                 this.preload_image( list[index].href, $.proxy( function(img_c) {
-                    img_w_c.find( this.get_classes('loading') ).remove();
+                    img_w_c.find( this.get_classes('loading_wrap') ).remove();
                     img_w_c.append(img_c);
                     var s_c = this.get_img_size(img_c);
                     img_c.height(s_c.h).width(s_c.w).show();
@@ -598,8 +596,9 @@
                             }
                             img_i.append(titl).append('<br/>');
                             imgs_wrap.append(img_i);
+                            img_i.find(me.get_classes('loading')).spin(me.defaults.spinner_options);
                             me.preload_image( list[inc].href, function(img) {
-                                img_i.find( me.get_classes('loading') ).remove();
+                                img_i.find( me.get_classes('loading_wrap') ).remove();
                                 img_i.append(img);
                                 var s= me.get_img_size(img);
                                 img.height(s.h).width(s.w).show();
@@ -618,8 +617,9 @@
                             }
                             img_d.append(titl).append('<br/>');
                             imgs_wrap.prepend(img_d);
+                            img_d.find(me.get_classes('loading')).spin(me.defaults.spinner_options);
                             me.preload_image( list[dec].href, function (img) {
-                               img_d.find( me.get_classes('loading') ).remove();
+                               img_d.find( me.get_classes('loading_wrap') ).remove();
                                img_d.append(img);
                                var s = me.get_img_size(img);
                                img.height(s.h).width(s.w).show();
@@ -873,8 +873,7 @@
             loading_show: function(){
                 var vw =   viewport.width(),
                     vh =   viewport.height(),
-                    templ =  this.get_loading_html(),
-                    loading = $(templ).css( 'visibility', 'hidden' );
+                    loading = $(this.get_loading_html()).css( 'visibility', 'hidden' );
 
                 $( this.get_classes('loading_wrap') ).remove();
                 $('body').prepend(loading);
@@ -885,42 +884,23 @@
                     'left':         ((vw / 2) - (w / 2) + $(document).scrollLeft()) + 'px',
                     'visibility':   'visible'
                 });
+                
+                loading.spin(this.defaults.spinner_options);
             },
 
             get_loading_html: function(){
-                var templ = ( $.browser.msie && $.browser.version < 10 ) ? format_template( this.defaults.loader_template_ie_lt9, {
-                        'loader_class': this.get_classes('loading',true,false),
-                        'loader_wrap_class': this.get_classes('loading_wrap',true,false),
-                        'loader_text_class': 'ie-fix',
-                        'wait': this.defaults.texts.wait
-                    }) : format_template( this.defaults.loader_template, {
+                var html = format_template( this.defaults.loader_template, {
                         'loader_class': this.get_classes('loading',true,false),
                         'loader_wrap_class': this.get_classes('loading_wrap',true,false)
                     });
-                return templ;
-            },
-
-            loading_no_animation_fix: function(){
-                if( $.browser.opera ){
-                    var loaders = $( this.get_classes('loading') ),
-                        e_listner = 'oTransitionEnd';
-
-                    loaders.addClass( 'edys-gallery-loading-rotate-touch' ).each( function() {
-                        var el = this;
-                        el.addEventListener(e_listner, function(event){
-                            var e = event.target;
-                            $(e).removeClass( 'edys-gallery-loading-rotate-touch' );
-                            setTimeout( function(){ $(e).addClass( 'edys-gallery-loading-rotate-touch' ); }, 50);
-                        }, true);
-                    });
-                }
+                return html;
             },
 
             loading_hide: function(){
                 if( /chrome/.test(navigator.userAgent.toLowerCase()) ) { 
-                    setTimeout( $.proxy( function() { $(this.get_classes('loading_wrap')).remove(); }, this), 200);
+                    setTimeout( $.proxy( function() { $(this.get_classes('loading_wrap')).spin(false).remove(); }, this), 200);
                 } else {
-                    $(this.get_classes('loading_wrap')).remove();
+                    $(this.get_classes('loading_wrap')).spin(false).remove();
                 }
             },
 
