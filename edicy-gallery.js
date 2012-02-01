@@ -346,8 +346,8 @@
                 /* bind resize to window resize event */
                 this.overlay_resize();
                 if("onorientationchange" in window){
-                    window.removeEventListener('orientationchange', this.resize_window_event, false);
-                    window.addEventListener('orientationchange', this.resize_window_event, false);
+                    window.removeEventListener('orientationchange', $.proxy(this.resize_window_event,this), false);
+                    window.addEventListener('orientationchange', $.proxy(this.resize_window_event,this), false);
                 } else {
                     $(window).unbind('resize').resize( $.proxy( function() {
                         this.resize_window_function();
@@ -471,16 +471,15 @@
 
             resize_window_event: function(){ /* called on window resize and orientation change */
                 if (this.oc_timer !== null) { clearTimeout( this.oc_timer ); }
-                this.oc_timer = setTimeout(function () {
+                this.oc_timer = setTimeout( $.proxy( function () {
                     this.resize_window_function();
-                }, 500);
+                }, this), 500);
             },
 
             resize_window_function: function(){
                 var imgs =  this.popup_el.find( this.get_classes('image_wrap') +' img' ),
                     img_wrap_boxes = this.popup_el.find( this.get_classes('image_wrap_box') ),
                     me = this;
-                
                 this.overlay_resize();
                 
                 if(imgs.length > 0){
@@ -665,7 +664,7 @@
                     
                 //img_wrp.width( viewport.width() ).css({'margin-left': });
                   
-                this.popup_el.width( viewport.width() )
+                this.popup_el.width( viewport.width() ).height( viewport.height() )
                               .css({
                                  'padding-top'        : $(document).scrollTop() + 'px',
                                  'padding-left'        : $(document).scrollLeft() + 'px',
@@ -1029,11 +1028,11 @@
 
         var viewport ={
             width: function(){
-                return (window.innerWidth < $(window).width()) ? window.innerWidth : $(window).width();
+                return (typeof window.innerWidth != "undefined") ? window.innerWidth : $(window).width();
             },
 
             height: function(){
-                return (window.innerHeight < $(window).height()) ? window.innerHeight : $(window).height();
+                return (typeof window.innerHeight != "undefined") ? window.innerHeight : $(window).height();
             }
         };
 
