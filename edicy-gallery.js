@@ -33,14 +33,14 @@
                 if (typeof window.edys_gallery_options.loaded == "undefined") {
                     window.edys_gallery_options.loaded = true;
                     this.get_jquery( function() { 
-                        me.add_spinner.call();
+                        me.add_spinner();
                         me.handeAllLoaded();
                     });
                 }
             }
         },
         
-        add_spinner: function (f){
+        add_spinner: function (){
             $.fn.spin = function(opts) {
                 this.each( function() {
                     var $this = $(this),
@@ -83,7 +83,7 @@
         load_script: function(source, f) {
             (function(d, t) {
                 var js = d.createElement(t);
-                js.onload = f;
+                if(typeof js.onreadystatechange == "undefined") { js.onload = f; }
                 var prot = (location.protocol != "file:") ? location.protocol : "http:";
                 js.src = prot + '//'+source;
                 js.onreadystatechange = function() {
