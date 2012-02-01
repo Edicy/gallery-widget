@@ -76,25 +76,24 @@ To configure a javascript object `edys_gallery_options` for configuration can be
     * `gallery_touch_template`  template element for touch mode.
 * `default_styles` default is `true`. Defines if gallery adds its default css into dom head before all css-es or not.
     
-Textual data. Currently only wait text that is displayed only for IE <= 8 as it cannot do css3 transforms and animations for loading spinner.
-    texts: {
-      wait: "Wait"
-    }
 
 `loader_template` Loading spinner html template
     
     <div class="edys-gallery-loading-wrap">
         <div class="edys-gallery-loading">
-            <div class="bar1"></div>
-            <div class="bar2"></div>
-            <div class="bar3"></div>
-            <div class="bar4"></div>
-            <div class="bar5"></div>
-            <div class="bar6"></div>
-            <div class="bar7"></div>
-            <div class="bar8"></div>
         </div>
     </div>
+
+`spinner_options` Spin.js (http://fgnass.github.com/spin.js/) spinner will be loaded into loader template. User can configure its parameters setting this option. Default is:
+
+    spinner_options: {
+        lines: 10,
+        length: 8,
+        width:6,
+        radius: 9,
+        trail: 57,
+        speed: 1.4
+    } 
 
 `loader_template_ie_lt9` Loading spinner html template for IE up to 8
     
