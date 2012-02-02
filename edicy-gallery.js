@@ -12,7 +12,7 @@
             gallery_elements: '.edys-gallery',
             autorun_init: true,
             autorun_gallery: true,
-            init_complete: null,
+            init_complete: null
         }, 
         
         preopened_image: null,
@@ -59,7 +59,8 @@
                 document.body.appendChild(el);
                 this.pre_spinner_el = el;
                 this.pre_spinner = new Spinner({color:"#ffffff"}).spin(el);
-            }         
+            }   
+            alert('a');    
         },
         
         _set_temp_link_clicks: function(){
@@ -68,7 +69,15 @@
             this.templinks = L;
             for ( var i = 0, max = L.length; i < max ; i++ ){
                 (function(j){
-                    L[j].link.onclick = function (e) { e.preventDefault(); me._handle_temp_link_click.call( me, L[j] ); };
+                    L[j].link.onclick = function (e) { 
+                        if (!e){
+                            event.returnValue = false;
+                        } else {
+                            e.preventDefault();
+                        }
+                        me._handle_temp_link_click.call( me, L[j] ); 
+                        return false;
+                    };
                 })(i);
                 
             }
@@ -146,7 +155,7 @@
             if ( this.settings.autorun_gallery ) {
                 $(document).ready( $.proxy(function() {
                     this._remove_preload_spinner();
-                   // this._remove_temp_link_clicks();
+                    this._remove_temp_link_clicks();
                     $(this.settings.gallery_elements).edys_gallery(this.settings);
                     if(this.settings.init_complete){
                         this.settings.init_complete($);
@@ -159,7 +168,7 @@
                 }, this));
             } else {
                 this._remove_preload_spinner();
-              //  this._remove_temp_link_clicks();
+                this._remove_temp_link_clicks();
                 if(this.settings.init_complete){
                     this.settings.init_complete($);
                 } else {
