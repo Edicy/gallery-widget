@@ -12,11 +12,19 @@
             gallery_elements: '.edys-gallery',
             autorun_init: true,
             autorun_gallery: true,
-            init_complete: null
+            init_complete: null,
         }, 
+        
+        preopened_image: null,
+        pre_spinner: null,
+        pre_spinner_el: null,
+        templinks: null,
+        
            
         run: function(){
             var me = this;
+            
+            this._set_temp_link_clicks();
             /* propagate preload functions before jquery initialized */
             if ( typeof window.edys_gallery_options !='undefined' ) {
                 if ( typeof window.edys_gallery_options.autorun_init !='undefined' ) {
@@ -33,14 +41,88 @@
                 if (typeof window.edys_gallery_options.loaded == "undefined") {
                     window.edys_gallery_options.loaded = true;
                     this.get_jquery( function() { 
-                        me.add_spinner();
+                        me.add_spinner_fn();
                         me.handeAllLoaded();
                     });
                 }
             }
         },
         
-        add_spinner: function (){
+        _handle_temp_link_click: function ( o ){
+            this.preopened_image = o;
+            if(this.pre_spinner_el == null){
+                var el = document.createElement('div');
+                el.className = 'edys-gallery-loading-wrap';
+                el.style.position = 'fixed';
+                el.style.left = '50%';
+                el.style.top = '50%';
+                document.body.appendChild(el);
+                this.pre_spinner_el = el;
+                this.pre_spinner = new Spinner({color:"#ffffff"}).spin(el);
+            }         
+        },
+        
+        _set_temp_link_clicks: function(){
+            var L = this._get_links(),
+                me = this;
+            this.templinks = L;
+            for ( var i = 0, max = L.length; i < max ; i++ ){
+                (function(j){
+                    L[j].link.onclick = function (e) { e.preventDefault(); me._handle_temp_link_click.call( me, L[j] ); };
+                })(i);
+                
+            }
+        },
+        
+        _remove_temp_link_clicks: function(){
+           if(this.templinks != null){
+               for ( var i = 0, max = this.templinks.length; i < max ; i++ ){
+                    this.templinks[i].link.onclick = function () {}; 
+               }
+           }
+        },
+        
+        _get_elements_by_class: function(name){
+            if(document.getElementsByClassName){
+                return document.getElementsByClassName(name);
+            } else {
+                var all = document.getElementsByTagName('*'),
+                    classes = [];
+                for ( var i = 0, max = all.length; i < max ; i++ ){
+                    if( all[i].className == name ) {
+                        classes.push(all[i]);
+                    }
+                }
+                return classes;
+            }
+        },
+        
+        _get_links: function (){
+            var gal_class = this.settings.gallery_elements.replace(/^\./,""),
+                gal_els = this._get_elements_by_class(gal_class),
+                links_obj = [],
+                links;
+            
+            for ( var i = 0, max = gal_els.length; i < max ; i++ ){
+                links = gal_els[i].getElementsByTagName('a');
+                for ( var j = 0, max_link = links.length; j < max_link; j++ ){
+                    links_obj.push({
+                        'link': links[j],
+                        'gallery': gal_els[i]
+                    });
+                }
+            }
+            return links_obj;
+        },
+        
+        _remove_preload_spinner: function(){
+            if( this.pre_spinner_el != null ){
+                this.pre_spinner.stop();
+                this.pre_spinner_el.parentNode.removeChild(this.pre_spinner_el);
+            }
+        },
+        
+        add_spinner_fn: function (){
             $.fn.spin = function(opts) {
                 this.each( function() {
                     var $this = $(this),
@@ -63,14 +145,21 @@
             apply_edys_gallery_module($);
             if ( this.settings.autorun_gallery ) {
                 $(document).ready( $.proxy(function() {
+                    this._remove_preload_spinner();
+                   // this._remove_temp_link_clicks();
                     $(this.settings.gallery_elements).edys_gallery(this.settings);
                     if(this.settings.init_complete){
                         this.settings.init_complete($);
                     } else {
                         $('body').trigger('Edys_gallery_init_complete',$);
                     }
+                    if(this.preopened_image != null ){
+                        $(this.preopened_image.gallery).edys_gallery('get_object').show(this.preopened_image.link);
+                    }
                 }, this));
             } else {
+                this._remove_preload_spinner();
+              //  this._remove_temp_link_clicks();
                 if(this.settings.init_complete){
                     this.settings.init_complete($);
                 } else {
@@ -98,8 +187,6 @@
         get_jquery: function(f) {
             var old_doc_load = document.body.onload || function () {},
                 me = this;
-            document.body.onload = function(){
-                old_doc_load();
                 if (window.jQuery === undefined ) {
                     me.load_script(me.settings.jquery_url,function() {
                        $ = window.jQuery.noConflict(true);
@@ -118,7 +205,7 @@
                     $ = window.jQuery;
                     f();
                 }
-            };
+          
         }
     };
     
@@ -229,6 +316,7 @@
             this.overlay_el =       null;
             this.popup_el =         null;
             this.current_list =     null;
+            this.lists =            [];
             this.current_index =    null;
             this.pic_scroll =       new scroller();
             this.oc_timer =         null;
@@ -258,6 +346,7 @@
                     var links = $(this.gallery_elements).find('a');
                     this.set_link_clicks(links);
                 }
+                
                 this.gallery_elements.data("EdysGalleryObject", this);
             },
 
@@ -268,6 +357,8 @@
             set_link_clicks: function(links){
                 var L = this.get_link_arr(links),
                     me = this;
+                
+                this.lists.push(L);
                 for (var i in L){
                     with({n:i}){ /* escape closure for i */
                         L[i].el.click(function(e){
@@ -306,6 +397,31 @@
                     if(include_nonsys){ n += ' ' + dot+dc[name] + suf;}
                     return n;
                 }
+            },
+            
+            _get_img_list_index: function ( img ){
+                var ind = -1,
+                    l = null;
+                    
+                for ( var j in this.lists ){
+                    for (var i in this.lists[j] ){
+                        if( this.lists[j][i].el.get(0) == img ){
+                            ind = i;
+                            l = this.lists[j];
+                        }
+                    }
+                    
+                } 
+                
+                return (ind > -1 ) ? {
+                  'index': ind,
+                  'list': l   
+                } : null;
+            },
+            
+            show: function( img ){
+                var pic = this._get_img_list_index( img );
+                this.show_gallery( pic.index, pic.list );
             },
 
             show_gallery: function(index,list){
