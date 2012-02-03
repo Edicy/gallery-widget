@@ -365,9 +365,9 @@
             set_link_clicks: function(links){
                 var L = this.get_link_arr(links),
                     me = this;
-                
+
                 this.lists.push(L);
-                for (var i in L){
+                for (var i = 0, max = L.length; i < max ; i++){
                     with({n:i}){ /* escape closure for i */
                         L[i].el.click(function(e){
                             e.preventDefault();
