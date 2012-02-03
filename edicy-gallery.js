@@ -59,8 +59,7 @@
                 document.body.appendChild(el);
                 this.pre_spinner_el = el;
                 this.pre_spinner = new Spinner({color:"#ffffff"}).spin(el);
-            }   
-            alert('a');    
+            }    
         },
         
         _set_temp_link_clicks: function(){
@@ -198,14 +197,14 @@
                 me = this;
                 if (window.jQuery === undefined ) {
                     me.load_script(me.settings.jquery_url,function() {
-                       $ = window.jQuery.noConflict(true);
+                       $ = window.jQuery.noConflict();
                        f();
                     });
                 } else if ( window.jQuery.fn.jquery < me.settings.jquery_atleast_version ) {
                     var old_script = window.jQuery;
                     var old$ = (window.$ !== undefined ) ? window.$ : null;
                     me.load_script(me.settings.jquery_url,function() {
-                        $ = window.jQuery.noConflict(true);
+                        $ = window.jQuery.noConflict();
                         window.jQuery = old_script;
                         if( old$ != null ) { window.$ = old$; }
                         f();
