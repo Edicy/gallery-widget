@@ -411,8 +411,8 @@
                 var ind = -1,
                     l = null;
                     
-                for ( var j in this.lists ){
-                    for (var i in this.lists[j] ){
+                for ( var j = 0, maxJ = this.lists.length; j < maxJ ; j++ ){
+                    for (var i = 0, maxI = this.lists[j].length; i < maxI; i++ ){
                         if( this.lists[j][i].el.get(0) == img ){
                             ind = i;
                             l = this.lists[j];
@@ -509,6 +509,7 @@
                  this.popup_el.find(this.get_classes('title')).remove(); /* hide global title element. all touch pictures have their own title */
                  this.align_touch_popup();
                  this.popup_el.show();
+                 this._remove_document_sideclick();
 
                  /* make swipable gallery elements, bind automatic loading to images and show gallery */
                  this.make_all_img_element( index, list, $.proxy( function() {
@@ -554,6 +555,19 @@
                     this.show_hide_next_prev();
                 }, this));
             },
+            
+            _enable_document_sideclick: function(){
+                $('body').bind('click.edysgallerysideclick', $.proxy(this._handle_document_sideclick,this));
+            },
+            
+            _handle_document_sideclick: function(){
+                this.hide_gallery();
+                this._remove_document_sideclick();
+            },
+            
+            _remove_document_sideclick: function(){
+                $('body').unbind('click.edysgallerysideclick');
+            },
 
             initiate_click_mode: function(){
                 var index = this.current_index,
@@ -564,6 +578,7 @@
                 this.preload_image( list[index].href, $.proxy( function(img) {
                     this.popup_el.find( this.get_classes('image_wrap') ).html(img); /* draw first preloaded image */
                     this.popup_el.css( 'visibility', 'hidden' ).show(); /* reset popup and overlay size */
+                    this._remove_document_sideclick();
                     /* setup title */
                     title.css({
                         'visibility':'visible',
@@ -1143,7 +1158,7 @@
 
         var format_template =function(s,inserts){
             var t = s;
-            for(var i  in inserts){
+            for(var i in inserts){
                 var regx = new RegExp('{'+i+'}','gi');
                 t = t.replace(regx,inserts[i]);
             }
