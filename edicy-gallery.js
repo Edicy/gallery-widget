@@ -19,9 +19,11 @@
         pre_spinner: null,
         pre_spinner_el: null,
         templinks: null,
+        _clickHandle: function() {},
         
            
         run: function(){
+            this._clickHandle = document.body.onclick;
             var me = this;
             
             this._set_temp_link_clicks();
@@ -48,7 +50,10 @@
             }
         },
         
-        _handle_temp_link_click: function ( o ){
+        _handle_temp_link_click: function (o) {
+            var me = this;
+            
+            
             this.preopened_image = o;
             if(this.pre_spinner_el == null){
                 var el = document.createElement('div');
@@ -59,7 +64,21 @@
                 document.body.appendChild(el);
                 this.pre_spinner_el = el;
                 this.pre_spinner = new Spinner({color:"#ffffff"}).spin(el);
+                
+                setTimeout(function() {
+                    document.body.onclick = function() {
+                        me._cancel_temp_link_clicks(me);
+                        if( typeof me._clickHandle == "function") { me._clickHandle();}
+                    };
+                }, 0);
             }    
+        },
+        
+        _cancel_temp_link_clicks: function(me) {
+            me.preopened_image = null;
+            document.body.onclick = me._clickHandle;
+            me._remove_preload_spinner();
+            
         },
         
         _set_temp_link_clicks: function(){
@@ -83,7 +102,7 @@
         },
         
         _remove_temp_link_clicks: function(){
-           if(this.templinks != null){
+           if (this.templinks != null){
                for ( var i = 0, max = this.templinks.length; i < max ; i++ ){
                     this.templinks[i].link.onclick = function () {}; 
                }
@@ -126,7 +145,9 @@
         _remove_preload_spinner: function(){
             if( this.pre_spinner_el != null ){
                 this.pre_spinner.stop();
-                this.pre_spinner_el.parentNode.removeChild(this.pre_spinner_el);
+                if (this.pre_spinner_el.parentNode ){
+                    this.pre_spinner_el.parentNode.removeChild(this.pre_spinner_el);
+                }
             }
         },
         
@@ -149,6 +170,7 @@
         },
         
         handeAllLoaded: function() {
+            document.body.onclick = this._clickHandle;
             $.extend(true, this.settings, window.edys_gallery_options);
             apply_edys_gallery_module($);
             if ( this.settings.autorun_gallery ) {
@@ -312,11 +334,7 @@
                 tap_move_treshold: 0,
                 click_onimage_nav: true,
                 jumping_mode: 'strict',
-                mode: "auto",
-                texts: {
-                    wait: "Wait"
-                }
-
+                mode: "auto"
             };
             
             this.gallery_elements = gal_elements;
@@ -328,6 +346,7 @@
             this.current_index =    null;
             this.pic_scroll =       new scroller();
             this.oc_timer =         null;
+            this.preload_img_list= [];
             
             this.init( user_options );
         };
@@ -434,6 +453,7 @@
 
             show_gallery: function(index,list){
                 /* save popup image list and current index */
+                this._enable_document_sideclick();
                 this.current_list = list;
                 this.current_index = index;
 
@@ -490,13 +510,13 @@
             },
 
             hide_gallery: function(){
-                this.current_list = null;
-                this.current_index = null;
-
+                this._cancel_all_preloaded_imgs();
                 $(this.get_classes('popup')+','+this.get_classes('overlay')).hide();
                 $(window).unbind('resize');
                 this.loading_hide();
                 $(document).unbind('keydown');
+                this.current_list = null;
+                this.current_index = null;
             },
 
             /* initiation functions */
@@ -557,7 +577,7 @@
             },
             
             _enable_document_sideclick: function(){
-                $('body').bind('click.edysgallerysideclick', $.proxy(this._handle_document_sideclick,this));
+                $(document).unbind('click.edysgallerysideclick').bind('click.edysgallerysideclick', $.proxy(this._handle_document_sideclick,this));
             },
             
             _handle_document_sideclick: function(){
@@ -566,7 +586,7 @@
             },
             
             _remove_document_sideclick: function(){
-                $('body').unbind('click.edysgallerysideclick');
+                $(document).unbind('click.edysgallerysideclick');
             },
 
             initiate_click_mode: function(){
@@ -576,35 +596,38 @@
 
                 /*preload clicked image */
                 this.preload_image( list[index].href, $.proxy( function(img) {
-                    this.popup_el.find( this.get_classes('image_wrap') ).html(img); /* draw first preloaded image */
-                    this.popup_el.css( 'visibility', 'hidden' ).show(); /* reset popup and overlay size */
-                    this._remove_document_sideclick();
-                    /* setup title */
-                    title.css({
-                        'visibility':'visible',
-                        'display':'inline'
-                    });
-                    if ( list[index].rel != '&nbsp;' && list[index].rel != '' ) {
-                        title.show().html( list[index].rel );
-                        if( this.defaults.title_dissapear_time > -1 ){
-                            title.stop(true, true).delay( this.defaults.title_dissapear_time * 1000 ).fadeOut();
-                            $( this.get_classes('content_wrap') ).unbind( 'mousemove' ).bind( 'mousemove', $.proxy( function(){
-                                if( this.current_list[ this.current_index ].rel != "&nbsp;" ) {
-                                    title.stop( true, true ).show().css( 'opacity', 1 );
-                                    $( this ).unbind( 'mouseleave' ).one( "mouseleave", function(){
-                                        title.stop(true, true).delay( this.defaults.title_dissapear_time * 1000 ).fadeOut();
-                                     });
-                                }
-                            }, this));
+                    if( img !== false ){
+                        this.popup_el.find( this.get_classes('image_wrap') ).html(img); /* draw first preloaded image */
+                        this.popup_el.css( 'visibility', 'hidden' ).show(); /* reset popup and overlay size */
+                        this._remove_document_sideclick();
+                        /* setup title */
+                        title.css({
+                            'visibility':'visible',
+                            'display':'inline'
+                        });
+                        if ( list[index].rel != '&nbsp;' && list[index].rel != '' ) {
+                            title.show().html( list[index].rel );
+                            if( this.defaults.title_dissapear_time > -1 ){
+                                title.stop(true, true).delay( this.defaults.title_dissapear_time * 1000 ).fadeOut();
+                                $( this.get_classes('content_wrap') ).unbind( 'mousemove' ).bind( 'mousemove', $.proxy( function(){
+                                    if( this.current_list[ this.current_index ].rel != "&nbsp;" ) {
+                                        title.stop( true, true ).show().css( 'opacity', 1 );
+                                        $( this ).unbind( 'mouseleave' ).one( "mouseleave", function(){
+                                            title.stop(true, true).delay( this.defaults.title_dissapear_time * 1000 ).fadeOut();
+                                         });
+                                    }
+                                }, this));
+                            }
+                        } else {
+                            title.html('').css('visibility','hidden').hide();
                         }
-                    } else {
-                        title.html('').css('visibility','hidden').hide();
+                        this.set_popup_size_pos();
+                        this.overlay_resize();
+                        this.popup_el.css('visibility','visible');
+                        this.show_hide_next_prev();
+                        this.loading_hide(); /* hide loading icon */
                     }
-                    this.set_popup_size_pos();
-                    this.overlay_resize();
-                    this.popup_el.css('visibility','visible');
-                    this.show_hide_next_prev();
-                    this.loading_hide(); /* hide loading icon */
+                    
                 }, this));
             },
 
@@ -717,11 +740,14 @@
                 img_w_c.append( current_title ).append('<br/>');
                 imgs_wrap.width( ( max + 1 ) * viewport.width() ).html(img_w_c);
                 imgs_wrap.find(this.get_classes('loading')).spin(this.defaults.spinner_options);
+                imgs_wrap.find(this.get_classes('loading_wrap')).css('margin-top', (($(window).height()/2) - (imgs_wrap.find(this.get_classes('loading')) /2)) + 'px');
                 this.preload_image( list[index].href, $.proxy( function(img_c) {
-                    img_w_c.find( this.get_classes('loading_wrap') ).remove();
-                    img_w_c.append(img_c);
-                    var s_c = this.get_img_size(img_c);
-                    img_c.height(s_c.h).width(s_c.w).show();
+                    if (img_c !== false) {
+                        img_w_c.find( this.get_classes('loading_wrap') ).remove();
+                        img_w_c.append(img_c);
+                        var s_c = this.get_img_size(img_c);
+                        img_c.height(s_c.h).width(s_c.w).show();
+                    }
                 }, this));
 
                 if ( index < max ) {
@@ -735,19 +761,22 @@
                             img_i.append(titl).append('<br/>');
                             imgs_wrap.append(img_i);
                             img_i.find(me.get_classes('loading')).spin(me.defaults.spinner_options);
+                            img_i.find(me.get_classes('loading_wrap')).css('margin-top', (($(window).height()/2) - (img_i.find(me.get_classes('loading')) /2)) + 'px');
                             me.preload_image( list[inc].href, function(img) {
-                                img_i.find( me.get_classes('loading_wrap') ).remove();
-                                img_i.append(img);
-                                var s= me.get_img_size(img);
-                                img.height(s.h).width(s.w).show();
+                                if (img !== false) {
+                                    img_i.find( me.get_classes('loading_wrap') ).remove();
+                                    img_i.append(img);
+                                    var s= me.get_img_size(img);
+                                    img.height(s.h).width(s.w).show();
+                                }
                             });
                         })(incr);
                     }
                 }
 
-                if ( index > 0 ) {
-                    for ( var decr = index-1; decr >= 0; decr-- ) {
-                        ( function (dec) {
+                if (index > 0) {
+                    for (var decr = index-1; decr >= 0; decr--) {
+                        (function (dec) {
                             var img_d = img_tpl.clone();
                             var titl = $('<div/>').addClass( me.get_classes('title',true,false) ).html( list[dec].rel );
                             if(list[dec].rel == '&nbsp;'){
@@ -756,11 +785,14 @@
                             img_d.append(titl).append('<br/>');
                             imgs_wrap.prepend(img_d);
                             img_d.find(me.get_classes('loading')).spin(me.defaults.spinner_options);
+                            img_d.find(me.get_classes('loading_wrap')).css('margin-top', (($(window).height()/2) - (img_d.find(me.get_classes('loading')) /2)) + 'px');
                             me.preload_image( list[dec].href, function (img) {
-                               img_d.find( me.get_classes('loading_wrap') ).remove();
-                               img_d.append(img);
-                               var s = me.get_img_size(img);
-                               img.height(s.h).width(s.w).show();
+                                if (img !== false) {
+                                    img_d.find( me.get_classes('loading_wrap') ).remove();
+                                    img_d.append(img);
+                                    var s = me.get_img_size(img);
+                                    img.height(s.h).width(s.w).show();
+                                }
                             });
                         })(decr);
                     }
@@ -948,63 +980,61 @@
                 $( this.get_classes('content_wrap') ).unbind('mouseleave');
 
                 this.preload_image( list[index].href, $.proxy( function(new_image) {
-                    var old_img = $( this.get_classes('image_wrap')+' img:not(.edys_image_ending_anim)');
-                    $( this.get_classes('title') ).css('visibility','visible');    
+                    if( new_image !== false ){
+                        var old_img = $( this.get_classes('image_wrap')+' img:not(.edys_image_ending_anim)');
+                        $( this.get_classes('title') ).css('visibility','visible');    
 
-                    $( this.get_classes('image_wrap')+' img.edys_image_ending_anim').stop(true,true).remove();
-                    old_img.addClass('edys_image_ending_anim');
-                    wrp.stop(true,true);
-                    $(old_img).stop(true,true);
-                    
-                    var ow = old_img.width(),
-                        oh = old_img.height();
-                    
-                    btns.css({
-                        "bottom": ( $(document).height() - viewport.height() - $(document).scrollTop()) + 'px',
-                        "left": (( viewport.width() / 2 ) + $(document).scrollLeft()) + 'px'
-                    });
-                    new_image.css({'position':'absolute', 'visibility':'hidden'}).show();
-                    pop.find( this.get_classes('image_wrap') ).prepend(new_image);
-                    if ( list[index].rel != '&nbsp;' ) {
-                        $( this.get_classes('title') ).stop( true, true ).show().css( 'opacity', 1 ).html( list[index].rel );
-                        if( this.defaults.title_dissapear_time > -1 ){
-                            $( this.get_classes('title') ).stop( true, true ).delay( this.defaults.title_dissapear_time * 1000 ).fadeOut();
+                        $( this.get_classes('image_wrap')+' img.edys_image_ending_anim').stop(true,true).remove();
+                        old_img.addClass('edys_image_ending_anim');
+                        wrp.stop(true,true);
+                        $(old_img).stop(true,true);
+
+                        var ow = old_img.width(),
+                            oh = old_img.height();
+
+                        btns.css({
+                            "bottom": ( $(document).height() - viewport.height() - $(document).scrollTop()) + 'px',
+                            "left": (( viewport.width() / 2 ) + $(document).scrollLeft()) + 'px'
+                        });
+                        new_image.css({'position':'absolute', 'visibility':'hidden'}).show();
+                        pop.find( this.get_classes('image_wrap') ).prepend(new_image);
+                        if ( list[index].rel != '&nbsp;' ) {
+                            $( this.get_classes('title') ).stop( true, true ).show().css( 'opacity', 1 ).html( list[index].rel );
+                            if( this.defaults.title_dissapear_time > -1 ){
+                                $( this.get_classes('title') ).stop( true, true ).delay( this.defaults.title_dissapear_time * 1000 ).fadeOut();
+                            }
+                        } else {
+                            $( this.get_classes('title') ).html('').css('visibility','hidden');
+                            $( this.get_classes('title') ).hide();
                         }
-                    } else {
-                        $( this.get_classes('title') ).html('').css('visibility','hidden');
-                        $( this.get_classes('title') ).hide();
+                        
+                        var ni =    this.get_img_size(new_image);
+                        var nw =    ni.w,
+                            nh =    ni.h,
+                            vw =    viewport.width(),
+                            vh =    viewport.height(),
+                            oleft = /*( vw / 2 )-( wrp.outerWidth() / 2 ) - ( (nw - ow) / 2 )*/ (vw / 2) - (nw /2)  + $(document).scrollLeft(),
+                            otop =  ( (vh - btns.outerHeight(true)) / 2 ) - ( (wrp.outerHeight(true)) / 2 ) - ( (nh - oh) / 2 )+ $(document).scrollTop();
+                            
+                        wrp.css({
+                            'left': oleft+'px',
+                            'top': otop+'px',
+                            'width': nw+'px',
+                            'height': (nh)+'px'
+                        });
+                    
+
+                        $(new_image).css({
+                            'width': nw+'px',
+                            'height': (nh)+'px',
+                            'visibility':'visible',
+                            'position':'static'
+                        }).show();
+                        $(old_img).remove();
+                        me.loading_hide();
+                       
+                        
                     }
-
-                    var ni =    this.get_img_size(new_image);
-                    var nw =    ni.w,
-                        nh =    ni.h,
-                        vw =    viewport.width(),
-                        vh =    viewport.height(),
-                        oleft = ( vw / 2 )-( wrp.outerWidth() / 2 ) - ( (nw - ow) / 2 ) + $(document).scrollLeft(),
-                        otop =  ( (vh - btns.outerHeight(true)) / 2 ) - ( (wrp.outerHeight(true)) / 2 ) - ( (nh - oh) / 2 )+ $(document).scrollTop();
-
-                    wrp.animate({
-                        'left': oleft+'px',
-                        'top': otop+'px',
-                        'width': nw+'px',
-                        'height': (nh)+'px'
-                    }, 300 );
-                    $(old_img).animate({
-                        'width': nw+'px',
-                        'height': (nh)+'px'
-                    },300 );
-
-                    $(new_image).animate({
-                        'width': nw+'px',
-                        'height': (nh)+'px'
-                    }, 300, function() {
-                        new_image.css({'position': "absolute",'visibility':'visible', 'top':0, 'left':0}).fadeIn( 300, $.proxy(function() {
-                            old_img.remove();
-                            new_image.css( {'position': "static"} );
-                            me.loading_hide();
-                        }, me));
-                    });
-
                 }, this));
             },
 
@@ -1129,9 +1159,33 @@
             },
 
             preload_image: function(img,f){
-                var i = $('<img />').load(function(){
-                    f($(this));
-                }).attr('src',img);
+                var me = this,
+                    i = $('<img />').load(function(){
+                        me._clear_preloaded_img($(this));
+                        f($(this));
+                    }).bind('cancelpreload',function () {
+                        $(this).unbind('load');
+                        me._clear_preloaded_img($(this));
+                        $(this).remove();
+                        f(false);
+                    });
+                
+                this.preload_img_list.push(i);
+                i.attr('src',img);
+            },
+            
+            _clear_preloaded_img: function($img){
+                var index = -1;
+                for ( var i in this.preload_img_list ){
+                   if ( this.preload_img_list[i] == $img ) { index = i; }
+                }
+                if(index != -1) { this.preload_img_list.splice(index, 1); } 
+            },
+            
+            _cancel_all_preloaded_imgs: function(){
+                for ( var i in this.preload_img_list ){
+                    this.preload_img_list[i].trigger('cancelpreload');
+                }
             }
         
         };
