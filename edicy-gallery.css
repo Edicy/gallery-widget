@@ -5,7 +5,7 @@
     -webkit-opacity: 0.75;
     opacity: 0.75;
     filter: alpha(opacity = 75);
-    z-index: 1001;
+    z-index: 99901;
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -14,7 +14,7 @@
 }
 .edys-gallery-popup, .edys-gallery-popup-touch {
     position: absolute;
-    z-index: 1000;
+    z-index: 99900;
     margin: 0;
     padding: 0;
     text-align: center;
@@ -59,7 +59,7 @@
     margin-bottom: 0.5%;
     left: 50%;
     margin-left: -102px;
-    z-index: 1004;
+    z-index: 99904;
     bottom: 0;
     background: #262c2f;
     background: rgba(27,33,36,0.8);
@@ -82,13 +82,13 @@
     clear: both;
     position: absolute;
     text-align: center;
-    z-index: 1003;
+    z-index: 99903;
 }
 .edys-gallery-content-wrap-touch {
     width: 100%;
     position: relative;
     overflow: hidden;
-    z-index: 1003;
+    z-index: 99903;
     margin-top: 0.5%;
 }
 .edys-gallery-image-wrap {
@@ -162,7 +162,7 @@
     color: #ffffff;
     display: inline;
     position: relative;
-    z-index: 1010;
+    z-index: 99910;
     bottom: 52px;
     line-height: 18px;
     overflow: hidden;
@@ -176,7 +176,7 @@
     color: #ffffff;
     display: inline;
     position: relative;
-    z-index: 1010;
+    z-index: 99910;
     top: 40px;
     line-height: 18px;
     -moz-border-radius: 4px;
@@ -217,7 +217,7 @@
     position: absolute;
     width: 80px;
     height: 80px;
-    z-index: 1010;
+    z-index: 99910;
     color: #ffffff;
     background: #262c2f;
     background: rgba(27,33,36,0.8);
